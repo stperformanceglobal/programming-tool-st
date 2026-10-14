@@ -1722,7 +1722,27 @@ function buildRunDays(){
   if(!cfg.runOn) return null;
   const used = new Set();
   const plan = [];
-  const add = (title, cats, dayIdx)=>plan.push({title, tgt: dayTarget(cats), blocks: runDayBlocks(cats, dayIdx, used)});
+  /* Non-contact days that run short of target (10 rep cap, few unused blocks) are topped up with
+     other running blocks for a blended day. Pure hit and wrestle days stay at their own volume. */
+  const add = (title, cats, dayIdx)=>{
+    const blocks = runDayBlocks(cats, dayIdx, used), tgt = dayTarget(cats);
+    let extra = 0;
+    if(!cats.every(c=>c === "hit" || c === "wrestle")){
+      const pools = runPools();
+      const total = () => blocks.reduce((s, x)=>s + x.dist, 0);
+      while(blocks.length < 5 && total() < tgt*0.9){
+        let best = null;
+        ["line","shuttle","pattern","curve"].forEach(c=>(pools[c] || []).forEach(alt=>{
+          if(blocks.includes(alt) || used.has(alt.n)) return;
+          const e = Math.abs(total() + alt.dist - tgt);
+          if(total() + alt.dist <= tgt*1.1 && (!best || e < best.e)) best = {alt, e};
+        }));
+        if(!best) break;
+        blocks.push(best.alt); used.add(best.alt.n); extra++;
+      }
+    }
+    plan.push({title: extra && !/Mix$/.test(title) ? title + " Mix" : title, tgt, blocks});
+  };
   if(cfg.runApp === "split"){
     add("Straight Line", ["line","shuttle"], 0);
     add("Curve, Swerve and Zig-Zag", ["curve","pattern"], 1);
@@ -2309,8 +2329,8 @@ td.recc{white-space:nowrap;}
 .sect{display:flex; align-items:baseline; gap:10px; margin:12px 0 6px; border-bottom:2px solid ${S.pa}; padding-bottom:3px;}
 .sect b{font-family:'Oswald',sans-serif; font-weight:600; font-size:13px; letter-spacing:.1em; text-transform:uppercase;}
 .sect span{font-size:8.5px; color:#666;}
-.ogrid{display:grid; gap:9px; align-items:start;}
-.dl{padding:2px 0; border-bottom:1px solid #e6e6e6; font-size:8.4px; line-height:1.38;}
+.ogrid{display:grid; gap:7px; align-items:start;}
+.dl{padding:1.5px 0; border-bottom:1px solid #e6e6e6; font-size:8.2px; line-height:1.32;}
 .dl.bh{font-weight:700; border-bottom:none; padding-top:5px;}
 .dl.bh:first-child{padding-top:0;}
 .dl:last-child{border-bottom:none;}
