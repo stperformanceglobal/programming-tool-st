@@ -222,8 +222,8 @@ table.recmode .exn .note{margin-top:3px;}
 .rpe-chip:hover{border-color:var(--silver);}
 .rpe-chip.on{background:var(--primary); border-color:var(--primary); color:var(--on-primary); font-weight:600;}
 .cond-card .srpe{padding:11px 0 2px; margin-top:10px;}
-#saveBtn, #loadBtn, #vizBtn{background:none; color:var(--silver); border:1px solid var(--line);}
-#saveBtn:hover, #loadBtn:hover, #vizBtn:hover{color:var(--white); border-color:var(--silver);}
+#saveBtn, #loadBtn{background:none; color:var(--silver); border:1px solid var(--line);}
+#saveBtn:hover, #loadBtn:hover{color:var(--white); border-color:var(--silver);}
 /* Per-day record switch */
 .dh-right{display:flex; align-items:center; gap:12px;}
 .recSw{background:none; border:1.5px solid var(--primary); color:var(--primary); font-family:'Oswald',sans-serif; font-size:11px; font-weight:500; letter-spacing:.1em; text-transform:uppercase; padding:4px 12px; border-radius:2px; cursor:pointer; transition:background .15s, color .15s;}
@@ -563,8 +563,7 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
   <button id="editBtn">Edit settings</button>
   <button id="saveBtn">Save</button>
   <button id="loadBtn">Load</button>
-  <button id="vizBtn">Export for visualiser</button>
-  <button id="pdfBtn">PDF: Programme</button>
+  <button id="pdfBtn" title="The printed PDF also carries your field work. Upload it into the visualiser; gym and indoor conditioning are ignored.">PDF: Programme</button>
   <button id="pdfRecBtn">PDF + Recording</button>
   <button id="pdfFillBtn">Fillable PDF</button>
   <button id="libBtn">Library</button>
@@ -2316,7 +2315,7 @@ td.recc{white-space:nowrap;}
 <div class="stpf"><img src="${LOGO_ST_MARK_NAVY}" alt=""><span>ST Performance | stperformanceglobal.com</span></div>
 
 <div class="page">
-  <div class="hd"><img class="${SK.wideLogo ? "wide" : ""}" src="${logo}" alt="${SK.brand}">
+  <div class="hd">${stpLinkOpen()}<img class="${SK.wideLogo ? "wide" : ""}" src="${logo}" alt="${SK.brand}">${stpLinkClose()}
     <div><div class="t1">Strength Programme</div><div class="t2">${SK.brand}</div></div>
     <div class="meta"><b>${f.name}</b> | ${equipName} | ${{split:"Lower/Upper split", full:"Full body only", hyb:"Hybrid"}[cfg.struct]} | ${{lower:"Lower body 2:1", upper:"Upper body 2:1", equal:"Equal 1:1"}[cfg.emph]}${withRec ? " | Recording sheet" : ""}<br>${cfg.liftDays} day${cfg.liftDays>1?"s":""} per week | ${cfg.weeks} weeks | ${cfg.focus==="tri" ? "Triphasic blocks: ecc / iso / con" : "Linear, 3 week waves"}${deloadWeeks().length ? " | Deload wk " + deloadWeeks().join(" and ") : ""}</div>
   </div>
@@ -2465,7 +2464,22 @@ function libraryDoc(){
   ${grid(clusterCell)}
   <h3>Triphasic phase map</h3>
   ${grid(triCell)}
-  <p class="foot"><b>Deloads are fixed and named.</b> 4 week plan: none. 6 weeks: week 5. 8 weeks: week 7. 10 weeks: weeks 5 and 9. 12 weeks: weeks 6 and 11. 16 weeks: weeks 5, 9 and 13. A deload drops one set from every lift and pulls loads back 10 to 15%; the wave resumes the following week where it left off.</p>`;
+  <p class="foot"><b>Deloads are fixed and named.</b> ${weekLens.map(W=>{const d=dlOf(W); return W+" weeks: "+(d.length ? (d.length>1 ? "weeks "+d.slice(0,-1).join(", ")+" and "+d[d.length-1] : "week "+d[0]) : "none");}).join(". ")}. A deload drops one set from every lift and pulls loads back 10 to 15%; the wave resumes the following week where it left off.</p>`;
+
+  /* --- Cluster Sets guide --- */
+  const clRows = CLUSTER_WAVE.map((c,i)=>`<tr><td class="cat">Wave week ${i+1}</td><td>Effort ${c.rpe}</td><td>${c.sets} sets</td><td>${c.cl} clusters x ${clRepWord(c)}</td><td>${c.pct} of best</td><td>${c.inside}</td><td>${c.sets*c.cl*c.reps} reps</td></tr>`).join("");
+  const pageCl = `
+  <h2>Cluster Sets: Advanced Protocol</h2>
+  <p class="intro">${CLUSTER_GUIDE.what}</p>
+  <p class="foot"><b>Why it works.</b> ${CLUSTER_GUIDE.why}</p>
+  <h3>How to run a set</h3>
+  <table><tbody>${CLUSTER_GUIDE.steps.map((t,i)=>`<tr><td class="cat">Step ${i+1}</td><td class="note">${t}</td></tr>`).join("")}</tbody></table>
+  <p class="intro" style="margin-top:6px">${CLUSTER_GUIDE.read}</p>
+  <h3>The three week wave (repeats through the programme; deload weeks drop one set)</h3>
+  <table><thead><tr><th>Week</th><th>Effort</th><th>Sets</th><th>Clusters</th><th>Load</th><th>Rest inside set</th><th>Reps per lift</th></tr></thead><tbody>${clRows}</tbody></table>
+  <p class="intro" style="margin-top:4px">3 min rest between sets in every week. Applies to the first two lifts of each day; remaining lifts run straight sets.</p>
+  <h3>Rules</h3>
+  <table><tbody>${CLUSTER_GUIDE.rules.map(t=>`<tr><td class="note">${t}</td></tr>`).join("")}</tbody></table>`;
 
   /* --- Page 4: indoor conditioning --- */
   const condRows = Object.keys(COND).map(k=>{
@@ -2476,7 +2490,7 @@ function libraryDoc(){
   }).join("");
   const page4 = `
   <h2>4. Indoor Conditioning</h2>
-  <p class="intro">Machine based intervals. Sessions cycle through the schemes below by day; rounds are computed from the chosen minutes per session (5 to 30). Days per week: 1 to 4.</p>
+  <p class="intro">Machine based intervals. Sessions cycle through the schemes below by day; rounds are computed from the chosen minutes per session (5 to 30). Days per week: 1 to 6.</p>
   <table><thead><tr><th>System</th><th>Interval schemes</th><th>Coaching note</th></tr></thead><tbody>${condRows}</tbody></table>
   <p class="foot"><b>Pick your poison.</b> ${MACHINES}</p>`;
 
@@ -2528,7 +2542,7 @@ function libraryDoc(){
     <tr><td class="cat">Core, unloaded<br><span class="dim">alternating days</span></td><td>3 x 15</td><td class="note">${CARE_CORE_UNL.join(" · ")}</td></tr>
     <tr><td class="cat">Shoulder and scapular</td><td>2 x 10</td><td class="note">${CARE_SHOULDER.join(" · ")}</td></tr>
   </tbody></table>`;
-  const pages = [page1, page2, page3, page4, page5, page6, page7, page8, page9];
+  const pages = [page1, page2, page3, pageCl, page4, page5, page6, page7, page8, page9].map((h,i)=>h.replace(/<h2>(\d+\.\s*)?/, '<h2>'+(i+1)+'. '));
   const totalBlocks = RUNS.length;
   const totalSpeed = SPEED.acc.opts.length + SPEED.mv.opts.length + SPEED.cod.opts.length;
 
@@ -2849,7 +2863,11 @@ async function buildFillablePdf(){
   }
 
   form.updateFieldAppearances(helv);
-  return await doc.save();
+  const hp = stpPayload();
+  if(hp){
+    try{ doc.getInfoDict().set(PDFLib.PDFName.of('STHandoff'), PDFLib.PDFString.of(hp)); }catch(e){}
+  }
+  return await doc.save({useObjectStreams:false});
 }
 
 /* ---------------- Wire up ---------------- */
@@ -2921,16 +2939,6 @@ function stpHandoff(){
     name: "Speed Day " + (i+1) + " " + d.title, kind: "speed",
     blocks: [{name: stpName(d.title), kind: "speed", tag: d.tag, lines: d.lines}]
   }));
-  /* Indoor conditioning: machine intervals, no field drill */
-  if(cfg.condOn) for(let d=0; d<cfg.condDays; d++){
-    const p = condPlan(d), [w, r] = parseScheme(p.label);
-    sessions.push({name: "Conditioning Day " + (d+1), kind: "cond", blocks: [{
-      name: COND[cfg.condSys].name + " intervals", kind: "cond",
-      fx: {aer:"aer", rec:"rec", ana:"ana", hyb:"mix"}[cfg.condSys],
-      work_s: w, rest_s: r, rounds: p.rounds, mins: cfg.condMins,
-      lines: [p.label + " x " + p.rounds]
-    }]});
-  }
   return {format: "stp-handoff", version: 1, title: "Programme", units: "m", sessions};
 }
 
@@ -2943,22 +2951,17 @@ function stpMismatch(){
   }));
   return miss;
 }
-function stpExport(){
-  if(!program) return;
-  const data = stpHandoff();
-  if(!data.sessions.length){
-    alert("Nothing to export yet. Switch on Speed, Running Conditioning or Indoor Conditioning, then build the programme again.");
-    return;
-  }
-  const miss = stpMismatch();
-  const blob = new Blob([JSON.stringify(data, null, 1)], {type: "application/json"});
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob); a.download = "programme-for-visualiser.json";
-  document.body.appendChild(a); a.click(); a.remove();
-  URL.revokeObjectURL(a.href);
-  if(miss.length) alert("Exported. " + miss.length + " run block(s) are not in the visualiser yet: " + miss.join(", "));
+/* Field-work payload carried inside the programme PDFs (visualiser reads it on upload).
+   Gym and indoor conditioning are left out on purpose. */
+function stpPayload(){
+  if(!program) return "";
+  const d = stpHandoff();
+  if(!d.sessions.length) return "";
+  d.title = SKINS[activeSkin].brand + " Programme";
+  return "STHANDOFF1:" + btoa(unescape(encodeURIComponent(JSON.stringify(d))));
 }
-el('vizBtn').addEventListener('click', stpExport);
+function stpLinkOpen(){ const t = stpPayload(); return t ? '<a href="https://stperformanceglobal.com/#' + t + '">' : ""; }
+function stpLinkClose(){ return stpPayload() ? "</a>" : ""; }
 
 
 /* Autosave restore: silently skipped where storage is unavailable */
