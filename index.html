@@ -1363,9 +1363,9 @@ const RUNS = [
   {n:"150s", cat:"line", dist:1600, reps:8, viz:"150s", d:[
     "8 reps, each in 24 to 28 s",
     "Go every 60 s, rest 2 min after rep 4"]},
-  {n:"Long 150s", cat:"line", dist:2400, reps:12, viz:"150s", d:[
-    "12 reps, each in 24 to 28 s",
-    "Go every 60 s, rest 3 min after rep 6"]},
+  {n:"Long 150s", cat:"line", dist:2000, reps:10, viz:"150s", d:[
+    "10 reps, each in 24 to 28 s",
+    "Go every 60 s, rest 3 min after rep 5"]},
   {n:"Pyramid Repeats", cat:"line", dist:1800, reps:1, viz:"Pyramid Repeats", d:[
     "{50} x 4 going every 30 s, {100} x 3 going every 60 s, {200} x 2 going every 90 s, {400} x 1",
     "Targets: {50} under 9 s, {100} under 20 s, {200} under 40 s, {400} under 1:40"]},
@@ -1378,12 +1378,12 @@ const RUNS = [
   {n:"Build-Ups", cat:"line", dist:800, reps:1, viz:"Build-Ups", d:[
     "8 efforts in pairs: 2 x {22}, 2 x {50}, 2 x {60} to {78}, 2 x {60} to {100}",
     "Go every 60 s"]},
-  {n:"Repeat Sprints: Short", cat:"line", dist:1200, reps:1, viz:"Repeat Sprints: Short", d:[
-    "20 x {10} maximal sprints going every 10 s, then rest 2 min",
-    "20 x {20} maximal sprints going every 15 s",
+  {n:"Repeat Sprints: Short", cat:"line", dist:600, reps:1, viz:"Repeat Sprints: Short", d:[
+    "10 x {10} maximal sprints going every 10 s, then rest 2 min",
+    "10 x {20} maximal sprints going every 15 s",
     "Options: vary start positions, carry a ball, race a partner"]},
-  {n:"Repeat Sprints: Medium", cat:"line", dist:1080, reps:1, viz:"Repeat Sprints: Medium", d:[
-    "12 x {20} maximal sprints going every 15 s, then rest 2 min",
+  {n:"Repeat Sprints: Medium", cat:"line", dist:1000, reps:1, viz:"Repeat Sprints: Medium", d:[
+    "10 x {20} maximal sprints going every 15 s, then rest 2 min",
     "10 x {30} maximal sprints going every 20 s",
     "Options: vary start positions, carry a ball, race a partner"]},
   {n:"100/200 Drill", cat:"line", dist:900, reps:3, viz:"100/200 Drill", d:[
@@ -1402,7 +1402,10 @@ const RUNS = [
     "4 reps at 75 to 80% effort, tall and relaxed",
     "Rest 60 s between reps"]},
   /* Shuttles */
-  {n:"Bronco", cat:"shuttle", dist:1220, reps:5, viz:"Crusader Bronco", d:[
+  {n:"Bronco", cat:"shuttle", dist:1200, reps:5, viz:"Bronco", d:[
+    "5 rounds, each under 60 s, {240} per round",
+    "Go every 90 s"]},
+  {n:"22 Bronco", cat:"shuttle", dist:1220, reps:5, viz:"22 Bronco", d:[
     "5 rounds, each under 60 s, {244} per round",
     "Go every 90 s"]},
   {n:"Bucking Bronco", cat:"shuttle", dist:1440, reps:1, viz:"Bucking Bronco", d:[
@@ -1468,8 +1471,8 @@ const RUNS = [
   {n:"Franko", cat:"downup", dist:432, reps:8, viz:"Franko", d:[
     "8 reps, each under 25 s",
     "Go every 45 s"]},
-  {n:"Scuttler", cat:"downup", dist:528, reps:12, viz:"Scuttler", d:[
-    "12 reps",
+  {n:"Scuttler", cat:"downup", dist:440, reps:10, viz:"Scuttler", d:[
+    "10 reps",
     "Go every 30 s"]},
   {n:"Dagger", cat:"downup", dist:600, reps:5, viz:"Dagger", d:[
     "5 reps, each under 30 s",
@@ -1480,8 +1483,8 @@ const RUNS = [
   {n:"10-20-30s", cat:"downup", dist:340, reps:1, viz:"10-20-30s", d:[
     "1 rep, {10} x 3 going every 20 s, {20} x 2 going every 30 s, {30} x 1, then back down",
     "Start each distance block every 60 s"]},
-  {n:"Chest Start 22s", cat:"downup", dist:880, reps:20, viz:"Chest-Start 22", d:[
-    "20 reps",
+  {n:"Chest Start 22s", cat:"downup", dist:440, reps:10, viz:"Chest-Start 22", d:[
+    "10 reps",
     "Go every 15 s"]},
   {n:"150 Down-Ups", cat:"downup", dist:750, reps:5, viz:"150 Down-Ups", d:[
     "5 reps, each in 30 s",
@@ -1526,23 +1529,23 @@ const RUNS = [
   {n:"Zig-Zag to Swerve", cat:"curve", dist:996, reps:6, viz:"Zig-Zag to Swerve", d:[
     "6 reps, about {166} per rep",
     "Go every 75 s"]},
-  {n:"Hit Shield to Sprint", cat:"hit", dist:528, reps:12, viz:"Hit Shield to Sprint", d:[
-    "12 reps",
-    "Go every 75 s. The partner holds the shield and swaps at rep 6"]},
-  {n:"Sprint to Hit Shield Finish", cat:"hit", dist:528, reps:12, viz:"Sprint to Hit Shield Finish", d:[
-    "12 reps",
-    "Go every 75 s. The partner holds the shield and swaps at rep 6"]},
-  {n:"Hit, Run, Down-Up, Hit", cat:"hit", dist:528, reps:12, viz:"Hit, Run, Down-Up, Hit", d:[
-    "12 reps",
-    "Go every 75 s. The partner holds the shield and swaps at rep 6"]},
+  {n:"Hit Shield to Sprint", cat:"hit", dist:440, reps:10, viz:"Hit Shield to Sprint", d:[
+    "10 reps",
+    "Go every 75 s. The partner holds the shield and swaps at rep 5"]},
+  {n:"Sprint to Hit Shield Finish", cat:"hit", dist:440, reps:10, viz:"Sprint to Hit Shield Finish", d:[
+    "10 reps",
+    "Go every 75 s. The partner holds the shield and swaps at rep 5"]},
+  {n:"Hit, Run, Down-Up, Hit", cat:"hit", dist:440, reps:10, viz:"Hit, Run, Down-Up, Hit", d:[
+    "10 reps",
+    "Go every 75 s. The partner holds the shield and swaps at rep 5"]},
   {n:"Run and Hit Shield 40", cat:"hit", dist:800, reps:10, viz:"Run and Hit Shield 40", d:[
     "10 reps",
     "Go every 90 s. The partner holds the shield and swaps at rep 5"]},
-  {n:"Kneeling Wrestle to Sprint", cat:"wrestle", dist:528, reps:12, viz:"Kneeling Wrestle to Sprint", d:[
-    "12 reps",
+  {n:"Kneeling Wrestle to Sprint", cat:"wrestle", dist:440, reps:10, viz:"Kneeling Wrestle to Sprint", d:[
+    "10 reps",
     "Go every 75 s. Swap partners or roles each rep"]},
-  {n:"Standing Wrestle to Shuttle", cat:"wrestle", dist:528, reps:12, viz:"Standing Wrestle to Shuttle", d:[
-    "12 reps",
+  {n:"Standing Wrestle to Shuttle", cat:"wrestle", dist:440, reps:10, viz:"Standing Wrestle to Shuttle", d:[
+    "10 reps",
     "Go every 75 s. Swap partners or roles each rep"]},
   {n:"Wrestle Start and Finish", cat:"wrestle", dist:396, reps:9, viz:"Wrestle Start and Finish", d:[
     "9 reps",
@@ -1553,11 +1556,11 @@ const RUNS = [
   {n:"Broken Pony", cat:"downup", dist:1120, reps:8, viz:"Broken Pony", d:[
     "8 reps",
     "Go every 105 s"]},
-  {n:"22m Down-Ups", cat:"downup", dist:1056, reps:12, viz:"22m Down-Ups", d:[
-    "12 reps",
+  {n:"22m Down-Ups", cat:"downup", dist:880, reps:10, viz:"22m Down-Ups", d:[
+    "10 reps",
     "Go every 60 s"]},
-  {n:"Double Down-Up 22", cat:"downup", dist:880, reps:20, viz:"Double Down-Up 22", d:[
-    "20 reps",
+  {n:"Double Down-Up 22", cat:"downup", dist:440, reps:10, viz:"Double Down-Up 22", d:[
+    "10 reps",
     "Go every 30 s"]},
   {n:"Bear Crawl 5-10 Pyramid", cat:"downup", dist:300, reps:10, viz:"Bear Crawl 5-10 Pyramid", d:[
     "10 reps",
@@ -1568,23 +1571,23 @@ const RUNS = [
   {n:"Hit Shield to Sprint 40", cat:"hit", dist:800, reps:10, viz:"Hit Shield to Sprint 40", d:[
     "10 reps",
     "Go every 90 s. The partner holds the shield and swaps at rep 5"]},
-  {n:"Hit Shield to Shuttle", cat:"hit", dist:528, reps:12, viz:"Hit Shield to Shuttle", d:[
-    "12 reps",
-    "Go every 75 s. The partner holds the shield and swaps at rep 6"]},
-  {n:"Hit, Down-Up, Sprint", cat:"hit", dist:528, reps:12, viz:"Hit, Down-Up, Sprint", d:[
-    "12 reps",
-    "Go every 75 s. The partner holds the shield and swaps at rep 6"]},
-  {n:"Backpedal to Hit Shield", cat:"hit", dist:528, reps:12, viz:"Backpedal to Hit Shield", d:[
-    "12 reps",
-    "Go every 75 s. The partner holds the shield and swaps at rep 6"]},
+  {n:"Hit Shield to Shuttle", cat:"hit", dist:440, reps:10, viz:"Hit Shield to Shuttle", d:[
+    "10 reps",
+    "Go every 75 s. The partner holds the shield and swaps at rep 5"]},
+  {n:"Hit, Down-Up, Sprint", cat:"hit", dist:440, reps:10, viz:"Hit, Down-Up, Sprint", d:[
+    "10 reps",
+    "Go every 75 s. The partner holds the shield and swaps at rep 5"]},
+  {n:"Backpedal to Hit Shield", cat:"hit", dist:440, reps:10, viz:"Backpedal to Hit Shield", d:[
+    "10 reps",
+    "Go every 75 s. The partner holds the shield and swaps at rep 5"]},
   {n:"Kneeling Wrestle to Run 40", cat:"wrestle", dist:800, reps:10, viz:"Kneeling Wrestle to Run 40", d:[
     "10 reps",
     "Go every 90 s. Swap partners or roles each rep"]},
-  {n:"Standing Wrestle to Sprint", cat:"wrestle", dist:528, reps:12, viz:"Standing Wrestle to Sprint", d:[
-    "12 reps",
+  {n:"Standing Wrestle to Sprint", cat:"wrestle", dist:440, reps:10, viz:"Standing Wrestle to Sprint", d:[
+    "10 reps",
     "Go every 75 s. Swap partners or roles each rep"]},
-  {n:"Wrestle, Down-Up, Sprint", cat:"wrestle", dist:528, reps:12, viz:"Wrestle, Down-Up, Sprint", d:[
-    "12 reps",
+  {n:"Wrestle, Down-Up, Sprint", cat:"wrestle", dist:440, reps:10, viz:"Wrestle, Down-Up, Sprint", d:[
+    "10 reps",
     "Go every 75 s. Swap partners or roles each rep"]},
   {n:"Standing Wrestle to Sprint 40", cat:"wrestle", dist:800, reps:10, viz:"Standing Wrestle to Sprint 40", d:[
     "10 reps",
@@ -1745,7 +1748,7 @@ function buildRunDays(){
     return {
       title: p.title,
       tag: "{" + total + "} total",
-      blocks: p.blocks.map((s, i)=>({n:(i+1) + ". " + s.n, cat:CAT_NAME[s.cat], dist:s.dist, reps:s.reps, viz:s.viz, script:STP_SCRIPT[s.viz] || "", lines:s.d})),
+      blocks: p.blocks.map((s, i)=>({n:(i+1) + ". " + s.n, cat:CAT_NAME[s.cat], dist:s.dist, reps:Math.min(10, s.reps), viz:s.viz, script:STP_SCRIPT[s.viz] || "", lines:s.d})),
       lines: p.blocks.reduce((arr, s, i)=>arr.concat(
         [(i+1) + ". " + s.n + "  |  " + CAT_NAME[s.cat] + "  |  {" + s.dist + "}"],
         STP_SCRIPT[s.viz] ? ["Route: " + STP_SCRIPT[s.viz]] : [], s.d), [])
@@ -2919,12 +2922,12 @@ const STP_ALIAS = {
  "Malcolms with Sprint": "Malcolms",
  "200/100s": "200s and 100s",
  "Sixty Squared": "Sixty2",
- "10/20/30 Block": "10-20-30 Down-Up Shuttles",
- "Bronco": "Crusader Bronco"
+ "10/20/30 Block": "10-20-30 Down-Up Shuttles"
 };
-const STP_DRILLS = ["Crusader Bronco","Broken Bronco","Lion Heart","Reven","Sixty2","200s and 100s","Double 150s","Coathanger","Far 40 and 22 Shuttle","Shuttle Ladder 5-22-50","3-2-1","Scissors","80-60-40","80-60-40 Down-Ups","The Gill","Mini Gill","Warrior","Malcolms","Titanium","Franko","Scuttler","Dagger","Accelerators","Sled Contrasts 22","150s","44s","88s","22s","Repeat 50s","Repeat 100s","10-20-30 Down-Up Shuttles","Ladder Sprints","Ladder Sprints 10-50","Down-Up Acceleration 10m","20m Acceleration","Chest-Start 22","45 Degree Cut","Slalom Run 22m","22m Down-Ups","Double Down-Up 22","Goodwins Rectangle","MAS 15:15","Touchline Tempo Lap","Broken Pony","Bear Crawl 10m","Burpee Sprint 22","Squat Jump Sprint 22","Press-Up Sprint 22","Drop-and-Roll Alternating","Double Roll Out and Back","Extended Bronco 20-40-60-80","Sprint and Backpedal 22","Sprint and Roll 22","Crawl-Sprint 5-22","Flying 20s","Flying 30s","Flying 40s","Sprint Float Sprint","70s","80s","Full Length 100","Down-Up Flying 30","Repeat 30s","Repeat 40s","Repeat 60s","Triple 11s","10m Acceleration","30m Acceleration","Jog-in Acceleration 20","90 Degree Cut","Zig-Zag 30m","Pro Agility 5-10-5","Down-Up Cut","MAS 10:10","MAS 15:15 Full Length","MAS 30:30","Tempo 100s","Tempo 200s","Tempo 300s","Short Tempo Box","Width Tempo 60s","Diagonal Tempo","Bear Crawl 5-10 Pyramid","Backpedal 22 and Sprint","Down-Up Bear Crawl","Squat Sprint 22","Press-Up Bear Crawl","Burpee Shuttle 10","Kneeling Wrestle to Sprint","Standing Wrestle to Shuttle","Down-Ups to Hit Shield","Hit, Run, Down-Up, Hit","Hit Shield to Sprint","Sprint to Hit Shield Finish","Wrestle Start and Finish","Run and Hit Shield 40","Hit Shield to Standing Wrestle","Hit Shield to Sprint 40","Hit Shield to Shuttle","Hit, Down-Up, Sprint","Backpedal to Hit Shield","Kneeling Wrestle to Run 40","Standing Wrestle to Sprint","Wrestle, Down-Up, Sprint","Standing Wrestle to Sprint 40","Single Curve In","Single Curve Across","Banana Run","S-Curve","S-Curve Wide","Double S","Swerve Around 50","Double Swerve","Swerve and Accelerate","Zig-Zag 22s","Zig-Zag Wide Sprint","Zig-Zag to Swerve","Sled Push 5m","Sled Push 10m","Sled Push 15m","Sled Push Contrast 5m","Sled Push Contrast 10m","Sled Push Contrast 15m","Sled Sprint 22m","Sled Sprint 25m","Sled Sprint 30m","Sled Sprint 40m","Sled Sprint 50m","Sled Sprint 60m","Sled Sprint Contrast 22m","Sled Sprint Contrast 25m","Sled Sprint Contrast 30m","Sled Sprint Contrast 40m","Sled Sprint Contrast 50m","Sled Sprint Contrast 60m","Pyramid Repeats","100/60/20","Build-Ups","Repeat Sprints: Short","Repeat Sprints: Medium","100/200 Drill","50s Jog-Through","Descending Ladder","1 km Repeat","Bucking Bronco","22m Repeats","Yo-Yo Shuttle","150 Shuttles","300 Shuttle","Weave and Go","Box Pattern","Anaerobic Builder","10-20-30s","150 Down-Ups","10/20/30 Block","Malcolms with Sprint"];
+const STP_DRILLS = ["Bronco","22 Bronco","Broken Bronco","Lion Heart","Reven","Sixty2","200s and 100s","Double 150s","Coathanger","Far 40 and 22 Shuttle","Shuttle Ladder 5-22-50","3-2-1","Scissors","80-60-40","80-60-40 Down-Ups","The Gill","Mini Gill","Warrior","Malcolms","Titanium","Franko","Scuttler","Dagger","Accelerators","Sled Contrasts 22","150s","44s","88s","22s","Repeat 50s","Repeat 100s","10-20-30 Down-Up Shuttles","Ladder Sprints","Ladder Sprints 10-50","Down-Up Acceleration 10m","20m Acceleration","Chest-Start 22","45 Degree Cut","Slalom Run 22m","22m Down-Ups","Double Down-Up 22","Goodwins Rectangle","MAS 15:15","Touchline Tempo Lap","Broken Pony","Bear Crawl 10m","Burpee Sprint 22","Squat Jump Sprint 22","Press-Up Sprint 22","Drop-and-Roll Alternating","Double Roll Out and Back","Extended Bronco 20-40-60-80","Sprint and Backpedal 22","Sprint and Roll 22","Crawl-Sprint 5-22","Flying 20s","Flying 30s","Flying 40s","Sprint Float Sprint","70s","80s","Full Length 100","Down-Up Flying 30","Repeat 30s","Repeat 40s","Repeat 60s","Triple 11s","10m Acceleration","30m Acceleration","Jog-in Acceleration 20","90 Degree Cut","Zig-Zag 30m","Pro Agility 5-10-5","Down-Up Cut","MAS 10:10","MAS 15:15 Full Length","MAS 30:30","Tempo 100s","Tempo 200s","Tempo 300s","Short Tempo Box","Width Tempo 60s","Diagonal Tempo","Bear Crawl 5-10 Pyramid","Backpedal 22 and Sprint","Down-Up Bear Crawl","Squat Sprint 22","Press-Up Bear Crawl","Burpee Shuttle 10","Kneeling Wrestle to Sprint","Standing Wrestle to Shuttle","Down-Ups to Hit Shield","Hit, Run, Down-Up, Hit","Hit Shield to Sprint","Sprint to Hit Shield Finish","Wrestle Start and Finish","Run and Hit Shield 40","Hit Shield to Standing Wrestle","Hit Shield to Sprint 40","Hit Shield to Shuttle","Hit, Down-Up, Sprint","Backpedal to Hit Shield","Kneeling Wrestle to Run 40","Standing Wrestle to Sprint","Wrestle, Down-Up, Sprint","Standing Wrestle to Sprint 40","Single Curve In","Single Curve Across","Banana Run","S-Curve","S-Curve Wide","Double S","Swerve Around 50","Double Swerve","Swerve and Accelerate","Zig-Zag 22s","Zig-Zag Wide Sprint","Zig-Zag to Swerve","Sled Push 5m","Sled Push 10m","Sled Push 15m","Sled Push Contrast 5m","Sled Push Contrast 10m","Sled Push Contrast 15m","Sled Sprint 22m","Sled Sprint 25m","Sled Sprint 30m","Sled Sprint 40m","Sled Sprint 50m","Sled Sprint 60m","Sled Sprint Contrast 22m","Sled Sprint Contrast 25m","Sled Sprint Contrast 30m","Sled Sprint Contrast 40m","Sled Sprint Contrast 50m","Sled Sprint Contrast 60m","Pyramid Repeats","100/60/20","Build-Ups","Repeat Sprints: Short","Repeat Sprints: Medium","100/200 Drill","50s Jog-Through","Descending Ladder","1 km Repeat","Bucking Bronco","22m Repeats","Yo-Yo Shuttle","150 Shuttles","300 Shuttle","Weave and Go","Box Pattern","Anaerobic Builder","10-20-30s","150 Down-Ups","10/20/30 Block","Malcolms with Sprint"];
 const STP_SCRIPT = {
-"Crusader Bronco": "Run hard {22} and back, {40} and back, then {60} and back without stopping, returning to the start tryline each time.",
+"Bronco": "Run hard {20} and back, {40} and back, then {60} and back without stopping, using cones at {20}, {40} and {60} and returning to the start tryline each time.",
+"22 Bronco": "Run hard to the 22 m line and back, {40} and back, then {60} and back without stopping, using the 22 m line in place of a cone at {20} and returning to the start tryline each time.",
 "Broken Bronco": "Run hard {22} and back, rest 30 s, run hard {40} and back, rest 30 s, then run hard {60} and back.",
 "Lion Heart": "Run hard {50} and back, do a down-up, run hard {22} and back, do a down-up, then run hard {50} and back.",
 "Reven": "Run hard {22} and back. Run hard {5} and back, do a down-up, then run hard {5} and back again and do a down-up. Run hard to {50}, return to the 22 m line, run hard to {50} again, then return to the start tryline.",
@@ -3062,8 +3065,8 @@ const STP_SCRIPT = {
 "Pyramid Repeats": "Sprint {50} and jog back, four times. Rest 30 s, then sprint {60}, run hard to the far tryline and jog back, three times, resting 30 s between. Rest 45 s, then run hard {200} twice by sprinting {60}, running hard to the far tryline, sprinting {40} back and running hard home, resting 45 s between. Rest 60 s, then run hard {400} the same way.",
 "100/60/20": "Sprint {60} and run hard to the far tryline, three times. Then sprint {60} and jog {40}, four times. Then sprint {20} and jog {20}, six times.",
 "Build-Ups": "Sprint {22} and jog on to the far tryline, sprint {78} back and jog home. Sprint {50} and jog on to the far tryline, sprint {50} back and jog home. Sprint {60}, run hard to the 78 m line and jog on to the far tryline, sprint {60} back and run hard to the 22 m line, then jog home. Sprint {60}, run hard to the far tryline, sprint {60} back and run hard home.",
-"Repeat Sprints: Short": "Do 20 maximal {10} sprints, jogging back after each. Rest 2 min, then do 20 maximal {20} sprints, jogging back after each.",
-"Repeat Sprints: Medium": "Do 12 maximal {20} sprints, jogging back after each. Rest 2 min, then do 10 maximal {30} sprints, jogging back after each.",
+"Repeat Sprints: Short": "Do 10 maximal {10} sprints, jogging back after each. Rest 2 min, then do 10 maximal {20} sprints, jogging back after each.",
+"Repeat Sprints: Medium": "Do 10 maximal {20} sprints, jogging back after each. Rest 2 min, then do 10 maximal {30} sprints, jogging back after each.",
 "100/200 Drill": "Run hard {100}, then rest 40 s. Run hard {200} by running back and out again, then rest 20 s.",
 "50s Jog-Through": "Sprint {50} in about 7 s, then jog through the rest of the field.",
 "Descending Ladder": "Run hard {400} (four lengths) and rest 150 s, run hard {300} and rest 120 s, run hard {200} and rest 75 s, then run hard {100} and rest 40 s.",
