@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="apple-mobile-web-app-title" content="ST Perform">
+<meta name="apple-mobile-web-app-title" content="Programme Builder">
 <meta name="application-name" content="ST Performance">
 <meta name="theme-color" content="#0C1524">
 <link rel="manifest" href="site.webmanifest">
@@ -15,7 +15,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="ST-app-icon-192.png">
 <link rel="icon" type="image/png" sizes="32x32" href="ST-favicon-32.png">
 <link rel="icon" href="favicon.ico" sizes="any">
-<title>Program Builder</title>
+<title>Programme Builder</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 
@@ -128,12 +128,13 @@ td.num{white-space:nowrap; color:#D5D5D5;}
 .tier-tag{flex:0 0 84px; text-align:center; font-family:'Oswald',sans-serif; font-size:10.5px; font-weight:500; letter-spacing:.16em; text-transform:uppercase; color:var(--silver); border:1px solid var(--line); border-radius:2px; padding:8px 0; margin-top:1px;}
 .focus-tier.adv .tier-tag{color:var(--primary-hi); border-color:var(--primary);}
 @media(max-width:640px){.focus-tier{flex-direction:column; gap:6px;} .tier-tag{flex:none; width:100%; padding:4px 0;}}
-/* Focus buttons: each tier sits on one row at desktop widths, wrapping only below 900px */
-@media(min-width:900px){
-  .focus-tier .chips{flex:1 1 0; min-width:0; flex-wrap:nowrap; gap:6px;}
-  .focus-tier .chip{flex:1 1 auto; padding:8px 6px; font-size:12.5px; white-space:nowrap; text-align:center;}
-  .focus-tier .chip .sm{font-size:10px;}
-}
+/* Uniform tile grid: every chip group is an even grid, all tiles the same height */
+.chips{display:grid; grid-auto-rows:1fr; grid-template-columns:repeat(auto-fill,minmax(118px,1fr)); gap:8px;}
+.chip{display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; min-height:48px; padding:8px 8px; font-size:13px; line-height:1.2; white-space:normal;}
+.chip .sm{display:block; font-size:10.5px; margin-top:2px;}
+.focus-tier .chips{flex:1 1 0; min-width:0; grid-template-columns:repeat(auto-fill,minmax(104px,1fr)); gap:8px;}
+@media(min-width:900px){.focus-tier .chips{grid-template-columns:repeat(6,minmax(0,1fr));} .focus-tier .chip{font-size:12.5px; padding:8px 6px;}}
+@media(max-width:640px){.chips,.focus-tier .chips{grid-template-columns:repeat(3,minmax(0,1fr));} .chip{min-height:50px; padding:8px 6px; font-size:12.5px;}}
 
 /* Optional section toggles + drill rows */
 .grp-label .incSw{order:2; background:none; border:1.5px solid var(--silver); color:var(--silver); font-family:'Oswald',sans-serif; font-size:11px; font-weight:500; letter-spacing:.1em; text-transform:uppercase; padding:4px 14px; border-radius:2px; cursor:pointer; transition:background .15s, color .15s, border-color .15s;}
@@ -213,7 +214,6 @@ table.recmode .exn .note{margin-top:3px;}
   .export-bar{padding:10px 10px calc(10px + env(safe-area-inset-bottom)); gap:7px;}
   .export-bar button{font-size:12px; padding:9px 12px; flex:1 1 auto;}
   .boxes input{width:62px; font-size:14px;}
-  .chip{padding:9px 13px;}
 }
 /* Session RPE */
 .srpe{display:flex; align-items:center; gap:6px; flex-wrap:wrap; padding:11px 16px; border-top:1px solid var(--line);}
@@ -319,7 +319,7 @@ tr.rec td{padding-top:2px; border-bottom:1px solid rgba(144,152,162,.12);}
 <header>
   <img id="brandLogo" src="" alt="">
   <div>
-    <div class="h-title">Program Builder</div>
+    <div class="h-title">Programme Builder</div>
     <div class="h-sub" id="brandSub"></div>
   </div>
   <select id="skinPick" aria-label="Choose skin"></select>
@@ -345,7 +345,7 @@ tr.rec td{padding-top:2px; border-bottom:1px solid rgba(144,152,162,.12);}
   </div>
 
   <div class="grp">
-    <div class="grp-label">Program length</div>
+    <div class="grp-label">Programme length</div>
     <div class="chips" data-key="weeks">
       <button class="chip" data-v="4">4 weeks</button><button class="chip on" data-v="6">6 weeks</button><button class="chip" data-v="8">8 weeks</button><button class="chip" data-v="10">10 weeks</button><button class="chip" data-v="12">12 weeks</button>
     </div>
@@ -502,15 +502,15 @@ tr.rec td{padding-top:2px; border-bottom:1px solid rgba(144,152,162,.12);}
     </div>
   </div>
 
-  <button class="build-btn" id="buildBtn">Build program</button>
-  <p class="tip">Every setting can be changed and rebuilt. In the finished program, tap any lift to swap it for a progression, regression or substitution.</p>
+  <button class="build-btn" id="buildBtn">Build programme</button>
+  <p class="tip">Every setting can be changed and rebuilt. In the finished programme, tap any lift to swap it for a progression, regression or substitution.</p>
 </section>
 
 <section id="out">
   <div id="liftPage">
     <div class="print-only p-head">
       <img class="pLogo" src="" alt="">
-      <div><div class="t1">Strength Program</div><div class="t2 pBrand"></div></div>
+      <div><div class="t1">Strength Programme</div><div class="t2 pBrand"></div></div>
     </div>
     <div class="sec-head"><h2>Lifting</h2><span id="liftSub"></span></div>
     <div class="meta-strip" id="liftMeta"></div>
@@ -521,7 +521,7 @@ tr.rec td{padding-top:2px; border-bottom:1px solid rgba(144,152,162,.12);}
   <div id="condPage">
     <div class="print-only p-head">
       <img class="pLogo" src="" alt="">
-      <div><div class="t1">Conditioning Program</div><div class="t2 pBrand"></div></div>
+      <div><div class="t1">Conditioning Programme</div><div class="t2 pBrand"></div></div>
     </div>
     <div class="sec-head"><h2>Indoor Conditioning</h2><span id="condSub"></span></div>
     <div class="meta-strip" id="condMeta"></div>
@@ -548,7 +548,7 @@ tr.rec td{padding-top:2px; border-bottom:1px solid rgba(144,152,162,.12);}
   <button id="saveBtn">Save</button>
   <button id="loadBtn">Load</button>
   <button id="vizBtn">Export for visualiser</button>
-  <button id="pdfBtn">PDF: Program</button>
+  <button id="pdfBtn">PDF: Programme</button>
   <button id="pdfRecBtn">PDF + Recording</button>
   <button id="pdfFillBtn">Fillable PDF</button>
   <button id="libBtn">Library</button>
@@ -575,7 +575,7 @@ const LOGO_USRUGBY   = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAACaCA
 const SKINS = {
   redsox: {
     label:"Red Sox", brand:"Boston Red Sox",
-    docTitle:"Red Sox | Program Builder", fileBase:"RedSox",
+    docTitle:"Red Sox | Programme Builder", fileBase:"RedSox",
     logoApp:LOGO_REDSOX_B, logoPrint:LOGO_REDSOX_SOX,
     colors:{ primary:"#BD3039", primaryHi:"#D34751",
       onPrimary:"#FFFFFF", onPrimaryDim:"rgba(255,255,255,.78)",
@@ -586,7 +586,7 @@ const SKINS = {
   },
   monster: {
     label:"Green Monster", brand:"Boston Red Sox",
-    docTitle:"Red Sox | Program Builder", fileBase:"RedSox_GreenMonster",
+    docTitle:"Red Sox | Programme Builder", fileBase:"RedSox_GreenMonster",
     logoApp:LOGO_REDSOX_SOX, logoPrint:LOGO_REDSOX_SOX,
     colors:{ primary:"#F2C34E", primaryHi:"#F7D06A",
       onPrimary:"#22403A", onPrimaryDim:"rgba(34,64,58,.72)",
@@ -597,7 +597,7 @@ const SKINS = {
   },
   usrugby: {
     label:"US Rugby", brand:"US Rugby Players",
-    docTitle:"US Rugby Players | Program Builder", fileBase:"US_Rugby_Players",
+    docTitle:"US Rugby Players | Programme Builder", fileBase:"US_Rugby_Players",
     logoApp:LOGO_USRUGBY, logoPrint:LOGO_USRUGBY, wideLogo:true,
     colors:{ primary:"#B32615", primaryHi:"#CC3B23",
       onPrimary:"#FFFFFF", onPrimaryDim:"rgba(255,255,255,.78)",
@@ -608,7 +608,7 @@ const SKINS = {
   },
   stperf: {
     label:"ST Performance", brand:"ST Performance",
-    docTitle:"ST Performance | Program Builder", fileBase:"ST_Performance",
+    docTitle:"ST Performance | Programme Builder", fileBase:"ST_Performance",
     logoApp:LOGO_ST_MARK_GOLD, logoPrint:LOGO_ST_MARK_NAVY, wideLogo:true,
     /* Screen is a dark surface, so it takes the brand .on-dark roles. */
     colors:{ primary:"#E7B530", primaryHi:"#EAC148",
@@ -780,7 +780,7 @@ const FOCUS = {
   tri: {name:"Triphasic", adv:true, lifts:5,
     main:{sets:"4", reps:"3 to 5", tempo:"By phase", rest:"2 to 3 min"},
     accy:{sets:"3", reps:"6 to 8", tempo:"2011", rest:"90 s"},
-    note:"The program runs in three sequential phases that train each part of the muscle action on the main lifts: a slow 6 s eccentric block, a dead-stop isometric block, then an explosive concentric block. The week guide shows the phase and tempo for every week. Accessories keep normal tempo throughout."},
+    note:"The programme runs in three sequential phases that train each part of the muscle action on the main lifts: a slow 6 s eccentric block, a dead-stop isometric block, then an explosive concentric block. The week guide shows the phase and tempo for every week. Accessories keep normal tempo throughout."},
   nc: {name:"Neural Contrast", adv:true,
     main:{sets:"4", reps:"2 to 6 by week", tempo:"X", rest:"2 to 3 min"},
     accy:{sets:"3 to 4", reps:"3 to 5", tempo:"X", rest:"full recovery"},
@@ -825,7 +825,7 @@ const FC_RX = {
   accy: {sets:"3", reps:"8", tempo:"2011", rest:"90 s"}
 };
 
-/* Triphasic phases: split program weeks into thirds (ecc gets the remainder first) */
+/* Triphasic phases: split programme weeks into thirds (ecc gets the remainder first) */
 function triPhases(){
   const W = effTotal();
   const e = Math.ceil(W/3), c = Math.floor(W/3);
@@ -946,7 +946,7 @@ function catsFor(type, variant, k, usePow){
   return cats;
 }
 
-/* ---------------- Build lifting program: advanced tiers ---------------- */
+/* ---------------- Build lifting programme: advanced tiers ---------------- */
 function mkEx(opts, variant, cat, role, label, rx, note){
   return {cat, options:rotArr([...opts], variant % opts.length), sel:0, rec:{}, role, label, rx, note};
 }
@@ -1051,7 +1051,7 @@ function fcDay(type, variant){
   return ex;
 }
 
-/* ---------------- Build lifting program ---------------- */
+/* ---------------- Build lifting programme ---------------- */
 function buildProgram(){
   const f = FOCUS[cfg.focus];
 
@@ -1441,7 +1441,7 @@ function buildSpeedDays(){
    Composition: single type = 3 blocks of that type; two-type
    days = one of each plus an alternating third; All Types = 3
    different categories rotating across days.
-   Uniqueness: no drill appears twice anywhere in the program.
+   Uniqueness: no drill appears twice anywhere in the programme.
    Volume: each day aims at the coach's slider target using only
    unused drills, then a week-level pass trades same-category
    blocks between days so volume spreads evenly around target.  */
@@ -1911,7 +1911,7 @@ function renderRun(){
      <div><b>Approach</b>${appName}</div>
      <div><b>Effort</b>Hit the targets, hold the output</div>
      <div style="flex-basis:100%; color:#C9C9C9;">${U(FIELD_WARMUP)}</div>
-     <div style="flex-basis:100%; color:#C9C9C9;">Three drill blocks per session, built to land as close as possible to the volume target. No drill appears twice in the program. Hold the same times across every rep: the last rep at the same speed as the first is the goal.</div>`;
+     <div style="flex-basis:100%; color:#C9C9C9;">Three drill blocks per session, built to land as close as possible to the volume target. No drill appears twice in the programme. Hold the same times across every rep: the last rep at the same speed as the first is the goal.</div>`;
   el('runDaysWrap').innerHTML = fieldCards(program.run, "run", program.runRpe);
   wireRpe(el('runDaysWrap'));
 }
@@ -2011,7 +2011,7 @@ function printDoc(withRec){
       <p>Warm up 3 to 5 minutes easy before round 1, outside the session total.</p>${rec}${withRec ? rpeStrip(program.condRpe[d] ?? null) : ""}</div></div>`;
   }
 
-  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${SK.brand} Program</title>
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${SK.brand} Programme</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Inter:wght@400;500;600&display=swap');
 @page{size:letter landscape; margin:0.4in;}
@@ -2072,7 +2072,7 @@ td.recc{white-space:nowrap;}
 
 <div class="page">
   <div class="hd"><img class="${SK.wideLogo ? "wide" : ""}" src="${logo}" alt="${SK.brand}">
-    <div><div class="t1">Strength Program</div><div class="t2">${SK.brand}</div></div>
+    <div><div class="t1">Strength Programme</div><div class="t2">${SK.brand}</div></div>
     <div class="meta"><b>${f.name}</b> | ${equipName} | ${{split:"Lower/Upper split", full:"Full body only", hyb:"Hybrid"}[cfg.struct]} | ${{lower:"Lower body 2:1", upper:"Upper body 2:1", equal:"Equal 1:1"}[cfg.emph]}${withRec ? " | Recording sheet" : ""}<br>${cfg.liftDays} day${cfg.liftDays>1?"s":""} per week | ${cfg.weeks} weeks | ${cfg.focus==="tri" ? "Triphasic blocks: ecc / iso / con" : "Linear, 3 week waves"}${deloadWeeks().length ? " | Deload wk " + deloadWeeks().join(" and ") : ""}</div>
   </div>
   <div class="wks">${wkCells}</div>
@@ -2082,7 +2082,7 @@ td.recc{white-space:nowrap;}
 
 ${(cfg.condOn || extraCards) ? `<div class="page">
   <div class="hd"><img class="${SK.wideLogo ? "wide" : ""}" src="${logo}" alt="${SK.brand}">
-    <div><div class="t1">${cfg.condOn ? "Conditioning Program" : "Speed and Running"}</div><div class="t2">${SK.brand}</div></div>
+    <div><div class="t1">${cfg.condOn ? "Conditioning Programme" : "Speed and Running"}</div><div class="t2">${SK.brand}</div></div>
     <div class="meta">${cfg.condOn ? `<b>${c.name}</b> | Effort ${c.rpe}${withRec ? " | Recording sheet" : ""}<br>${cfg.condDays} day${cfg.condDays>1?"s":""} per week | ${cfg.condMins} min per session` : `<b>Field work</b>${withRec ? " | Recording sheet" : ""}`}</div>
   </div>
   ${cfg.condOn ? `<div class="cgrid">${condCards}</div>
@@ -2116,7 +2116,7 @@ function libraryDoc(){
     ["squat","hinge","hpush","hpull"].map(k=>`<td>${(obj[k]||[]).map(x=>`<div>${x}</div>`).join("") || "<div class=dim>-</div>"}</td>`).join("")}</tr>`;
   const page1 = `
   <h2>1. Exercise Database</h2>
-  <p class="intro">Every lift the builder can prescribe, by movement category and facility type. Each program day draws one exercise per slot with the remaining options available through the swap menu.</p>
+  <p class="intro">Every lift the builder can prescribe, by movement category and facility type. Each programme day draws one exercise per slot with the remaining options available through the swap menu.</p>
   <table><thead><tr><th></th>${equipKeys.map(e=>`<th>${EQN[e]}</th>`).join("")}</tr></thead><tbody>${dbRows}</tbody></table>
   <h3>Advanced tier pools (Contrast Pairs and French Contrast)</h3>
   <table><thead><tr><th></th><th>Squat pattern</th><th>Hinge pattern</th><th>Horizontal Push</th><th>Horizontal Pull</th></tr></thead><tbody>
@@ -2155,7 +2155,7 @@ function libraryDoc(){
     ${Object.keys(TRI_PHASE).map(k=>`<tr><td class="cat">${TRI_PHASE[k].label}</td><td>${TRI_PHASE[k].tempo}</td><td class="note">${TRI_PHASE[k].text}</td></tr>`).join("")}
   </tbody></table>`;
 
-  /* --- Page 3: weekly schemes by program length --- */
+  /* --- Page 3: weekly schemes by programme length --- */
   const maxW = Math.max(...weekLens);
   const dlOf = W => DELOADS[W] || [];
   const effOf = (w, W) => w - dlOf(W).filter(d=>d < w).length;
@@ -2198,8 +2198,8 @@ function libraryDoc(){
       return `<tr><td class="cat">Wk ${w}</td>${weekLens.map(W=>`<td>${w<=W ? cellFn(w, W) : '<span class="dim">-</span>'}</td>`).join("")}</tr>`;
     }).join("")}</tbody></table>`;
   const page3 = `
-  <h2>3. Weekly Progression by Program Length</h2>
-  <p class="intro">E7/E8/E9 = target effort of 10. Standard focuses run 3 week waves; Contrast methods progress load only when bar speed holds; Metabolic waves the main lift and circuit rounds together; Neural Contrast runs two loading waves in parallel; Triphasic splits the program into eccentric, isometric and concentric phases. Deload weeks are shaded into each grid at their fixed positions.</p>
+  <h2>3. Weekly Progression by Programme Length</h2>
+  <p class="intro">E7/E8/E9 = target effort of 10. Standard focuses run 3 week waves; Contrast methods progress load only when bar speed holds; Metabolic waves the main lift and circuit rounds together; Neural Contrast runs two loading waves in parallel; Triphasic splits the programme into eccentric, isometric and concentric phases. Deload weeks are shaded into each grid at their fixed positions.</p>
   <h3>Standard focuses (Max Strength, Hypertrophy, Strength/Size, Explosive Power, Strength/Power)</h3>
   ${grid(stdCell)}
   <h3>Contrast Pairs and French Contrast <span class="dim">(plyos progress by height and distance, never load)</span></h3>
@@ -2250,7 +2250,7 @@ function libraryDoc(){
   </tbody></table>`;
   const page6 = `
   <h2>6. Running Conditioning Bank: Straight Line and Shuttle</h2>
-  <p class="intro">Each running day stacks 3 blocks toward the coach's volume target (2000 to 4000 slider). Single type days use 3 of that type; two-type days mix both; All Types days use 3 different categories. No block appears twice in a program.</p>
+  <p class="intro">Each running day stacks 3 blocks toward the coach's volume target (2000 to 4000 slider). Single type days use 3 of that type; two-type days mix both; All Types days use 3 different categories. No block appears twice in a programme.</p>
   <p class="foot"><b>Warm-up first.</b> ${U(FIELD_WARMUP)}</p>
   ${runCat("line")}${runCat("shuttle")}`;
   const page7 = `
@@ -2446,12 +2446,12 @@ async function buildFillablePdf(){
   /* ---------- Lifting pages ---------- */
   const equipName = {machine:"Machine based", free:"Free weight", combo:"Machine and free weight", perf:"Performance gym"}[cfg.equip];
   const liftMeta = `${f.name}  |  ${equipName}  |  ${cfg.liftDays} day${cfg.liftDays>1?"s":""}/wk  |  ${cfg.weeks} weeks`;
-  newPage('Strength Program', liftMeta);
+  newPage('Strength Programme', liftMeta);
 
   /* week guide */
   const wl = weekLines();
   const wgH = 14 + wl.length*10 + 8;
-  ensure(wgH, 'Strength Program', liftMeta);
+  ensure(wgH, 'Strength Programme', liftMeta);
   txt('WEEK GUIDE', M, y-8, 8, bold, ACC); y -= 18;
   wl.forEach(l=>{ txt(trunc(l, helv, 7.5, W-2*M), M, y, 7.5, helv, GREY); y -= 10; });
   y -= 8;
@@ -2460,7 +2460,7 @@ async function buildFillablePdf(){
     const nMax = Math.max(...d.ex.map(x=>setsOf(x.rx || (x.role==="accy" ? f.accy : f.main))));
     const fw = 46, fg = 3, xF = RIGHT - nMax*(fw+fg) + fg;
     const blockH = 22 + 12 + d.ex.length*20 + 20;
-    ensure(blockH, 'Strength Program', liftMeta);
+    ensure(blockH, 'Strength Programme', liftMeta);
 
     page.drawRectangle({x:M, y:y-16, width:W-2*M, height:16, color:HEAD});
     page.drawRectangle({x:M, y:y-18, width:W-2*M, height:2, color:ACC});
@@ -2496,7 +2496,7 @@ async function buildFillablePdf(){
   /* ---------- Conditioning page ---------- */
   const condMeta = `${co.name}  |  Effort ${co.rpe}  |  ${cfg.condDays} day${cfg.condDays>1?"s":""}/wk  |  ${cfg.condMins} min per session`;
   if(cfg.condOn){
-  newPage('Conditioning Program', condMeta);
+  newPage('Conditioning Programme', condMeta);
   txt(trunc('Pick your poison: ' + MACHINES, helv, 7.5, W-2*M), M, y-4, 7.5, helv, GREY);
   y -= 20;
 
@@ -2504,7 +2504,7 @@ async function buildFillablePdf(){
     const {label, ratio, rounds, used} = condPlan(dd);
     const perRow = 8, lines = Math.ceil(rounds/perRow);
     const blockH = 22 + 14 + lines*20 + 22;
-    ensure(blockH, 'Conditioning Program', condMeta);
+    ensure(blockH, 'Conditioning Programme', condMeta);
 
     page.drawRectangle({x:M, y:y-16, width:W-2*M, height:16, color:HEAD});
     page.drawRectangle({x:M, y:y-18, width:W-2*M, height:2, color:ACC});
@@ -2605,13 +2605,13 @@ el('saveBtn').addEventListener('click', ()=>{
   const blob = new Blob([stateJSON()], {type:'application/json'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = SKINS[activeSkin].fileBase + '_Program.json';
+  a.download = SKINS[activeSkin].fileBase + '_Programme.json';
   a.click(); URL.revokeObjectURL(a.href);
 });
 el('loadFile').addEventListener('change', e=>{
   const file = e.target.files[0]; if(!file) return;
   const fr = new FileReader();
-  fr.onload = ()=>{ try{ applyState(JSON.parse(fr.result)); persist(); }catch(err){ alert('That file could not be read as a saved program.'); } };
+  fr.onload = ()=>{ try{ applyState(JSON.parse(fr.result)); persist(); }catch(err){ alert('That file could not be read as a saved programme.'); } };
   fr.readAsText(file);
   e.target.value = '';
 });
@@ -2659,7 +2659,7 @@ function stpHandoff(){
       lines: [p.label + " x " + p.rounds]
     }]});
   }
-  return {format: "stp-handoff", version: 1, title: "Program", units: "m", sessions};
+  return {format: "stp-handoff", version: 1, title: "Programme", units: "m", sessions};
 }
 
 /* Mismatch report: run blocks with no visualiser drill */
@@ -2675,13 +2675,13 @@ function stpExport(){
   if(!program) return;
   const data = stpHandoff();
   if(!data.sessions.length){
-    alert("Nothing to export yet. Switch on Speed, Running Conditioning or Indoor Conditioning, then build the program again.");
+    alert("Nothing to export yet. Switch on Speed, Running Conditioning or Indoor Conditioning, then build the programme again.");
     return;
   }
   const miss = stpMismatch();
   const blob = new Blob([JSON.stringify(data, null, 1)], {type: "application/json"});
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob); a.download = "program-for-visualiser.json";
+  a.href = URL.createObjectURL(blob); a.download = "programme-for-visualiser.json";
   document.body.appendChild(a); a.click(); a.remove();
   URL.revokeObjectURL(a.href);
   if(miss.length) alert("Exported. " + miss.length + " run block(s) are not in the visualiser yet: " + miss.join(", "));
@@ -2695,8 +2695,8 @@ try{
   if(saved) applyState(JSON.parse(saved));
 }catch(e){}
 
-/* Builder show/hide: once a program exists the builder collapses by default so
-   returning users land straight on the program. Preference persists per device. */
+/* Builder show/hide: once a programme exists the builder collapses by default so
+   returning users land straight on the programme. Preference persists per device. */
 function setBuilder(open, save){
   el('builder').style.display = open ? '' : 'none';
   const b = el('builderSw');
@@ -2708,7 +2708,7 @@ function syncBuilderSw(){
   const b = el('builderSw');
   if(!b) return;
   b.disabled = !program;
-  b.title = program ? '' : 'Build a program first';
+  b.title = program ? '' : 'Build a programme first';
 }
 (function initBuilder(){
   let open = true;
