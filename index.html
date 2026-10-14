@@ -340,14 +340,17 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
 </header>
 
 <section class="builder" id="builder">
-  <div class="grp">
-    <div class="grp-label">Lifting days per week</div>
+  <div class="grp opt-grp">
+    <div class="grp-label">Lifting <button class="incSw" id="liftSw" type="button">On</button></div>
+    <div class="opt-body" id="liftBody">
+    <div class="mini">Days per week</div>
     <div class="chips" data-key="liftDays">
       <button class="chip" data-v="1">1</button><button class="chip" data-v="2">2</button><button class="chip on" data-v="3">3</button><button class="chip" data-v="4">4</button><button class="chip" data-v="5">5</button><button class="chip" data-v="6">6</button>
     </div>
+    </div>
   </div>
 
-  <div class="grp opt-grp">
+  <div class="grp opt-grp liftOnly">
     <div class="grp-label">CARE Finisher <button class="incSw" id="careSw" type="button">Off</button></div>
     <div class="opt-body" id="careBody">
       <p class="rule-note" style="margin-top:2px;">CARE (Core Accessory Robustness Exercises): a short two movement finisher added to the end of every lifting day. One core movement, loaded 3 x 5 or unloaded 3 x 15 alternating by day, plus one shoulder and scapular movement at 2 x 10. Both rotate and swap like any other exercise.</p>
@@ -361,7 +364,7 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
     </div>
   </div>
 
-  <div class="grp">
+  <div class="grp liftOnly">
     <div class="grp-label">Body emphasis</div>
     <div class="chips" data-key="emph">
       <button class="chip" data-v="lower">Lower Body Emphasis<span class="sm">2:1 toward lower</span></button>
@@ -370,7 +373,7 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
     </div>
   </div>
 
-  <div class="grp">
+  <div class="grp liftOnly">
     <div class="grp-label">Lifting equipment</div>
     <div class="chips" data-key="equip">
       <button class="chip on" data-v="machine">Machine<span class="sm">Plate and pin loaded</span></button>
@@ -382,7 +385,7 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
     </div>
   </div>
 
-  <div class="grp">
+  <div class="grp liftOnly">
     <div class="grp-label">Lifting focus</div>
     <div class="focus-tier">
       <span class="tier-tag">Simple</span>
@@ -408,7 +411,7 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
     </div>
   </div>
 
-  <div class="grp">
+  <div class="grp liftOnly">
     <div class="grp-label">Session structure</div>
     <div class="chips" data-key="struct">
       <button class="chip" data-v="split">Lower/Upper Split<span class="sm">Dedicated days</span></button>
@@ -519,6 +522,7 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
   </div>
 
   <button class="build-btn" id="buildBtn">Build programme</button>
+  <p class="tip" id="buildMsg" style="display:none; color:var(--primary-hi);">Switch on at least one section (Lifting, Speed, Running Conditioning or Indoor Conditioning) to build a programme.</p>
   <p class="tip">Every setting can be changed and rebuilt. In the finished programme, tap any lift to swap it for a progression, regression or substitution.</p>
 </section>
 
@@ -1783,6 +1787,11 @@ function reconcileOptional(key){
 }
 
 function syncOptional(){
+  const lo = !!cfg.liftOn;
+  el("liftSw").textContent = lo ? "On" : "Off";
+  el("liftSw").classList.toggle("on", lo);
+  el("liftBody").style.display = lo ? "" : "none";
+  document.querySelectorAll(".liftOnly").forEach(g=>{ g.style.display = lo ? "" : "none"; });
   [["careOn","careSw","careBody"],["condOn","condSw","condBody"],["spdOn","spdSw","spdBody"],["runOn","runSw","runBody"]].forEach(([k, sw, body])=>{
     const on = !!cfg[k];
     el(sw).textContent = on ? "On" : "Off";
@@ -1792,7 +1801,7 @@ function syncOptional(){
 }
 
 /* ---------------- State ---------------- */
-const cfg = {liftDays:3, careOn:false, condOn:true, condDays:2, weeks:6, emph:"equal", equip:"machine", focus:"hyp", struct:"hyb", condSys:"aer", condMins:15,
+const cfg = {liftOn:true, liftDays:3, careOn:false, condOn:true, condDays:2, weeks:6, emph:"equal", equip:"machine", focus:"hyp", struct:"hyb", condSys:"aer", condMins:15,
   units:"m",
   spdOn:false, spdQual:"all", spdDays:2, spdApp:"hyb",
   runOn:false, runType:"straight", runDays:2, runApp:"hyb", runVol:3000};
@@ -1968,6 +1977,8 @@ function showOut(scroll){
 }
 
 function renderLift(){
+  el('liftPage').style.display = cfg.liftOn ? "" : "none";
+  if(!cfg.liftOn) return;
   const f = FOCUS[cfg.focus];
   el('liftSub').textContent = `${f.name} | ${cfg.liftDays} day${cfg.liftDays>1?"s":""} per week | ${cfg.weeks} weeks`;
   el('liftMeta').innerHTML =
@@ -2089,7 +2100,7 @@ function renderCond(){
     </div>`;
   }
   html += `<div class="cond-card"><div class="poison"><b>Pick your poison.</b> ${MACHINES}</div>
-    <div class="cond-note">Progression follows the same 3 week wave as the lifting: hold the structure and lift the output. Week 1 find your paces, week 2 nudge them up, week 3 push the ceiling, then restart above where you began.</div></div>`;
+    <div class="cond-note">${cfg.liftOn ? "Progression follows the same 3 week wave as the lifting: hold the structure and lift the output." : "Progression follows a 3 week wave: hold the structure and lift the output."} Week 1 find your paces, week 2 nudge them up, week 3 push the ceiling, then restart above where you began.</div></div>`;
   el('condDaysWrap').innerHTML = html;
   wireRpe(el('condDaysWrap'));
 }
@@ -2333,7 +2344,7 @@ td.recc{white-space:nowrap;}
 </style></head><body>
 <div class="stpf"><img src="${LOGO_ST_MARK_NAVY}" alt=""><span>ST Performance | stperformanceglobal.com</span></div>
 
-<div class="page">
+${cfg.liftOn ? `<div class="page">
   <div class="hd">${stpLinkOpen()}<img class="${SK.wideLogo ? "wide" : ""}" src="${logo}" alt="${SK.brand}">${stpLinkClose()}
     <div><div class="t1">Strength Programme</div><div class="t2">${SK.brand}</div></div>
     <div class="meta"><b>${f.name}</b> | ${equipName} | ${{split:"Lower/Upper split", full:"Full body only", hyb:"Hybrid"}[cfg.struct]} | ${{lower:"Lower body 2:1", upper:"Upper body 2:1", equal:"Equal 1:1"}[cfg.emph]}${withRec ? " | Recording sheet" : ""}<br>${cfg.liftDays} day${cfg.liftDays>1?"s":""} per week | ${cfg.weeks} weeks | ${cfg.focus==="tri" ? "Triphasic blocks: ecc / iso / con" : "Linear, 3 week waves"}${deloadWeeks().length ? " | Deload wk " + deloadWeeks().join(" and ") : ""}</div>
@@ -2342,16 +2353,16 @@ td.recc{white-space:nowrap;}
   <div class="grid">${liftCards}</div>
   ${cfg.focus==="cluster" ? "" : `<div class="foot"><b>Coaching note.</b> ${f.note}</div>`}
 </div>
-${cfg.focus==="cluster" ? clusterPrintPage(logo, SK, f, withRec) : ""}
+${cfg.focus==="cluster" ? clusterPrintPage(logo, SK, f, withRec) : ""}` : ""}
 
 ${(cfg.condOn || extraCards) ? `<div class="page">
-  <div class="hd"><img class="${SK.wideLogo ? "wide" : ""}" src="${logo}" alt="${SK.brand}">
+  <div class="hd">${cfg.liftOn ? "" : stpLinkOpen()}<img class="${SK.wideLogo ? "wide" : ""}" src="${logo}" alt="${SK.brand}">${cfg.liftOn ? "" : stpLinkClose()}
     <div><div class="t1">${cfg.condOn ? "Conditioning Programme" : "Speed and Running"}</div><div class="t2">${SK.brand}</div></div>
     <div class="meta">${cfg.condOn ? `<b>${c.name}</b> | Effort ${c.rpe}${withRec ? " | Recording sheet" : ""}<br>${cfg.condDays} day${cfg.condDays>1?"s":""} per week | ${cfg.condMins} min per session` : `<b>Field work</b>${withRec ? " | Recording sheet" : ""}`}</div>
   </div>
   ${cfg.condOn ? `<div class="cgrid">${condCards}</div>
   <div class="foot"><b>Pick your poison.</b> ${MACHINES}<br>
-  <span class="note">${c.note} Progression follows the same 3 week wave as the lifting: hold the structure and lift the output.</span></div>` : ""}
+  <span class="note">${c.note} ${cfg.liftOn ? "Progression follows the same 3 week wave as the lifting: hold the structure and lift the output." : "Progression follows a 3 week wave: hold the structure and lift the output."}</span></div>` : ""}
   ${extraCards}
 </div>` : ""}
 
@@ -2732,6 +2743,7 @@ async function buildFillablePdf(){
   /* ---------- Lifting pages ---------- */
   const equipName = EQUIP_NAME[cfg.equip];
   const liftMeta = `${f.name}  |  ${equipName}  |  ${cfg.liftDays} day${cfg.liftDays>1?"s":""}/wk  |  ${cfg.weeks} weeks`;
+  if(cfg.liftOn){
   if(cfg.focus === "cluster"){
     newPage('How Cluster Sets Work', liftMeta);
     const para = (head, lines, size)=>{
@@ -2797,6 +2809,8 @@ async function buildFillablePdf(){
     field(`rpeL${di}`, M+100, y-4, 34, 14, d.rpe, 8);
     y -= 16;
   });
+
+  }
 
   /* ---------- Conditioning page ---------- */
   const condMeta = `${co.name}  |  Effort ${co.rpe}  |  ${cfg.condDays} day${cfg.condDays>1?"s":""}/wk  |  ${cfg.condMins} min per session`;
@@ -2893,6 +2907,9 @@ async function buildFillablePdf(){
 
 /* ---------------- Wire up ---------------- */
 el('buildBtn').addEventListener('click', ()=>{
+  const none = !(cfg.liftOn || cfg.condOn || cfg.spdOn || cfg.runOn);
+  el('buildMsg').style.display = none ? '' : 'none';
+  if(none) return;
   buildProgram(); renderLift(); renderCond(); renderSpeed(); renderRun();
   showOut(true); persist();
 });
@@ -2905,6 +2922,7 @@ el('runVol').addEventListener('input', ()=>{
   syncRunVol();
   if(program && program.run){ program.run = buildRunDays(); renderRun(); persist(); }
 });
+el('liftSw').addEventListener('click', ()=>{ cfg.liftOn = !cfg.liftOn; syncOptional(); });
 el('careSw').addEventListener('click', ()=>{ cfg.careOn = !cfg.careOn; syncOptional(); });
 el('condSw').addEventListener('click', ()=>{ cfg.condOn = !cfg.condOn; syncOptional(); });
 el('spdSw').addEventListener('click', ()=>{ cfg.spdOn = !cfg.spdOn; syncOptional(); });
