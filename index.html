@@ -216,8 +216,8 @@ table.recmode .exn .note{margin-top:3px;}
 .rpe-chip:hover{border-color:var(--silver);}
 .rpe-chip.on{background:var(--primary); border-color:var(--primary); color:var(--on-primary); font-weight:600;}
 .cond-card .srpe{padding:11px 0 2px; margin-top:10px;}
-#saveBtn, #loadBtn{background:none; color:var(--silver); border:1px solid var(--line);}
-#saveBtn:hover, #loadBtn:hover{color:var(--white); border-color:var(--silver);}
+#saveBtn, #loadBtn, #vizBtn{background:none; color:var(--silver); border:1px solid var(--line);}
+#saveBtn:hover, #loadBtn:hover, #vizBtn:hover{color:var(--white); border-color:var(--silver);}
 /* Per-day record switch */
 .dh-right{display:flex; align-items:center; gap:12px;}
 .recSw{background:none; border:1.5px solid var(--primary); color:var(--primary); font-family:'Oswald',sans-serif; font-size:11px; font-weight:500; letter-spacing:.1em; text-transform:uppercase; padding:4px 12px; border-radius:2px; cursor:pointer; transition:background .15s, color .15s;}
@@ -541,6 +541,7 @@ tr.rec td{padding-top:2px; border-bottom:1px solid rgba(144,152,162,.12);}
   <button id="editBtn">Edit settings</button>
   <button id="saveBtn">Save</button>
   <button id="loadBtn">Load</button>
+  <button id="vizBtn">Export for visualiser</button>
   <button id="pdfBtn">PDF: Program</button>
   <button id="pdfRecBtn">PDF + Recording</button>
   <button id="pdfFillBtn">Fillable PDF</button>
@@ -2609,6 +2610,78 @@ el('loadFile').addEventListener('change', e=>{
   e.target.value = '';
 });
 el('loadBtn').addEventListener('click', ()=>el('loadFile').click());
+
+/* ===== Export for visualiser (ST Performance Rugby Drills) ===== */
+const STP_ALIAS = {
+ "Goodwins": "Goodwins Rectangle",
+ "Coat Hangers": "Coathanger",
+ "Chest Start 22s": "Chest-Start 22",
+ "Malcolms with Sprint": "Malcolms",
+ "200/100s": "200s and 100s",
+ "Sixty Squared": "Sixty2",
+ "10/20/30 Block": "10-20-30 Down-Up Shuttles",
+ "Bronco": "Crusader Bronco"
+};
+const STP_DRILLS = ["Crusader Bronco", "Broken Bronco", "Lion Heart", "Reven", "Sixty2", "200s and 100s", "Double 150s", "Coathanger", "Shuttle Ladder 5-22-50", "3-2-1", "Scissors", "80-60-40", "80-60-40 Down-Ups", "The Gill", "Mini Gill", "Warrior", "Malcolms", "Titanium", "Franko", "Scuttler", "Dagger", "Accelerators", "Sled Contrasts 22", "150s", "44s", "88s", "22s", "Repeat 50s", "Repeat 100s", "10-20-30 Down-Up Shuttles", "Ladder Sprints", "Ladder Sprints 10-50", "Down-Up Acceleration 10m", "20m Acceleration", "Chest-Start 22", "45 Degree Cut", "Slalom Run 22m", "22m Down-Ups", "Double Down-Up 22", "Goodwins Rectangle", "MAS 15:15", "Touchline Tempo Lap", "Broken Pony", "Bear Crawl 10m", "Burpee Sprint 22", "Squat Jump Sprint 22", "Press-Up Sprint 22", "Drop-and-Roll Alternating", "Double Roll Out and Back", "Extended Bronco 20-40-60-80", "Sprint and Backpedal 22", "Sprint and Roll 22", "Crawl-Sprint 5-22", "Flying 20s", "Flying 30s", "Flying 40s", "Sprint Float Sprint", "70s", "80s", "Full Length 100", "Down-Up Flying 30", "Repeat 30s", "Repeat 40s", "Repeat 60s", "Triple 11s", "10m Acceleration", "30m Acceleration", "Jog-in Acceleration 20", "90 Degree Cut", "Zig-Zag 30m", "Pro Agility 5-10-5", "Down-Up Cut", "MAS 10:10", "MAS 15:15 Full Length", "MAS 30:30", "Tempo 100s", "Tempo 200s", "Tempo 300s", "Short Tempo Box", "Width Tempo 60s", "Diagonal Tempo", "Bear Crawl 5-10 Pyramid", "Backpedal 22 and Sprint", "Down-Up Bear Crawl", "Squat Sprint 22", "Press-Up Bear Crawl", "Burpee Shuttle 10", "Kneeling Wrestle to Sprint", "Standing Wrestle to Shuttle", "Down-Ups to Hit Shield", "Hit, Run, Down-Up, Hit", "Hit Shield to Sprint", "Sprint to Hit Shield Finish", "Wrestle Start and Finish", "Run and Hit Shield 40", "Hit Shield to Standing Wrestle", "Single Curve In", "Single Curve Across", "Banana Run", "S-Curve", "S-Curve Wide", "Double S", "Swerve Around 50", "Double Swerve", "Swerve and Accelerate", "Zig-Zag 22s", "Zig-Zag Wide Sprint", "Zig-Zag to Swerve", "Sled Push 5m", "Sled Push 10m", "Sled Push 15m", "Sled Push Contrast 5m", "Sled Push Contrast 10m", "Sled Push Contrast 15m", "Sled Sprint 22m", "Sled Sprint 25m", "Sled Sprint 30m", "Sled Sprint 40m", "Sled Sprint 50m", "Sled Sprint 60m", "Sled Sprint Contrast 22m", "Sled Sprint Contrast 25m", "Sled Sprint Contrast 30m", "Sled Sprint Contrast 40m", "Sled Sprint Contrast 50m", "Sled Sprint Contrast 60m"];
+const stpNrm = s => String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+const stpName = n => STP_ALIAS[n] || n;
+const stpReps = lines => { const m = (lines && lines[0] || '').match(/^(\d+)\s*x\s*\{/i); return m ? +m[1] : null; };
+
+function stpHandoff(){
+  const sessions = [];
+  /* Running Conditioning: program.run = [{title, blocks:[{n:"1. Name", cat, dist, lines}]}] */
+  (program.run || []).forEach((d, i)=>sessions.push({
+    name: "Run Day " + (i+1) + " " + d.title, kind: "run",
+    blocks: d.blocks.map(b=>{
+      const o = {name: stpName(b.n.replace(/^\d+\.\s*/, "")), kind: "run", cat: b.cat, dist: b.dist};
+      const r = stpReps(b.lines); if(r) o.reps = r;
+      o.lines = b.lines; return o;
+    })
+  }));
+  /* Speed: program.speed = [{title, tag, lines}] (text sessions) */
+  (program.speed || []).forEach((d, i)=>sessions.push({
+    name: "Speed Day " + (i+1) + " " + d.title, kind: "speed",
+    blocks: [{name: stpName(d.title), kind: "speed", tag: d.tag, lines: d.lines}]
+  }));
+  /* Indoor conditioning: machine intervals, no field drill */
+  if(cfg.condOn) for(let d=0; d<cfg.condDays; d++){
+    const p = condPlan(d), [w, r] = parseScheme(p.label);
+    sessions.push({name: "Conditioning Day " + (d+1), kind: "cond", blocks: [{
+      name: COND[cfg.condSys].name + " intervals", kind: "cond",
+      fx: {aer:"aer", ana:"ana", hyb:"mix"}[cfg.condSys],
+      work_s: w, rest_s: r, rounds: p.rounds, mins: cfg.condMins,
+      lines: [p.label + " x " + p.rounds]
+    }]});
+  }
+  return {format: "stp-handoff", version: 1, title: "Program", units: "m", sessions};
+}
+
+/* Mismatch report: run blocks with no visualiser drill */
+function stpMismatch(){
+  const have = new Set(STP_DRILLS.map(stpNrm)), miss = [];
+  (program.run || []).forEach(d=>d.blocks.forEach(b=>{
+    const n = stpName(b.n.replace(/^\d+\.\s*/, ""));
+    if(!have.has(stpNrm(n)) && !miss.includes(n)) miss.push(n);
+  }));
+  return miss;
+}
+function stpExport(){
+  if(!program) return;
+  const data = stpHandoff();
+  if(!data.sessions.length){
+    alert("Nothing to export yet. Switch on Speed, Running Conditioning or Indoor Conditioning, then build the program again.");
+    return;
+  }
+  const miss = stpMismatch();
+  const blob = new Blob([JSON.stringify(data, null, 1)], {type: "application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = "program-for-visualiser.json";
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(a.href);
+  if(miss.length) alert("Exported. " + miss.length + " run block(s) are not in the visualiser yet: " + miss.join(", "));
+}
+el('vizBtn').addEventListener('click', stpExport);
+
 
 /* Autosave restore: silently skipped where storage is unavailable */
 try{
