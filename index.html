@@ -847,14 +847,14 @@ const clRepWord = c => c.reps + " rep" + (c.reps>1 ? "s" : "");
 const clText = c => `${c.sets} sets of ${c.cl} clusters of ${clRepWord(c)} at ${c.pct}, ${c.inside} rest inside the set, 3 min between sets`;
 const clShort = c => `${c.cl} x ${c.reps} @${c.pct}`;
 const CLUSTER_GUIDE = {
-  what: "A cluster set splits one set into short mini-sets called clusters. You rest 15 to 20 seconds between clusters, then carry on until the whole set is done.",
+  what: "A cluster set splits one set into short mini-sets called clusters. You rest 15 to 20 s between clusters, then carry on until the whole set is done.",
   why: "The short rest restores enough energy for every rep to stay fast and crisp at a heavier load than a straight set allows. You collect more quality reps at high force without the grind. It suits rugby players who need strength that shows up at speed.",
   steps: [
     "Find the load in the week guide. It is a percentage of your best recent top set.",
     "Lift the first cluster, for example 2 reps. Rack the bar or put the weight down.",
-    "Rest for the time shown. 15 to 20 seconds is enough to breathe and reset your position.",
+    "Rest for the time shown. 15 to 20 s is enough to breathe and reset your position.",
     "Lift the next cluster. Repeat until every cluster is done. That whole sequence is one set.",
-    "Rest 3 minutes before the next set."
+    "Rest 3 min before the next set."
   ],
   read: "How to read it: 4 sets of 3 clusters of 2 reps means 4 sets, each made of 3 clusters of 2 reps. That is 6 reps per set and 24 reps in total.",
   rules: [
@@ -1228,7 +1228,7 @@ const COND = {
     note:"Strong but repeatable pace. You should finish the last round at the same output as the first."},
   rec:{name:"Aerobic recovery", rpe:"3 to 5 of 10",
     schemes:[["30 s easy : 60 s rest","1:2"],["20 s easy : 60 s rest","1:3"],["40 s easy : 80 s rest","1:2"]],
-    note:"Smooth and controlled, never a struggle. Keep moving through the work, stay at RPE 3 or above, and use the rest to bring breathing right down. Aim for at least 12 minutes of total work time."},
+    note:"Smooth and controlled, never a struggle. Keep moving through the work, stay at RPE 3 or above, and use the rest to bring breathing right down. Aim for at least 12 min of total work time."},
   ana:{name:"Anaerobic", rpe:"8 to 9 of 10",
     schemes:[["45 s hard : 15 s easy","3:1"],["40 s hard : 20 s easy","2:1"],["60 s hard : 30 s easy","2:1"]],
     note:"Hard and relentless. Rest is short on purpose so fatigue builds round by round. Hold the same output as long as you can."},
@@ -1355,242 +1355,240 @@ const CAT_NAME = {line:"Straight Line", shuttle:"Shuttle", pattern:"Pattern", cu
 const RUNS = [
   /* Straight line */
   {n:"Repeat 100s", cat:"line", dist:1600, reps:8, viz:"Repeat 100s", d:[
-    "8 x {100}, target 16 to 20 s",
+    "8 reps, target 16 to 20 s each",
     "Go every 60 s"]},
   {n:"Repeat 50s", cat:"line", dist:1000, reps:10, viz:"Repeat 50s", d:[
-    "10 x {50}, target 8 to 10 s",
+    "10 reps, target 8 to 10 s each",
     "Go every 30 s"]},
   {n:"150s", cat:"line", dist:1600, reps:8, viz:"150s", d:[
-    "8 x {150} at 24 to 28 s",
+    "8 reps, each in 24 to 28 s",
     "Go every 60 s, rest 2 min after rep 4"]},
   {n:"Long 150s", cat:"line", dist:2400, reps:12, viz:"150s", d:[
-    "12 x {150} at 24 to 28 s",
+    "12 reps, each in 24 to 28 s",
     "Go every 60 s, rest 3 min after rep 6"]},
   {n:"Pyramid Repeats", cat:"line", dist:1800, reps:1, viz:"Pyramid Repeats", d:[
-    "{50} x 4 every 30 s, {100} x 3 every 60 s, {200} x 2 every 90 s, {400} x 1",
+    "{50} x 4 going every 30 s, {100} x 3 going every 60 s, {200} x 2 going every 90 s, {400} x 1",
     "Targets: {50} under 9 s, {100} under 20 s, {200} under 40 s, {400} under 1:40"]},
   {n:"200/100s", cat:"line", dist:900, reps:3, viz:"200s and 100s", d:[
-    "Run {200} under 40 s on a 60 s turnaround, then {100} under 20 s on a 60 s turnaround",
+    "{200} under 40 s, then {100} under 20 s, each going every 60 s",
     "3 rounds"]},
   {n:"100/60/20", cat:"line", dist:1200, reps:1, viz:"100/60/20", d:[
-    "Sprint {60} then run hard to {100} x 3 going every 60 s, then sprint {60} jog {40} x 4 every 45 s",
-    "Finish: sprint {20} jog {20} x 6 every 20 s"]},
+    "{60} sprint and run hard to {100} x 3 going every 60 s",
+    "{60} sprint and {40} jog x 4 going every 45 s, then {20} sprint and {20} jog x 6 going every 20 s"]},
   {n:"Build-Ups", cat:"line", dist:800, reps:1, viz:"Build-Ups", d:[
-    "Reps 1-2: sprint {22}, jog {78}. Reps 3-4: sprint {50}, jog {50}",
-    "Reps 5-6: sprint {60}, run hard to {78}, jog {22}. Reps 7-8: sprint {60}, run hard to the full {100}. Go every 60 s"]},
+    "8 efforts in pairs: 2 x {22}, 2 x {50}, 2 x {60} to {78}, 2 x {60} to {100}",
+    "Go every 60 s"]},
   {n:"Repeat Sprints: Short", cat:"line", dist:1200, reps:1, viz:"Repeat Sprints: Short", d:[
-    "20 x {10} maximal sprints on a 10 s turnaround, jog through after each",
-    "Rest 2 min, then 20 x {20} maximal sprints on a 15 s turnaround",
-    "Vary start positions, carry a ball, race a partner"]},
+    "20 x {10} maximal sprints going every 10 s, then rest 2 min",
+    "20 x {20} maximal sprints going every 15 s",
+    "Options: vary start positions, carry a ball, race a partner"]},
   {n:"Repeat Sprints: Medium", cat:"line", dist:1080, reps:1, viz:"Repeat Sprints: Medium", d:[
-    "12 x {20} maximal sprints on a 15 s turnaround, jog through after each",
-    "Rest 2 min, then 10 x {30} maximal sprints on a 20 s turnaround",
-    "Vary start positions, carry a ball, race a partner"]},
+    "12 x {20} maximal sprints going every 15 s, then rest 2 min",
+    "10 x {30} maximal sprints going every 20 s",
+    "Options: vary start positions, carry a ball, race a partner"]},
   {n:"100/200 Drill", cat:"line", dist:900, reps:3, viz:"100/200 Drill", d:[
-    "Run {100} in 20 s, rest 40 s. Then run {200} in 40 s, rest 20 s",
-    "That is one round. Complete 3 rounds"]},
+    "{100} in 20 s, rest 40 s, then {200} in 40 s, rest 20 s",
+    "3 rounds"]},
   {n:"50s Jog-Through", cat:"line", dist:1000, reps:10, viz:"50s Jog-Through", d:[
-    "Sprint {50} in about 7 s, then jog through the remaining {50}",
-    "10 reps on a 30 to 40 s turnaround"]},
+    "10 reps, each sprint about 7 s",
+    "Go every 30 to 40 s"]},
   {n:"Descending Ladder", cat:"line", dist:1000, reps:1, viz:"Descending Ladder", d:[
-    "Run {400}, then {300}, then {200}, then {100}",
-    "Rest 1.5 times the work after each rep (about 2:30, 2:00, 1:15, 40 s)"]},
+    "{400}, {300}, {200}, {100}",
+    "Rest 1.5 times the work after each effort: 2:30, 2:00, 1:15, 40 s"]},
   {n:"1 km Repeat", cat:"line", dist:1000, reps:1, viz:"1 km Repeat", d:[
-    "Run {1000} at your maximal sustainable pace, target under 4 min",
-    "One rep. Pace it: the last {200} as fast as the first"]},
+    "1 rep, target under 4 min",
+    "Pace it so the last {200} is as fast as the first"]},
   {n:"Tempo 200s", cat:"line", dist:800, reps:4, viz:"Tempo 200s", d:[
-    "4 x {200} at 75 to 80% effort, tall and relaxed",
-    "Walk 60 s between reps"]},
+    "4 reps at 75 to 80% effort, tall and relaxed",
+    "Rest 60 s between reps"]},
   /* Shuttles */
   {n:"Bronco", cat:"shuttle", dist:1220, reps:5, viz:"Crusader Bronco", d:[
-    "Run {20} and back, {40} and back, {60} and back ({240} per round)",
-    "5 rounds, each under 60 s, going every 90 s"]},
+    "5 rounds, each under 60 s, {244} per round",
+    "Go every 90 s"]},
   {n:"Bucking Bronco", cat:"shuttle", dist:1440, reps:1, viz:"Bucking Bronco", d:[
-    "One Bronco = {20} and back, {40} and back, {60} and back ({240})",
-    "Run 3 continuous, rest 2 min. Then 2 continuous, rest 1 min. Then 1 all-out under 60 s"]},
+    "3 Broncos continuous, rest 2 min, 2 Broncos continuous, rest 1 min, then 1 all-out under 60 s",
+    "{240} per Bronco"]},
   {n:"Sixty Squared", cat:"shuttle", dist:960, reps:4, viz:"Sixty2", d:[
-    "Run {60} and back, twice ({240} per rep)",
-    "4 reps, each under 60 s, going every 90 s"]},
+    "4 reps, each under 60 s, {240} per rep",
+    "Go every 90 s"]},
   {n:"80/60/40", cat:"shuttle", dist:1272, reps:6, viz:"80-60-40", d:[
-    "Run {80}, turn and run back {60}, turn and run {40} ({180} per rep), target under 30 s",
-    "6 reps, jog back as the rest, going every 90 s"]},
+    "6 reps, target under 30 s each, {212} per rep",
+    "Jog through as the rest, go every 90 s"]},
   {n:"22m Repeats", cat:"shuttle", dist:1152, reps:8, viz:"22m Repeats", d:[
-    "Run {22} out, back, and out again ({66}), target 13 to 15 s, jog {78} as recovery",
-    "Go every 60 s. 2 blocks of 4 reps, rest 2 min between blocks"]},
+    "8 reps in 2 blocks of 4, target 13 to 15 s for the {66} of running",
+    "Go every 60 s, rest 2 min between blocks"]},
   {n:"Yo-Yo Shuttle", cat:"shuttle", dist:912, reps:6, viz:"Yo-Yo Shuttle", d:[
-    "Run {10} out and back, then {28} out, back {18}, then {38} through (about {105})",
-    "Target 20 to 25 s, jog back. 6 reps, going every 60 s"]},
+    "6 reps, target 20 to 25 s each",
+    "Go every 60 s"]},
   {n:"150 Shuttles", cat:"shuttle", dist:720, reps:5, viz:"150 Shuttles", d:[
-    "Sprint {22} and back, then run hard {50} and sprint back ({144} per rep)",
-    "Each rep in 30 s, going every 60 s. 5 reps"]},
+    "5 reps, each in 30 s",
+    "Go every 60 s"]},
   {n:"300 Shuttle", cat:"shuttle", dist:900, reps:3, viz:"300 Shuttle", d:[
-    "{50} there and back, 3 times continuous ({300} per rep), target under 65 s",
-    "3 reps, rest 3 min between reps"]},
+    "3 reps, target under 65 s each, {300} per rep",
+    "Rest 3 min between reps"]},
   /* Patterns */
   {n:"Goodwins", cat:"pattern", dist:1728, reps:8, viz:"Goodwins Rectangle", d:[
-    "Rectangle: long side {78}, short side {30}. Hard long sides in 15 s, easy short sides in 15 s",
-    "8 continuous laps. Option: 5 burpees at each short side"]},
+    "8 continuous laps",
+    "Option: 5 burpees at each short side"]},
   {n:"Accelerators", cat:"pattern", dist:800, reps:8, viz:"Accelerators", d:[
-    "Across {100}: sprint {22}, jog {18}, sprint {20}, jog {18}, sprint {22}",
-    "8 reps. Rest as needed so every sprint stays sharp"]},
+    "8 reps",
+    "Rest as needed so every sprint stays sharp"]},
   {n:"Weave and Go", cat:"pattern", dist:554, reps:10, viz:"Weave and Go", d:[
-    "6 cones in a zig-zag about {3} apart over {22}, weave at speed, then sprint {18} through",
-    "10 reps, going every 60 s"]},
+    "10 reps",
+    "Go every 60 s"]},
   {n:"Box Pattern", cat:"pattern", dist:480, reps:8, viz:"Box Pattern", d:[
-    "Sprint {20}, side shuffle {10}, backpedal {20}, carioca {10}",
-    "8 laps, 90 s between laps, alternate shuffle and carioca sides"]},
+    "8 laps",
+    "Rest 90 s between laps"]},
   {n:"Coat Hangers", cat:"pattern", dist:1110, reps:5, viz:"Coathanger", d:[
-    "Start on the sideline at halfway: run hard to the near posts, go through, then the length of the field",
-    "Go through the far posts and back to the start (about {230} per rep)",
-    "5 reps, rest 60 s between reps"]},
+    "5 reps, about {230} per rep",
+    "Rest 60 s between reps"]},
   {n:"Anaerobic Builder", cat:"pattern", dist:756, reps:6, viz:"Anaerobic Builder", d:[
-    "6 x 20 s efforts at 85 to 95%: mix shuttles, swerves, forward and backward running, fast down-ups",
-    "Change the movement pattern every rep. Rest 60 s between efforts",
-    "Progress over weeks toward 8 x 30 s at maximal intensity"]},
+    "6 reps at 85 to 95% effort, about 20 s each",
+    "Rest 60 s between reps",
+    "Progress over the weeks toward 8 reps of 30 s at maximal intensity"]},
   {n:"10/20/30 Block", cat:"pattern", dist:1100, reps:5, viz:"10/20/30 Block", d:[
-    "Each minute: 10 s max sprint with direction changes, 20 s strong run at 60 to 70%, 30 s jog",
-    "5 continuous minutes. Use position-specific movement patterns"]},
+    "5 continuous minutes, one block per minute",
+    "Use position-specific movement patterns"]},
   /* Down-ups */
   {n:"The Gill", cat:"downup", dist:1160, reps:5, viz:"The Gill", d:[
-    "Go hard 6 x {22} with a down-up at every turn, then jog {100}",
-    "5 reps, each under 70 s, going every 2 min"]},
+    "5 reps, each under 70 s",
+    "Go every 2 min"]},
   {n:"Mini Gill", cat:"downup", dist:1152, reps:8, viz:"Mini Gill", d:[
-    "3 x {22} with a down-up at every turn, easy jog {100} as recovery",
-    "8 reps, the next rep starts on arrival"]},
+    "8 reps",
+    "Go every 60 s"]},
   {n:"Warrior", cat:"downup", dist:633, reps:8, viz:"Warrior", d:[
-    "From the ground: sprint {10} forward and back, down-up, {20} forward and back, down-up, {10} forward and back",
-    "8 reps, each under 30 s, going every 60 s"]},
+    "8 reps, each under 30 s",
+    "Go every 60 s"]},
   {n:"Malcolms", cat:"downup", dist:391, reps:10, viz:"Malcolms", d:[
-    "From your stomach: backpedal {10}, down-up, run forward {20}, down-up, back {10}, down-up",
-    "10 reps under 10 s each, going every 30 s"]},
+    "10 reps, each under 10 s",
+    "Go every 30 s"]},
   {n:"Titanium", cat:"downup", dist:800, reps:10, viz:"Titanium", d:[
-    "Crawl {5} forward, run {35} out and back, crawl {5} home",
-    "10 reps, each under 25 s, going every 45 s"]},
+    "10 reps, each under 25 s",
+    "Go every 45 s"]},
   {n:"Franko", cat:"downup", dist:432, reps:8, viz:"Franko", d:[
-    "2 down-ups, crawl {5} out and back, down-up, run {22} out and back",
-    "8 reps, each under 25 s, going every 45 s"]},
+    "8 reps, each under 25 s",
+    "Go every 45 s"]},
   {n:"Scuttler", cat:"downup", dist:528, reps:12, viz:"Scuttler", d:[
-    "Run hard {22} and back, then complete 2 down-ups",
-    "12 reps on a 30 s turnaround"]},
+    "12 reps",
+    "Go every 30 s"]},
   {n:"Dagger", cat:"downup", dist:600, reps:5, viz:"Dagger", d:[
-    "2 down-ups, run {40} out, back, and out again, finish with 1 down-up",
-    "5 reps, each under 30 s, going every 60 s"]},
+    "5 reps, each under 30 s",
+    "Go every 60 s"]},
   {n:"Lion Heart", cat:"downup", dist:1220, reps:5, viz:"Lion Heart", d:[
-    "Run {50} and back, down-up, {22} and back, down-up, {50} and back",
-    "5 reps, each under 60 s, going every 90 s"]},
+    "5 reps, each under 60 s",
+    "Go every 90 s"]},
   {n:"10-20-30s", cat:"downup", dist:340, reps:1, viz:"10-20-30s", d:[
-    "Cones at {10}, {20}, {30}, down-up at each far line: {10} x 3 every 20 s, {20} x 2 every 30 s, {30} x 1, then back down",
-    "Each distance block starts every 60 s"]},
+    "1 rep, {10} x 3 going every 20 s, {20} x 2 going every 30 s, {30} x 1, then back down",
+    "Start each distance block every 60 s"]},
   {n:"Chest Start 22s", cat:"downup", dist:880, reps:20, viz:"Chest-Start 22", d:[
-    "From your chest on the ground, get up and sprint {22}",
-    "Go every 15 s. 20 reps"]},
+    "20 reps",
+    "Go every 15 s"]},
   {n:"150 Down-Ups", cat:"downup", dist:750, reps:5, viz:"150 Down-Ups", d:[
-    "Sprint to {50}, down-up, sprint back to the start, down-up, sprint back to {50}",
-    "Each rep in 30 s, going every 60 s. 5 reps"]},
+    "5 reps, each in 30 s",
+    "Go every 60 s"]},
   {n:"Malcolms with Sprint", cat:"downup", dist:507, reps:3, viz:"Malcolms with Sprint", d:[
-    "3 Malcolms back to back (backpedal {10}, down-up, forward {20}, down-up, back {10}, down-up)",
-    "Then sprint {50} to the line. Whole sequence under 60 s",
-    "Rest 60 s, repeat the sequence 3 times"]},
+    "3 rounds, whole sequence under 60 s",
+    "Rest 60 s between rounds"]},
   /* Curve, Swerve and Zig-Zag, Hit and Run, Wrestle and Run, extra Down-Up and Crawl: aligned to the visualiser drill bank */
   {n:"Single Curve In", cat:"curve", dist:1050, reps:10, viz:"Single Curve In", d:[
-    "10 x {105}: sprint straight to {22}, then run hard through one gentle curve drifting in to the {15} line",
-    "Walk back, going every 75 s"]},
+    "10 reps, about {105} per rep",
+    "Go every 75 s"]},
   {n:"Single Curve Across", cat:"curve", dist:1000, reps:8, viz:"Single Curve Across", d:[
-    "8 x {125}: run to {22} on the {5} line, then one long curve across the centre spot to the far side",
-    "Walk back, going every 75 s"]},
+    "8 reps, about {125} per rep",
+    "Go every 75 s"]},
   {n:"Banana Run", cat:"curve", dist:856, reps:8, viz:"Banana Run", d:[
-    "8 x {107}: an arc out toward the touchline at halfway and back in by the far {22}",
-    "Walk back, going every 75 s"]},
+    "8 reps, about {107} per rep",
+    "Go every 75 s"]},
   {n:"S-Curve", cat:"curve", dist:936, reps:8, viz:"S-Curve", d:[
-    "8 x {117}: straight to {22}, then an S-shaped run through the centre spot to the far {15} line",
-    "Walk back, going every 75 s"]},
+    "8 reps, about {117} per rep",
+    "Go every 75 s"]},
   {n:"S-Curve Wide", cat:"curve", dist:1056, reps:8, viz:"S-Curve Wide", d:[
-    "8 x {132}: sprint the first {22}, then run hard through a wide S-curve from one {5} line to the other",
-    "Walk back, going every 90 s"]},
+    "8 reps, about {132} per rep",
+    "Go every 90 s"]},
   {n:"Double S", cat:"curve", dist:1192, reps:8, viz:"Double S", d:[
-    "8 x {149}: two bends, across to the far {15} line at halfway and back to the near {15} line by the far {22}",
-    "Walk back, going every 75 s"]},
+    "8 reps, about {149} per rep",
+    "Go every 75 s"]},
   {n:"Swerve Around 50", cat:"curve", dist:920, reps:8, viz:"Swerve Around 50", d:[
-    "8 x {115}: run the centre line to {22}, swerve wide around halfway and back onto the centre line",
-    "Walk back, going every 75 s"]},
+    "8 reps, about {115} per rep",
+    "Go every 75 s"]},
   {n:"Double Swerve", cat:"curve", dist:1008, reps:8, viz:"Double Swerve", d:[
-    "8 x {126}: swerve left at halfway, back to the centre by the far {22}, then swerve right to the {15} line",
-    "Walk back, going every 75 s"]},
+    "8 reps, about {126} per rep",
+    "Go every 75 s"]},
   {n:"Swerve and Accelerate", cat:"curve", dist:920, reps:8, viz:"Swerve and Accelerate", d:[
-    "8 x {115}: swerve around halfway, then burst straight from the far {22} to the line",
-    "Walk back, going every 75 s"]},
+    "8 reps, about {115} per rep",
+    "Go every 75 s"]},
   {n:"Zig-Zag 22s", cat:"curve", dist:1134, reps:6, viz:"Zig-Zag 22s", d:[
-    "6 x {189}: zig-zag between the {15} lines at each {22} and halfway",
-    "Every sharp turn is a change of direction. Walk back, going every 75 s"]},
+    "6 reps, about {189} per rep",
+    "Go every 75 s"]},
   {n:"Zig-Zag Wide Sprint", cat:"curve", dist:1040, reps:4, viz:"Zig-Zag Wide Sprint", d:[
-    "4 x {260}: zig-zag between the {5} lines, sprint most of each long diagonal and run hard through the finish",
-    "Three sharp changes of direction per rep. Walk back, going every 90 s"]},
+    "4 reps, about {260} per rep",
+    "Go every 90 s"]},
   {n:"Zig-Zag to Swerve", cat:"curve", dist:996, reps:6, viz:"Zig-Zag to Swerve", d:[
-    "6 x {166}: two zig-zag cuts, then a smooth swerve through the far {22}",
-    "Walk back, going every 75 s"]},
+    "6 reps, about {166} per rep",
+    "Go every 75 s"]},
   {n:"Hit Shield to Sprint", cat:"hit", dist:528, reps:12, viz:"Hit Shield to Sprint", d:[
-    "Two shield hits, each driving about 3 steps, then up and away into a {22} sprint, jog back",
-    "12 reps going every 75 s. Partner holds the shield and swaps at rep 6"]},
+    "12 reps",
+    "Go every 75 s. The partner holds the shield and swaps at rep 6"]},
   {n:"Sprint to Hit Shield Finish", cat:"hit", dist:528, reps:12, viz:"Sprint to Hit Shield Finish", d:[
-    "Sprint {22}, jog back, then finish with two shield hits",
-    "12 reps going every 75 s. Partner holds the shield and swaps at rep 6"]},
+    "12 reps",
+    "Go every 75 s. The partner holds the shield and swaps at rep 6"]},
   {n:"Hit, Run, Down-Up, Hit", cat:"hit", dist:528, reps:12, viz:"Hit, Run, Down-Up, Hit", d:[
-    "One shield hit to start, run {22} and back, down-up, one shield hit to finish",
-    "12 reps going every 75 s. Partner holds the shield and swaps at rep 6"]},
+    "12 reps",
+    "Go every 75 s. The partner holds the shield and swaps at rep 6"]},
   {n:"Run and Hit Shield 40", cat:"hit", dist:800, reps:10, viz:"Run and Hit Shield 40", d:[
-    "Run {40} and back, then finish with three shield hits",
-    "10 reps going every 90 s. Partner holds the shield and swaps at rep 5"]},
+    "10 reps",
+    "Go every 90 s. The partner holds the shield and swaps at rep 5"]},
   {n:"Kneeling Wrestle to Sprint", cat:"wrestle", dist:528, reps:12, viz:"Kneeling Wrestle to Sprint", d:[
-    "8 s kneeling wrestle with a partner, then up and away into a {22} sprint, jog back",
-    "12 reps going every 75 s. Swap partners or roles each rep"]},
+    "12 reps",
+    "Go every 75 s. Swap partners or roles each rep"]},
   {n:"Standing Wrestle to Shuttle", cat:"wrestle", dist:528, reps:12, viz:"Standing Wrestle to Shuttle", d:[
-    "6 s standing wrestle with a partner, rotating and circling, then a {22} sprint shuttle",
-    "12 reps going every 75 s. Swap partners or roles each rep"]},
+    "12 reps",
+    "Go every 75 s. Swap partners or roles each rep"]},
   {n:"Wrestle Start and Finish", cat:"wrestle", dist:396, reps:9, viz:"Wrestle Start and Finish", d:[
-    "6 s kneeling wrestle, a {22} sprint shuttle, then 6 s standing wrestle to finish",
-    "9 reps going every 90 s. Swap partners or roles each rep"]},
+    "9 reps",
+    "Go every 90 s. Swap partners or roles each rep"]},
   {n:"Hit Shield to Standing Wrestle", cat:"wrestle", dist:396, reps:9, viz:"Hit Shield to Standing Wrestle", d:[
-    "Two shield hits, a {22} run and back, then 5 s standing wrestle to finish",
-    "9 reps going every 90 s. Swap partners or roles each rep"]},
+    "9 reps",
+    "Go every 90 s. Swap partners or roles each rep"]},
   {n:"Broken Pony", cat:"downup", dist:1120, reps:8, viz:"Broken Pony", d:[
-    "10 press-ups, {10} bear crawl out and back, then the {10}, {20}, {30} shuttle with backpedals",
-    "8 reps going every 105 s"]},
+    "8 reps",
+    "Go every 105 s"]},
   {n:"22m Down-Ups", cat:"downup", dist:1056, reps:12, viz:"22m Down-Ups", d:[
-    "Sprint out to {22} for a down-up, back to the goal line for a down-up, then out again",
-    "12 reps going every 60 s"]},
+    "12 reps",
+    "Go every 60 s"]},
   {n:"Double Down-Up 22", cat:"downup", dist:880, reps:20, viz:"Double Down-Up 22", d:[
-    "Two down-ups, then a {22} sprint shuttle",
-    "20 reps going every 30 s"]},
+    "20 reps",
+    "Go every 30 s"]},
   {n:"Bear Crawl 5-10 Pyramid", cat:"downup", dist:300, reps:10, viz:"Bear Crawl 5-10 Pyramid", d:[
-    "Bear crawl {5} out and back, then {10} out and back",
-    "10 reps going every 60 s"]},
+    "10 reps",
+    "Go every 60 s"]},
   {n:"Press-Up Bear Crawl", cat:"downup", dist:200, reps:10, viz:"Press-Up Bear Crawl", d:[
-    "8 press-ups, then a {10} bear crawl out and back",
-    "10 reps going every 60 s"]},
+    "10 reps",
+    "Go every 60 s"]},
   {n:"Hit Shield to Sprint 40", cat:"hit", dist:800, reps:10, viz:"Hit Shield to Sprint 40", d:[
-    "Two shield hits, then up and away into a {40} sprint, jog back",
-    "10 reps going every 90 s. Partner holds the shield and swaps at the halfway rep"]},
+    "10 reps",
+    "Go every 90 s. The partner holds the shield and swaps at rep 5"]},
   {n:"Hit Shield to Shuttle", cat:"hit", dist:528, reps:12, viz:"Hit Shield to Shuttle", d:[
-    "Two shield hits, then up and away into a {22} sprint shuttle",
-    "12 reps going every 75 s. Partner holds the shield and swaps at the halfway rep"]},
+    "12 reps",
+    "Go every 75 s. The partner holds the shield and swaps at rep 6"]},
   {n:"Hit, Down-Up, Sprint", cat:"hit", dist:528, reps:12, viz:"Hit, Down-Up, Sprint", d:[
-    "One shield hit, a down-up, then up and away into a {22} sprint, jog back",
-    "12 reps going every 75 s. Partner holds the shield and swaps at the halfway rep"]},
+    "12 reps",
+    "Go every 75 s. The partner holds the shield and swaps at rep 6"]},
   {n:"Backpedal to Hit Shield", cat:"hit", dist:528, reps:12, viz:"Backpedal to Hit Shield", d:[
-    "Start at {22}, backpedal to the goal line, two shield hits, then sprint back out to {22}",
-    "12 reps going every 75 s. Partner holds the shield and swaps at the halfway rep"]},
+    "12 reps",
+    "Go every 75 s. The partner holds the shield and swaps at rep 6"]},
   {n:"Kneeling Wrestle to Run 40", cat:"wrestle", dist:800, reps:10, viz:"Kneeling Wrestle to Run 40", d:[
-    "8 s kneeling wrestle with a partner, then up and run hard {40} and back",
-    "10 reps going every 90 s. Swap partners or roles each rep"]},
+    "10 reps",
+    "Go every 90 s. Swap partners or roles each rep"]},
   {n:"Standing Wrestle to Sprint", cat:"wrestle", dist:528, reps:12, viz:"Standing Wrestle to Sprint", d:[
-    "6 s standing wrestle with a partner, then away into a {22} sprint, jog back",
-    "12 reps going every 75 s. Swap partners or roles each rep"]},
+    "12 reps",
+    "Go every 75 s. Swap partners or roles each rep"]},
   {n:"Wrestle, Down-Up, Sprint", cat:"wrestle", dist:528, reps:12, viz:"Wrestle, Down-Up, Sprint", d:[
-    "6 s kneeling wrestle, a down-up, then a {22} sprint and a jog back",
-    "12 reps going every 75 s. Swap partners or roles each rep"]},
+    "12 reps",
+    "Go every 75 s. Swap partners or roles each rep"]},
   {n:"Standing Wrestle to Sprint 40", cat:"wrestle", dist:800, reps:10, viz:"Standing Wrestle to Sprint 40", d:[
-    "6 s standing wrestle, then a {40} sprint and a jog back",
-    "10 reps going every 90 s. Swap partners or roles each rep"]}
+    "10 reps",
+    "Go every 90 s. Swap partners or roles each rep"]}
 ];
 
 const RUN_POOLS = {straight:["line","shuttle"], curve:["curve","pattern"], downup:["downup"], hit:["hit"], wrestle:["wrestle"], all:["line","curve","downup","hit","shuttle","wrestle","pattern"]};
@@ -1747,9 +1745,10 @@ function buildRunDays(){
     return {
       title: p.title,
       tag: "{" + total + "} total",
-      blocks: p.blocks.map((s, i)=>({n:(i+1) + ". " + s.n, cat:CAT_NAME[s.cat], dist:s.dist, reps:s.reps, viz:s.viz, lines:s.d})),
+      blocks: p.blocks.map((s, i)=>({n:(i+1) + ". " + s.n, cat:CAT_NAME[s.cat], dist:s.dist, reps:s.reps, viz:s.viz, script:STP_SCRIPT[s.viz] || "", lines:s.d})),
       lines: p.blocks.reduce((arr, s, i)=>arr.concat(
-        [(i+1) + ". " + s.n + "  |  " + CAT_NAME[s.cat] + "  |  {" + s.dist + "}"], s.d), [])
+        [(i+1) + ". " + s.n + "  |  " + CAT_NAME[s.cat] + "  |  {" + s.dist + "}"],
+        STP_SCRIPT[s.viz] ? ["Route: " + STP_SCRIPT[s.viz]] : [], s.d), [])
     };
   });
 }
@@ -2068,7 +2067,7 @@ function renderCond(){
         <div class="wr-box"><b>${rounds} rounds</b> &nbsp;${used} min total</div>
         <div class="wr-box">Effort <b>${c.rpe}</b></div>
       </div>
-      <div class="cond-note">Warm up 3 to 5 minutes easy on your chosen machine before round 1, outside the session total.</div>
+      <div class="cond-note">Warm up 3 to 5 min easy on your chosen machine before round 1, outside the session total.</div>
       ${rpeRow("cond", d, program.condRpe[d] ?? null)}
     </div>`;
   }
@@ -2086,6 +2085,7 @@ function blocksHTML(blocks){
   return blocks.map(b=>`
     <div class="blk">
       <div class="blk-h">${b.n}<span>${b.cat} &nbsp;|&nbsp; ${U("{"+b.dist+"}")}</span></div>
+      ${b.script ? linesHTML(["Route: " + b.script]) : ""}
       ${linesHTML(b.lines)}
     </div>`).join("");
 }
@@ -2150,7 +2150,7 @@ function clusterPrintPage(logo, SK, f, withRec){
   <div class="card"><div class="ch">The three week wave on the first two lifts</div>
     <table><thead><tr><th>Week</th><th>Sets</th><th>Clusters</th><th>Reps per set</th><th>Load</th><th>Rest inside the set</th><th>Rest between sets</th><th>Effort</th></tr></thead><tbody>${waveRows}</tbody></table>
   </div>
-  <div class="foot" style="margin-top:8px;"><b>Example.</b> Week 1 at 80%: lift 2 reps, rest 15 s, lift 2 reps, rest 15 s, lift 2 reps. That is one set of 6 reps. Rest 3 minutes. Do 4 sets. The next wave restarts 2.5 to 5% higher. The week guide on the first page shows which week you are in.</div>
+  <div class="foot" style="margin-top:8px;"><b>Example.</b> Week 1 at 80%: lift 2 reps, rest 15 s, lift 2 reps, rest 15 s, lift 2 reps. That is one set of 6 reps. Rest 3 min. Do 4 sets. The next wave restarts 2.5 to 5% higher. The week guide on the first page shows which week you are in.</div>
   ${withRec ? '<div class="foot"><b>Recording.</b> Write the load for each set in the boxes. Each box is one full cluster set.</div>' : ""}
 </div>`;
 }
@@ -2220,7 +2220,7 @@ function printDoc(withRec){
   }).join("");
 
   /* Optional Speed + Running sections */
-  const lineRows = lines => lines.map(l=>`<div class="dl">${U(l)}</div>`).join("");
+  const lineRows = lines => lines.map(l=>`<div class="dl${/^\d+\. .*\|/.test(l) ? " bh" : ""}">${U(l)}</div>`).join("");
   const optSection = (title, sub, days, note) => {
     const cards = days.map((d, di)=>`<div class="card"><div class="ch">Day ${di+1} | ${d.title} &nbsp;<i>${U(d.tag)}</i></div><div class="cb">${lineRows(d.lines)}</div></div>`).join("");
     const cols = Math.min(days.length, 3);
@@ -2251,7 +2251,7 @@ function printDoc(withRec){
       <div class="cb"><div class="pill"><b>${label}</b> (W:R ${ratio})</div>
       <div class="pill"><b>${rounds} rounds</b>, ${used} min total</div>
       <div class="pill">Effort <b>${c.rpe}</b></div>
-      <p>Warm up 3 to 5 minutes easy before round 1, outside the session total.</p>${rec}${withRec ? rpeStrip(program.condRpe[d] ?? null) : ""}</div></div>`;
+      <p>Warm up 3 to 5 min easy before round 1, outside the session total.</p>${rec}${withRec ? rpeStrip(program.condRpe[d] ?? null) : ""}</div></div>`;
   }
 
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${SK.brand} Programme</title>
@@ -2293,7 +2293,7 @@ td.e{font-weight:600;}
 td.recc{white-space:nowrap;}
 .bx{display:inline-block; width:34px; height:16px; border:1px solid #999; border-bottom:1.5px solid ${S.pa}; border-radius:1px; margin:0 2px 2px 0; position:relative; vertical-align:middle;}
 .bx i{position:absolute; top:-1px; left:1.5px; font-style:normal; font-size:5.5px; color:#999; font-family:'Oswald',sans-serif; letter-spacing:.05em;}\n.bx b{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:8px; font-weight:600; color:${S.pi};}
-.cb{padding:8px 10px;}
+.cb{padding:6px 10px;}
 .pill{background:#f5f5f5; border-left:3px solid ${S.pa}; border-radius:2px; padding:5px 8px; margin-bottom:5px; font-size:9px;}
 .note, .cb p{color:#666; font-size:8.3px; margin-top:5px;}
 .rbxwrap{margin-top:7px;}
@@ -2307,7 +2307,9 @@ td.recc{white-space:nowrap;}
 .sect b{font-family:'Oswald',sans-serif; font-weight:600; font-size:13px; letter-spacing:.1em; text-transform:uppercase;}
 .sect span{font-size:8.5px; color:#666;}
 .ogrid{display:grid; gap:9px; align-items:start;}
-.dl{padding:3px 0; border-bottom:1px solid #e6e6e6; font-size:8.6px; line-height:1.45;}
+.dl{padding:2px 0; border-bottom:1px solid #e6e6e6; font-size:8.4px; line-height:1.38;}
+.dl.bh{font-weight:700; border-bottom:none; padding-top:5px;}
+.dl.bh:first-child{padding-top:0;}
 .dl:last-child{border-bottom:none;}
 .ch i{font-style:normal; font-weight:400; font-size:8px; letter-spacing:.14em; opacity:.75;}
 .foot b{font-family:'Oswald',sans-serif; font-weight:600; font-size:8.5px; letter-spacing:.12em; text-transform:uppercase;}
@@ -2513,7 +2515,7 @@ function libraryDoc(){
   /* --- Pages 6-7: running bank --- */
   const runCat = cat => `<h3>${CAT_NAME[cat]} <span class="dim">(${RUNS.filter(s=>s.cat===cat).length} blocks)</span></h3>
   <table><thead><tr><th>Block</th><th>Volume</th><th>Detail</th></tr></thead><tbody>
-    ${RUNS.filter(s=>s.cat===cat).map(s=>`<tr><td class="cat">${s.n}</td><td>${U("{"+s.dist+"}")}</td><td class="note">${s.d.map(l=>`<div>${U(l)}</div>`).join("")}</td></tr>`).join("")}
+    ${RUNS.filter(s=>s.cat===cat).map(s=>`<tr><td class="cat">${s.n}</td><td>${U("{"+s.dist+"}")}</td><td class="note">${STP_SCRIPT[s.viz] ? `<div><b>Route.</b> ${U(STP_SCRIPT[s.viz])}</div>` : ""}${s.d.map(l=>`<div>${U(l)}</div>`).join("")}</td></tr>`).join("")}
   </tbody></table>`;
   const page6 = `
   <h2>6. Running Conditioning Bank: Straight Line and Shuttle</h2>
@@ -2818,14 +2820,16 @@ async function buildFillablePdf(){
   /* ---------- Optional Speed / Running blocks ---------- */
   function optBlock(secTitle, days, rpeMap, prefix, metaLine){
     days.forEach((d, di)=>{
-      const blockH = 22 + d.lines.length*13 + 44;
+      const wl = [];
+      d.lines.forEach(l=>wrap(U(l), helv, 8, W-2*M-12).forEach(x=>wl.push(x)));
+      const blockH = 22 + wl.length*13 + 44;
       ensure(blockH, secTitle, metaLine);
       page.drawRectangle({x:M, y:y-16, width:W-2*M, height:16, color:HEAD});
       page.drawRectangle({x:M, y:y-18, width:W-2*M, height:2, color:ACC});
       txt(`${secTitle.toUpperCase()}  DAY ${di+1}  |  ${d.title.toUpperCase()}  (${U(d.tag).toUpperCase()})`, M+7, y-11.5, 9, bold, rgb(1,1,1));
       y -= 26;
-      d.lines.forEach(l=>{
-        txt(trunc(U(l), helv, 8, W-2*M-12), M+4, y, 8, helv);
+      wl.forEach(l=>{
+        txt(l, M+4, y, 8, helv);
         y -= 13;
       });
       y -= 4;
@@ -2919,6 +2923,164 @@ const STP_ALIAS = {
  "Bronco": "Crusader Bronco"
 };
 const STP_DRILLS = ["Crusader Bronco","Broken Bronco","Lion Heart","Reven","Sixty2","200s and 100s","Double 150s","Coathanger","Far 40 and 22 Shuttle","Shuttle Ladder 5-22-50","3-2-1","Scissors","80-60-40","80-60-40 Down-Ups","The Gill","Mini Gill","Warrior","Malcolms","Titanium","Franko","Scuttler","Dagger","Accelerators","Sled Contrasts 22","150s","44s","88s","22s","Repeat 50s","Repeat 100s","10-20-30 Down-Up Shuttles","Ladder Sprints","Ladder Sprints 10-50","Down-Up Acceleration 10m","20m Acceleration","Chest-Start 22","45 Degree Cut","Slalom Run 22m","22m Down-Ups","Double Down-Up 22","Goodwins Rectangle","MAS 15:15","Touchline Tempo Lap","Broken Pony","Bear Crawl 10m","Burpee Sprint 22","Squat Jump Sprint 22","Press-Up Sprint 22","Drop-and-Roll Alternating","Double Roll Out and Back","Extended Bronco 20-40-60-80","Sprint and Backpedal 22","Sprint and Roll 22","Crawl-Sprint 5-22","Flying 20s","Flying 30s","Flying 40s","Sprint Float Sprint","70s","80s","Full Length 100","Down-Up Flying 30","Repeat 30s","Repeat 40s","Repeat 60s","Triple 11s","10m Acceleration","30m Acceleration","Jog-in Acceleration 20","90 Degree Cut","Zig-Zag 30m","Pro Agility 5-10-5","Down-Up Cut","MAS 10:10","MAS 15:15 Full Length","MAS 30:30","Tempo 100s","Tempo 200s","Tempo 300s","Short Tempo Box","Width Tempo 60s","Diagonal Tempo","Bear Crawl 5-10 Pyramid","Backpedal 22 and Sprint","Down-Up Bear Crawl","Squat Sprint 22","Press-Up Bear Crawl","Burpee Shuttle 10","Kneeling Wrestle to Sprint","Standing Wrestle to Shuttle","Down-Ups to Hit Shield","Hit, Run, Down-Up, Hit","Hit Shield to Sprint","Sprint to Hit Shield Finish","Wrestle Start and Finish","Run and Hit Shield 40","Hit Shield to Standing Wrestle","Hit Shield to Sprint 40","Hit Shield to Shuttle","Hit, Down-Up, Sprint","Backpedal to Hit Shield","Kneeling Wrestle to Run 40","Standing Wrestle to Sprint","Wrestle, Down-Up, Sprint","Standing Wrestle to Sprint 40","Single Curve In","Single Curve Across","Banana Run","S-Curve","S-Curve Wide","Double S","Swerve Around 50","Double Swerve","Swerve and Accelerate","Zig-Zag 22s","Zig-Zag Wide Sprint","Zig-Zag to Swerve","Sled Push 5m","Sled Push 10m","Sled Push 15m","Sled Push Contrast 5m","Sled Push Contrast 10m","Sled Push Contrast 15m","Sled Sprint 22m","Sled Sprint 25m","Sled Sprint 30m","Sled Sprint 40m","Sled Sprint 50m","Sled Sprint 60m","Sled Sprint Contrast 22m","Sled Sprint Contrast 25m","Sled Sprint Contrast 30m","Sled Sprint Contrast 40m","Sled Sprint Contrast 50m","Sled Sprint Contrast 60m","Pyramid Repeats","100/60/20","Build-Ups","Repeat Sprints: Short","Repeat Sprints: Medium","100/200 Drill","50s Jog-Through","Descending Ladder","1 km Repeat","Bucking Bronco","22m Repeats","Yo-Yo Shuttle","150 Shuttles","300 Shuttle","Weave and Go","Box Pattern","Anaerobic Builder","10-20-30s","150 Down-Ups","10/20/30 Block","Malcolms with Sprint"];
+const STP_SCRIPT = {
+"Crusader Bronco": "Run hard {22} and back, {40} and back, then {60} and back without stopping, returning to the start tryline each time.",
+"Broken Bronco": "Run hard {22} and back, rest 30 s, run hard {40} and back, rest 30 s, then run hard {60} and back.",
+"Lion Heart": "Run hard {50} and back, do a down-up, run hard {22} and back, do a down-up, then run hard {50} and back.",
+"Reven": "Run hard {22} and back. Run hard {5} and back, do a down-up, then run hard {5} and back again and do a down-up. Run hard to {50}, return to the 22 m line, run hard to {50} again, then return to the start tryline.",
+"Sixty2": "Run hard {60} and back, then run hard {60} and back again.",
+"200s and 100s": "Run hard {100} and back, rest 25 s, then run hard {100}.",
+"Double 150s": "Run hard {100} to the far tryline, run hard back {50} to halfway, run hard out {50} to the far tryline again, then run hard {100} home.",
+"Coathanger": "Start on the touchline at halfway. Run hard to the near posts and through them, run hard down the length of the field to the far posts, then run hard back to the start. Rest 60 s.",
+"Far 40 and 22 Shuttle": "Run hard to the far 40 m line and back, run hard to the far 22 m line and back, then run hard to halfway and jog back.",
+"Shuttle Ladder 5-22-50": "Run hard {5} and back three times, {22} and back twice, then {50} and back.",
+"3-2-1": "Start lying on the ground at the near tryline. Get up and run hard to {40}, drop and roll left, get up and run hard to {90}, drop and roll right, then get up and run hard to the far tryline. Do five down-ups, then run hard back to the start.",
+"Scissors": "Start in the corner at the near tryline and touchline. Run hard {22} along the touchline and back. Jog across to the centre line at the tryline, run hard {22} along the centre line through the posts and back, then walk back to the corner.",
+"80-60-40": "Sprint {60}, then run hard on to the far 22 m line. Sprint back to the near 22 m line, then run hard on to the far 40 m line. Jog through to the far tryline.",
+"80-60-40 Down-Ups": "Sprint {60}, then run hard on to the far 22 m line and do a down-up. Sprint back to the near 22 m line and do a down-up, then run hard on to the far 40 m line and do a down-up. Jog through to the far tryline.",
+"The Gill": "Make six {22} legs, out and back between the tryline and the 22 m line, with a down-up after every leg: sprint, sprint, run hard, sprint, sprint, run hard. Then jog the length of the field to the far tryline.",
+"Mini Gill": "Make three {22} legs with a down-up after each: sprint out, sprint back, run hard out. Then jog to the far tryline.",
+"Warrior": "Start lying on your front at the 40 m line. Get up and sprint forward {10}, sprint backwards to the 40 m line and do a down-up. Sprint forward {20}, sprint backwards to the 40 m line and do a down-up. Sprint forward {10}, then sprint backwards to the 40 m line.",
+"Malcolms": "Start lying on your front at halfway. Get up and sprint backwards {10} and do a down-up. Sprint forward {20} and do a down-up. Sprint backwards {10} and do a down-up.",
+"Titanium": "Bear crawl {5}. Get up, run hard on to {40}, then run hard back to the 5 m line. Bear crawl {5} back to the start tryline.",
+"Franko": "Do two down-ups. Bear crawl {5} and back, then do a down-up. Run hard {22}, do a down-up at the 22 m line, then run hard back to the start tryline.",
+"Scuttler": "Sprint {22} and back, then do two down-ups.",
+"Dagger": "Do two down-ups. Sprint {40}, run hard back to the start, then sprint {40} again and do a down-up. Walk back.",
+"Accelerators": "Sprint to the 22 m line, jog to the 40 m line, sprint to the 60 m line, jog to the far 22 m line, then sprint to the far tryline.",
+"Sled Contrasts 22": "Pull a weighted sled {22} on a harness, then sprint {22} free back to the start. Walk to the sled and take it back so every rep starts where the sled is. Rest completely at the sled by walking {30} out and back to it after the first leg.",
+"150s": "Sprint {60}, run hard to the far tryline, sprint back to halfway, then jog to the start.",
+"44s": "Sprint {22} and back.",
+"88s": "Sprint {22} and back, then run hard {22} and sprint back.",
+"22s": "Sprint {22} and back, run hard {22}, then jog on to the far tryline.",
+"Repeat 50s": "Sprint {50} to halfway, then jog back.",
+"Repeat 100s": "Sprint {60}, run hard to the far tryline, then jog back.",
+"10-20-30 Down-Up Shuttles": "Sprint {10}, do a down-up and sprint back. Sprint {20}, do a down-up and sprint back. Run hard {30}, do a down-up and sprint back.",
+"Ladder Sprints": "Sprint {22} and jog back, rest 10 s. Sprint {40} and jog back, rest 10 s. Sprint {60} and jog back, rest 10 s. Sprint {60}, run hard to the 78 m line, then jog back.",
+"Ladder Sprints 10-50": "Sprint {10} and jog back, then sprint {20}, {30}, {40} and {50}, jogging back after each.",
+"Down-Up Acceleration 10m": "Do a down-up, sprint {10}, then walk back.",
+"20m Acceleration": "Sprint {20}, then walk back.",
+"Chest-Start 22": "Do a down-up, sprint {22}, then jog back.",
+"45 Degree Cut": "Sprint {15}, cut 45 degrees to one side and sprint on to {35}, then jog back. Alternate sides each rep.",
+"Slalom Run 22m": "Sprint {22}, weaving left and right through five gates about {6} wide, then jog back.",
+"22m Down-Ups": "Sprint {22} and do a down-up, sprint back to the tryline and do a down-up, run hard {22} out again, then jog back.",
+"Double Down-Up 22": "Do two down-ups, then sprint {22} and back.",
+"Goodwins Rectangle": "Run hard around a {78} by {30} rectangle: the two long sides, then the two short ends. One rep is one lap.",
+"MAS 15:15": "Run at MAS pace for 15 s, rest 15 s, run back at MAS pace for 15 s, then rest 15 s.",
+"Touchline Tempo Lap": "Run steady around the field perimeter: up one touchline, across the far tryline, down the other touchline and across the near tryline. One rep is one lap.",
+"Broken Pony": "Do 10 press-ups. Bear crawl {10} and back. Run hard {10} and backpedal back, run hard {20} and backpedal back, then run hard {30} and back.",
+"Bear Crawl 10m": "Bear crawl {10} and back.",
+"Burpee Sprint 22": "Do 5 burpees, sprint {22}, then jog back.",
+"Squat Jump Sprint 22": "Do 8 squat jumps, sprint {22}, then jog back.",
+"Press-Up Sprint 22": "Do 10 press-ups, sprint {22}, then jog back.",
+"Drop-and-Roll Alternating": "Run hard to {10} and roll left, run hard to {20} and roll right, run hard to {30} and roll left, run hard to {40} and roll right, then run hard to {50} and back to the start.",
+"Double Roll Out and Back": "Run hard to {10}, drop to your chest, roll left out and back in, then get up. Run hard to {20} and roll right out and back in, run hard to {30} and roll left out and back in, run hard to {40} and roll right out and back in, then run hard to {50} and back to the start.",
+"Extended Bronco 20-40-60-80": "Run hard {20} and back, {40} and back, {60} and back, then {80} and back, returning to the start tryline each time.",
+"Sprint and Backpedal 22": "Sprint {22} and backpedal to the start, then sprint {22} and backpedal to the start again. Do a down-up, jog the length of the field, then walk back.",
+"Sprint and Roll 22": "Sprint {22} and roll left, sprint back and roll right, sprint {22} out again and roll left, then jog back.",
+"Crawl-Sprint 5-22": "Bear crawl {5}, get up and sprint on to {22}, then jog back.",
+"Flying 20s": "Run hard for {30} to build up, sprint {20} at top speed to the 50 m line, then jog back.",
+"Flying 30s": "Run hard for {20} to build up, sprint {30} at top speed to the 50 m line, then jog back.",
+"Flying 40s": "Run hard for {20} to build up, sprint {40} at top speed to the 60 m line, then jog back.",
+"Sprint Float Sprint": "Sprint {40}, jog back to the 20 m line, sprint to the 60 m line, then jog back to the start.",
+"70s": "Sprint {55}, run hard to the 70 m line, then jog back.",
+"80s": "Sprint {60}, run hard to the 80 m line, then jog back.",
+"Full Length 100": "Sprint {60}, run hard to the far tryline, then walk back.",
+"Down-Up Flying 30": "Do a down-up, run hard for {20} to build up, sprint {30} at top speed to the 50 m line, then jog back.",
+"Repeat 30s": "Sprint {30}, then jog back.",
+"Repeat 40s": "Sprint {40}, then jog back.",
+"Repeat 60s": "Sprint {60}, then jog back.",
+"Triple 11s": "Sprint {11} and back three times without a break.",
+"10m Acceleration": "Sprint {10}, then walk back.",
+"30m Acceleration": "Sprint {30}, then walk back.",
+"Jog-in Acceleration 20": "Jog {5}, accelerate to a sprint over the next {20}, then jog back.",
+"90 Degree Cut": "Sprint {15}, make a sharp 90 degree cut for {10}, then turn and sprint on to {35}. Jog back. Alternate sides each rep.",
+"Zig-Zag 30m": "Sprint {30}, weaving left and right through gates about {8} wide, then jog back.",
+"Pro Agility 5-10-5": "Start straddling the middle line. Sprint {5} to your right and touch the line, sprint {10} to your left and touch the line, then sprint {5} back through the start line.",
+"Down-Up Cut": "Do a down-up, sprint {15}, cut 45 degrees to one side and sprint on to {25}, then jog back. Alternate sides each rep.",
+"MAS 10:10": "Run at MAS pace for 10 s, rest 10 s, run back at MAS pace for 10 s, then rest 10 s.",
+"MAS 15:15 Full Length": "Run the length of the field at MAS pace for 15 s, rest 15 s, run back at MAS pace for 15 s, then rest 15 s.",
+"MAS 30:30": "Run the length of the field and back at MAS pace, then rest 30 s.",
+"Tempo 100s": "Run steady {100}, then walk back.",
+"Tempo 200s": "Run steady {100} and back.",
+"Tempo 300s": "Run steady {100}, back, and {100} again to finish at the far tryline. Start the next rep from that end.",
+"Short Tempo Box": "Run steady around a {50} by {40} box. One rep is one lap.",
+"Width Tempo 60s": "Run steady across the width of the field, touchline to touchline, and back.",
+"Diagonal Tempo": "Run steady diagonally from one corner to the opposite corner, then back.",
+"Bear Crawl 5-10 Pyramid": "Bear crawl {5} and back, then bear crawl {10} and back.",
+"Backpedal 22 and Sprint": "Start at the 22 m line. Backpedal to the tryline, then sprint back out to the 22 m line.",
+"Down-Up Bear Crawl": "Bear crawl {5} and do a down-up, then bear crawl back and do a down-up.",
+"Squat Sprint 22": "Do 10 bodyweight squats, sprint {22}, then jog back.",
+"Press-Up Bear Crawl": "Do 8 press-ups, then bear crawl {10} and back.",
+"Burpee Shuttle 10": "Do 3 burpees, sprint {10} and back, do 3 burpees, then sprint {10} and back again.",
+"Kneeling Wrestle to Sprint": "Start kneeling facing a partner. Wrestle for 8 s, then get up and sprint {22}. Jog back.",
+"Standing Wrestle to Shuttle": "Wrestle a partner standing for 6 s, rotating and circling. Then sprint {22} and back.",
+"Down-Ups to Hit Shield": "Do three down-ups, then hit a shield held by a partner three times, driving about 2.5 m on each hit and resetting between hits.",
+"Hit, Run, Down-Up, Hit": "Hit a shield held by a partner once, driving about 2.5 m. Run hard {22} and back, do a down-up, then hit the shield once more, driving about 2.5 m.",
+"Hit Shield to Sprint": "Hit a shield held by a partner twice, driving about 2.5 m on each hit. Get up and sprint {22}, then jog back.",
+"Sprint to Hit Shield Finish": "Sprint {22} and jog back to a partner holding a shield. Hit the shield twice, driving about 2.5 m on each hit.",
+"Wrestle Start and Finish": "Wrestle a partner kneeling for 6 s. Get up, sprint {22} and back, then wrestle standing for 6 s.",
+"Run and Hit Shield 40": "Run hard {40} and back to a partner holding a shield. Hit the shield three times, driving about 2.5 m on each hit.",
+"Hit Shield to Standing Wrestle": "Hit a shield held by a partner twice, driving about 2.5 m on each hit. Run hard {22} and back, then wrestle standing for 5 s.",
+"Hit Shield to Sprint 40": "Hit a shield held by a partner twice, driving about 2.5 m on each hit. Get up and sprint {40}, then jog back.",
+"Hit Shield to Shuttle": "Hit a shield held by a partner twice, driving about 2.5 m on each hit. Get up and sprint {22} and back.",
+"Hit, Down-Up, Sprint": "Hit a shield held by a partner once, driving about 2.5 m. Do a down-up, then get up and sprint {22}. Jog back.",
+"Backpedal to Hit Shield": "Start at the 22 m line. Backpedal to the tryline, hit a shield held by a partner twice, driving about 2.5 m on each hit, then sprint back out to the 22 m line.",
+"Kneeling Wrestle to Run 40": "Start kneeling facing a partner. Wrestle for 8 s, then get up and run hard {40} and back.",
+"Standing Wrestle to Sprint": "Wrestle a partner standing for 6 s, then sprint {22} and jog back.",
+"Wrestle, Down-Up, Sprint": "Wrestle a partner kneeling for 6 s, do a down-up, then sprint {22} and jog back.",
+"Standing Wrestle to Sprint 40": "Wrestle a partner standing for 6 s, then sprint {40} and jog back.",
+"Single Curve In": "Sprint {22} along the 5 m line, then run hard through one gentle curve in to the 15 m line, finishing at the far tryline. Walk back.",
+"Single Curve Across": "Run hard {22} along the 5 m line, then run hard through one long curve across the centre spot to the far side. Walk back.",
+"Banana Run": "Run hard {22}, then run hard in an arc out toward the touchline at halfway and back in by the far 22 m line. Walk back.",
+"S-Curve": "Run hard {22}, then run hard through an S-shaped curve through the centre spot to the far 15 m line. Walk back.",
+"S-Curve Wide": "Sprint {22}, then run hard through a wide S-curve from the 5 m line on one side to the 5 m line on the other. Walk back.",
+"Double S": "Run hard {22}, then curve across to the far 15 m line at halfway and back to the near 15 m line by the far 22 m line. Walk back.",
+"Swerve Around 50": "Run hard along the centre line to the 22 m line, swerve wide around halfway, then return to the centre line. Walk back.",
+"Double Swerve": "Run hard along the centre line to the 22 m line, swerve left at halfway, return to the centre line by the far 22 m line, then swerve right toward the 15 m line. Walk back.",
+"Swerve and Accelerate": "Run hard along the centre line, swerve around halfway, then sprint straight from the far 22 m line to the far tryline. Walk back.",
+"Zig-Zag 22s": "Run hard {22}, then zig-zag between the 15 m lines at the 22 m line, halfway and the far 22 m line. Each sharp turn counts as a change of direction. Walk back.",
+"Zig-Zag Wide Sprint": "Zig-zag between the 5 m lines. Sprint most of each long diagonal leg and run hard through the end of each, with three sharp changes of direction. Walk back.",
+"Zig-Zag to Swerve": "Make two zig-zag cuts, then swerve smoothly through the far 22 m line. Only the zig-zag cuts count as changes of direction. Walk back.",
+"Sled Push 5m": "Push a weighted sled {5} from a standing start with your hands on the pads. Rest completely at the sled by walking {30} out and back to it. The sled stays at the far end and the next rep takes it back. In pairs, start at opposite ends and walk back to your own start line.",
+"Sled Push 10m": "Push a weighted sled {10} from a standing start with your hands on the pads. Rest completely at the sled by walking {30} out and back to it. The sled stays at the far end and the next rep takes it back. In pairs, start at opposite ends and walk back to your own start line.",
+"Sled Push 15m": "Push a weighted sled {15} from a standing start with your hands on the pads. Rest completely at the sled by walking {30} out and back to it. The sled stays at the far end and the next rep takes it back. In pairs, start at opposite ends and walk back to your own start line.",
+"Sled Push Contrast 5m": "Push a weighted sled {5}, then sprint {5} free back to the start. Walk to the sled and take it back so every rep starts where the sled is. Rest completely at the sled by walking {30} out and back to it after the first leg.",
+"Sled Push Contrast 10m": "Push a weighted sled {10}, then sprint {10} free back to the start. Walk to the sled and take it back so every rep starts where the sled is. Rest completely at the sled by walking {30} out and back to it after the first leg.",
+"Sled Push Contrast 15m": "Push a weighted sled {15}, then sprint {15} free back to the start. Walk to the sled and take it back so every rep starts where the sled is. Rest completely at the sled by walking {30} out and back to it after the first leg.",
+"Sled Sprint 22m": "Sprint {22} pulling a weighted sled on a short harness cable. Rest completely at the sled by walking {30} out and back to it. The sled stays at the far end and the next rep takes it back. In pairs, start at opposite ends and walk back to your own start line.",
+"Sled Sprint 25m": "Sprint {25} pulling a weighted sled on a short harness cable. Rest completely at the sled by walking {30} out and back to it. The sled stays at the far end and the next rep takes it back. In pairs, start at opposite ends and walk back to your own start line.",
+"Sled Sprint 30m": "Sprint {30} pulling a weighted sled on a short harness cable. Rest completely at the sled by walking {30} out and back to it. The sled stays at the far end and the next rep takes it back. In pairs, start at opposite ends and walk back to your own start line.",
+"Sled Sprint 40m": "Sprint {40} pulling a weighted sled on a short harness cable. Rest completely at the sled by walking {30} out and back to it. The sled stays at the far end and the next rep takes it back. In pairs, start at opposite ends and walk back to your own start line.",
+"Sled Sprint 50m": "Sprint {50} pulling a weighted sled on a short harness cable. Rest completely at the sled by walking {30} out and back to it. The sled stays at the far end and the next rep takes it back. In pairs, start at opposite ends and walk back to your own start line.",
+"Sled Sprint 60m": "Sprint {60} pulling a weighted sled on a short harness cable. Rest completely at the sled by walking {30} out and back to it. The sled stays at the far end and the next rep takes it back. In pairs, start at opposite ends and walk back to your own start line.",
+"Sled Sprint Contrast 22m": "Pull a weighted sled {22} on a harness, then sprint {22} free back to the start. Walk to the sled and take it back so every rep starts where the sled is. Rest completely at the sled by walking {30} out and back to it after the first leg.",
+"Sled Sprint Contrast 25m": "Pull a weighted sled {25} on a harness, then sprint {25} free back to the start. Walk to the sled and take it back so every rep starts where the sled is. Rest completely at the sled by walking {30} out and back to it after the first leg.",
+"Sled Sprint Contrast 30m": "Pull a weighted sled {30} on a harness, then sprint {30} free back to the start. Walk to the sled and take it back so every rep starts where the sled is. Rest completely at the sled by walking {30} out and back to it after the first leg.",
+"Sled Sprint Contrast 40m": "Pull a weighted sled {40} on a harness, then sprint {40} free back to the start. Walk to the sled and take it back so every rep starts where the sled is. Rest completely at the sled by walking {30} out and back to it after the first leg.",
+"Sled Sprint Contrast 50m": "Pull a weighted sled {50} on a harness, then sprint {50} free back to the start. Walk to the sled and take it back so every rep starts where the sled is. Rest completely at the sled by walking {30} out and back to it after the first leg.",
+"Sled Sprint Contrast 60m": "Pull a weighted sled {60} on a harness, then sprint {60} free back to the start. Walk to the sled and take it back so every rep starts where the sled is. Rest completely at the sled by walking {30} out and back to it after the first leg.",
+"Pyramid Repeats": "Sprint {50} and jog back, four times. Rest 30 s, then sprint {60}, run hard to the far tryline and jog back, three times, resting 30 s between. Rest 45 s, then run hard {200} twice by sprinting {60}, running hard to the far tryline, sprinting {40} back and running hard home, resting 45 s between. Rest 60 s, then run hard {400} the same way.",
+"100/60/20": "Sprint {60} and run hard to the far tryline, three times. Then sprint {60} and jog {40}, four times. Then sprint {20} and jog {20}, six times.",
+"Build-Ups": "Sprint {22} and jog on to the far tryline, sprint {78} back and jog home. Sprint {50} and jog on to the far tryline, sprint {50} back and jog home. Sprint {60}, run hard to the 78 m line and jog on to the far tryline, sprint {60} back and run hard to the 22 m line, then jog home. Sprint {60}, run hard to the far tryline, sprint {60} back and run hard home.",
+"Repeat Sprints: Short": "Do 20 maximal {10} sprints, jogging back after each. Rest 2 min, then do 20 maximal {20} sprints, jogging back after each.",
+"Repeat Sprints: Medium": "Do 12 maximal {20} sprints, jogging back after each. Rest 2 min, then do 10 maximal {30} sprints, jogging back after each.",
+"100/200 Drill": "Run hard {100}, then rest 40 s. Run hard {200} by running back and out again, then rest 20 s.",
+"50s Jog-Through": "Sprint {50} in about 7 s, then jog through the rest of the field.",
+"Descending Ladder": "Run hard {400} (four lengths) and rest 150 s, run hard {300} and rest 120 s, run hard {200} and rest 75 s, then run hard {100} and rest 40 s.",
+"1 km Repeat": "Run ten lengths of the field ({1000}) at your maximal sustainable pace.",
+"Bucking Bronco": "Run three Broncos hard in a row, rest 2 min, run two, rest 1 min, then run one all-out. One Bronco is {20} and back, {40} and back, then {60} and back.",
+"22m Repeats": "Run hard {22} and back, run hard {22} out again, then jog on to the far tryline.",
+"Yo-Yo Shuttle": "Run hard {10} and back. Run hard to the 28 m line and back to the 10 m line, run hard out to the 48 m line, then jog back to the start.",
+"150 Shuttles": "Sprint {22} and back, then run hard {50} and back.",
+"300 Shuttle": "Run hard {50} and back three times without a break, then rest 180 s.",
+"Weave and Go": "Weave through six cones over {22}, then sprint on to the 40 m line. Walk back.",
+"Box Pattern": "Sprint {20}, side shuffle {10}, backpedal {20}, then carioca {10} back to the start. Alternate sides each lap.",
+"Anaerobic Builder": "Run hard {22} and back and do a down-up. Sprint {30} and sprint backwards to the start, then do a down-up. Run hard {22}, then walk back.",
+"10-20-30s": "Do shuttles with a down-up at each far point: three of {10}, two of {20}, one of {30}, then two of {20} and three of {10}, returning to the start each time.",
+"150 Down-Ups": "Sprint {50} and do a down-up, run hard back to the start and do a down-up, then sprint {50} again. Walk back.",
+"10/20/30 Block": "Sprint {30} and back (about 10 s), run hard {40} and back (about 20 s), then jog {40} and back (about 30 s).",
+"Malcolms with Sprint": "Start lying on your front at halfway. Do three rounds back to back of sprint backwards {10}, down-up, sprint forward {20}, down-up, sprint backwards {10}, down-up. Then sprint {50} to the far tryline and walk back to halfway."
+};
 const stpNrm = s => String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
 const stpName = n => STP_ALIAS[n] || n;
 const stpReps = lines => { const m = (lines && lines[0] || '').match(/^(\d+)\s*x\s*\{/i); return m ? +m[1] : null; };
@@ -2931,7 +3093,7 @@ function stpHandoff(){
     blocks: d.blocks.map(b=>{
       const o = {name: b.viz || stpName(b.n.replace(/^\d+\.\s*/, "")), kind: "run", cat: b.cat, dist: b.dist};
       const r = b.reps || stpReps(b.lines); if(r) o.reps = r;
-      o.lines = b.lines; return o;
+      o.script = b.script || ""; o.lines = b.lines; return o;
     })
   }));
   /* Speed: program.speed = [{title, tag, lines}] (text sessions) */
