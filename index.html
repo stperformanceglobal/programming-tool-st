@@ -319,19 +319,21 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
 .viz-go:hover{color:var(--white); border-color:var(--silver);}
 @media print{.viz-go{display:none !important;}}
 @media(max-width:520px){.sec-head{flex-wrap:wrap; row-gap:8px;} .viz-go{margin-left:0; order:3;} .sec-head span{flex:1 1 100%;}}
+.logo-link{display:inline-flex; line-height:0; border:0;}
+.logo-link:focus-visible{outline:2px solid var(--primary-hi); outline-offset:3px;}
 </style>
 </head>
 <body>
 <div class="wrap">
 
 <header>
-  <img id="brandLogo" src="" alt="">
+  <a id="brandLogoLink" class="logo-link" href="https://stperformanceglobal.com" target="_blank" rel="noopener" aria-label="ST Performance, opens stperformanceglobal.com"><img id="brandLogo" src="" alt=""></a>
   <div>
     <div class="h-title">Programme Builder</div>
     <div class="h-sub" id="brandSub"></div>
   </div>
   <select id="skinPick" aria-label="Choose skin"></select>
-  <a id="siteLink" href="https://stperformanceglobal.github.io/st-performance-global/" target="_blank" rel="noopener">stperformanceglobal.github.io</a>
+  <a id="siteLink" href="https://stperformanceglobal.com" target="_blank" rel="noopener">stperformanceglobal.com</a>
   <div class="hdr-actions">
     <button id="builderSw" type="button" aria-expanded="true" aria-controls="builder">Hide builder</button>
   </div>
@@ -562,7 +564,7 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
   <button id="pdfFillBtn">Fillable PDF</button>
   <button id="libBtn">Library</button>
 </div>
-<div class="stp-foot"><img id="stpFootLogo" src="" alt=""><span>ST Performance | stperformanceglobal.github.io/st-performance-global</span></div>
+<div class="stp-foot"><img id="stpFootLogo" src="" alt=""><span>ST Performance | stperformanceglobal.com</span></div>
 
 <input type="file" id="loadFile" accept=".json" style="display:none">
 
@@ -2080,7 +2082,7 @@ td.recc{white-space:nowrap;}
 .ch i{font-style:normal; font-weight:400; font-size:8px; letter-spacing:.14em; opacity:.75;}
 .foot b{font-family:'Oswald',sans-serif; font-weight:600; font-size:8.5px; letter-spacing:.12em; text-transform:uppercase;}
 </style></head><body>
-<div class="stpf"><img src="${LOGO_ST_MARK_NAVY}" alt=""><span>ST Performance | stperformanceglobal.github.io/st-performance-global</span></div>
+<div class="stpf"><img src="${LOGO_ST_MARK_NAVY}" alt=""><span>ST Performance | stperformanceglobal.com</span></div>
 
 <div class="page">
   <div class="hd"><img class="${SK.wideLogo ? "wide" : ""}" src="${logo}" alt="${SK.brand}">
@@ -2322,7 +2324,7 @@ table.wk td{font-size:7.6px; padding:3px 5px;}
 .foot{border:1px solid #ccc; border-left:3px solid ${S.pa}; border-radius:2px; padding:5px 8px; font-size:8px; color:#444; margin-bottom:8px;}
 tr{page-break-inside:avoid;}
 </style></head><body>
-<div class="stpf"><img src="${LOGO_ST_MARK_NAVY}" alt=""><span>ST Performance | stperformanceglobal.github.io/st-performance-global</span></div>
+<div class="stpf"><img src="${LOGO_ST_MARK_NAVY}" alt=""><span>ST Performance | stperformanceglobal.com</span></div>
 ${pages.map((p, i)=>`<div class="page">
   <div class="hd"><img class="${SK.wideLogo ? "wide" : ""}" src="${logo}" alt="${SK.brand}">
     <div><div class="t1">Training Library</div><div class="t2">${SK.brand} | Back End Reference</div></div>
