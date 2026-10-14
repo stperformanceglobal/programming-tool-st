@@ -343,7 +343,7 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
   <div class="grp">
     <div class="grp-label">Lifting days per week</div>
     <div class="chips" data-key="liftDays">
-      <button class="chip" data-v="1">1</button><button class="chip" data-v="2">2</button><button class="chip on" data-v="3">3</button><button class="chip" data-v="4">4</button><button class="chip" data-v="5">5</button>
+      <button class="chip" data-v="1">1</button><button class="chip" data-v="2">2</button><button class="chip on" data-v="3">3</button><button class="chip" data-v="4">4</button><button class="chip" data-v="5">5</button><button class="chip" data-v="6">6</button>
     </div>
   </div>
 
@@ -357,7 +357,7 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
   <div class="grp">
     <div class="grp-label">Programme length</div>
     <div class="chips" data-key="weeks">
-      <button class="chip" data-v="4">4 weeks</button><button class="chip on" data-v="6">6 weeks</button><button class="chip" data-v="8">8 weeks</button><button class="chip" data-v="10">10 weeks</button><button class="chip" data-v="12">12 weeks</button>
+      <button class="chip" data-v="4">4 weeks</button><button class="chip on" data-v="6">6 weeks</button><button class="chip" data-v="8">8 weeks</button><button class="chip" data-v="10">10 weeks</button><button class="chip" data-v="12">12 weeks</button><button class="chip" data-v="16">16 weeks</button>
     </div>
   </div>
 
@@ -377,6 +377,8 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
       <button class="chip" data-v="free">Free weight<span class="sm">Barbell and dumbbell</span></button>
       <button class="chip" data-v="combo">Combination<span class="sm">Machine and free weight</span></button>
       <button class="chip" data-v="perf">Performance gym<span class="sm">Sleds, trap bar, med balls</span></button>
+      <button class="chip" data-v="kb">Kettlebells &amp; Strength Bands<span class="sm">Two bells and a set of bands</span></button>
+      <button class="chip" data-v="bw">Bodyweight Only<span class="sm">No equipment</span></button>
     </div>
   </div>
 
@@ -456,9 +458,11 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
     <div class="opt-body" id="runBody">
       <div class="mini">Type</div>
       <div class="chips" data-key="runType">
-        <button class="chip on" data-v="straight">Straight Line Only</button>
-        <button class="chip" data-v="shpat">Shuttle &amp; Pattern</button>
-        <button class="chip" data-v="shdu">Shuttle &amp; Down-Up</button>
+        <button class="chip on" data-v="straight">Straight Line<span class="sm">Repeats and shuttles</span></button>
+        <button class="chip" data-v="curve">Curve, Swerve &amp; Zig-Zag<span class="sm">Curves, patterns and cuts</span></button>
+        <button class="chip" data-v="downup">Down-Up &amp; Crawl<span class="sm">Ground work into running</span></button>
+        <button class="chip" data-v="hit">Hit &amp; Run<span class="sm">Shield contact into running</span></button>
+        <button class="chip" data-v="wrestle">Wrestle &amp; Run<span class="sm">Wrestle into running</span></button>
         <button class="chip" data-v="all">All Types<span class="sm">Every type</span></button>
       </div>
       <div class="mini">Session volume target <span class="sm" style="font-weight:400;text-transform:none;letter-spacing:0">working distance: running, jogging and crawling, not walking</span></div>
@@ -470,7 +474,7 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
         <div>
           <div class="mini">Days per week</div>
           <div class="chips" data-key="runDays">
-            <button class="chip" data-v="1">1</button><button class="chip on" data-v="2">2</button><button class="chip" data-v="3">3</button><button class="chip" data-v="4">4</button><button class="chip" data-v="5">5</button>
+            <button class="chip" data-v="1">1</button><button class="chip on" data-v="2">2</button><button class="chip" data-v="3">3</button><button class="chip" data-v="4">4</button><button class="chip" data-v="5">5</button><button class="chip" data-v="6">6</button>
           </div>
         </div>
         <div>
@@ -481,7 +485,7 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
           </div>
         </div>
       </div>
-      <p class="rule-note">Split runs one type per day, so it needs All Types and at least 3 days: day 1 straight line, day 2 shuttle and pattern, day 3 shuttle and down-up. Days 4 and 5 become hybrid mix days.</p>
+      <p class="rule-note">Split runs one type per day, so it needs All Types and at least 3 days: day 1 straight line, day 2 curve, swerve and zig-zag, day 3 down-up and crawl, day 4 hit and run, day 5 wrestle and run. Day 6 becomes a hybrid mix day. Hit and run and wrestle and run days carry less running distance because of the contact work.</p>
     </div>
   </div>
 
@@ -490,7 +494,7 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
     <div class="opt-body" id="condBody">
       <div class="mini">Days per week</div>
       <div class="chips" data-key="condDays">
-        <button class="chip" data-v="1">1</button><button class="chip on" data-v="2">2</button><button class="chip" data-v="3">3</button><button class="chip" data-v="4">4</button>
+        <button class="chip" data-v="1">1</button><button class="chip on" data-v="2">2</button><button class="chip" data-v="3">3</button><button class="chip" data-v="4">4</button><button class="chip" data-v="5">5</button><button class="chip" data-v="6">6</button>
       </div>
       <div class="two-col">
         <div>
@@ -669,6 +673,7 @@ function applySkin(id){
 })();
 
 /* ---------------- Exercise database ---------------- */
+const EQUIP_NAME = {machine:"Machine based", free:"Free weight", combo:"Machine and free weight", perf:"Performance gym", kb:"Kettlebells and strength bands", bw:"Bodyweight only"};
 const DB = {
   machine: {
     pow:  ["Smith Machine Jump Squat (light)", "Explosive Leg Press (light, fast drive)", "Cable Explosive Pull-Through"],
@@ -717,6 +722,30 @@ const DB = {
     sl:   ["Heavy Sled Push March", "Rear Foot Elevated Split Squat", "Dumbbell Walking Lunge", "Sprinter's Squat", "Lateral Squat"],
     core: ["Farmer Carry", "Med Ball Rotational Throw", "Suitcase Carry", "Half Turkish Get Up", "Cross Body Carry"],
     acc:  ["Sled Backward Drag", "Kettlebell Halo", "Banded Face Pull"]
+  },
+  kb: {
+    pow:  ["Kettlebell Swing", "Kettlebell Clean", "Kettlebell Snatch", "Goblet Jump Squat"],
+    squat:["Goblet Squat", "Double Kettlebell Front Squat", "Banded Goblet Squat", "Kettlebell Overhead Squat"],
+    hinge:["Kettlebell Deadlift", "Single Leg Kettlebell RDL", "Kettlebell Sumo Deadlift", "Banded Good Morning", "Kettlebell Hip Thrust"],
+    hpush:["Kettlebell Floor Press", "Banded Push Up", "Kettlebell Push Up", "Single Arm Kettlebell Floor Press", "Banded Chest Press"],
+    vpush:["Kettlebell Overhead Press", "Half Kneeling Kettlebell Press", "Bottoms Up Kettlebell Press", "Kettlebell Push Press"],
+    hpull:["Kettlebell Bent Over Row", "Single Arm Kettlebell Row", "Banded Row", "Renegade Row"],
+    vpull:["Kneeling Banded Pulldown", "Banded Straight Arm Pulldown", "Kettlebell Pullover", "Single Arm Banded Pulldown"],
+    sl:   ["Kettlebell Reverse Lunge", "Kettlebell Split Squat", "Kettlebell Rear Foot Elevated Split Squat", "Kettlebell Walking Lunge", "Goblet Lateral Squat"],
+    core: ["Kettlebell Suitcase Carry", "Kettlebell Windmill", "Banded Pallof Press", "Kettlebell Halo", "Half Turkish Get Up"],
+    acc:  ["Banded Triceps Extension", "Kettlebell Hammer Curl", "Banded Lateral Raise", "Banded Face Pull"]
+  },
+  bw: {
+    pow:  ["Squat Jump", "Broad Jump", "Split Squat Jump"],
+    squat:["Tempo Squat", "Cossack Squat", "Shrimp Squat"],
+    hinge:["Single Leg Glute Bridge", "Single Leg RDL", "Hamstring Walkout"],
+    hpush:["Push Up", "Feet Elevated Push Up", "Archer Push Up"],
+    vpush:["Pike Push Up", "Feet Elevated Pike Push Up", "Wall Handstand Hold"],
+    hpull:["Inverted Table Row", "Towel Door Row", "Prone Swimmer Pull"],
+    vpull:["Prone Y Raise", "Towel Door Lat Pull", "Superman Pull"],
+    sl:   ["Reverse Lunge", "Split Squat", "Chair Rear Foot Elevated Split Squat"],
+    core: ["Dead Bug", "Plank Variations", "Hollow Hold"],
+    acc:  ["Close Grip Push Up", "Reverse Snow Angel", "Single Leg Calf Raise"]
   }
 };
 
@@ -896,7 +925,7 @@ const NC_RX = {
 const EMOM_RX = {sets:"6 to 8", reps:"4", tempo:"X", rest:"on the minute"};
 
 /* Fixed, named deload weeks by plan length. Slight pullback only. */
-const DELOADS = {4:[], 6:[5], 8:[7], 10:[5,9], 12:[6,11]};
+const DELOADS = {4:[], 6:[5], 8:[7], 10:[5,9], 12:[6,11], 16:[5,9,13]};
 function deloadWeeks(){ return DELOADS[cfg.weeks] || []; }
 function isDeload(w){ return deloadWeeks().includes(w); }
 function effWeek(w){ let e = w; deloadWeeks().forEach(d=>{ if(d < w) e--; }); return e; }
@@ -921,7 +950,8 @@ function daySequence(){
   if(n === 2) return e==="lower" ? ["L","F"] : e==="upper" ? ["U","F"] : ["F","F"];
   if(n === 3) return e==="upper" ? ["U","L","F"] : ["L","U","F"];
   if(n === 4) return e==="lower" ? ["L","U","F","L"] : e==="upper" ? ["U","L","F","U"] : ["L","U","F","F"];
-  return e==="upper" ? ["U","L","F","U","L"] : ["L","U","F","L","U"];
+  if(n === 5) return e==="upper" ? ["U","L","F","U","L"] : ["L","U","F","L","U"];
+  return e==="upper" ? ["U","L","F","U","L","U"] : e==="lower" ? ["L","U","F","L","U","L"] : ["L","U","F","L","U","F"];
 }
 
 function catsFor(type, variant, k, usePow){
@@ -958,7 +988,17 @@ function catsFor(type, variant, k, usePow){
 }
 
 /* ---------------- Build lifting programme: advanced tiers ---------------- */
+/* Kettlebells and bands, and bodyweight only: shared pools (plyos, CARE, carries) are cut down to what those kits allow */
+const LITE_BAN = /Med Ball|Sled|Prowler|Barbell|Trap Bar|Smith|Cable|Machine|Landmine|Rope|Swiss|Jammer|Box|Hurdle|Depth|Bench|Rower|Assault|Stone|Belt|Dumbbell|\bDB\b|Plate|Tyre|Hang Power|Power Clean|Power Snatch|Hang Snatch|Rollout|Weighted|Hanging|Zercher|Sandbag|Heavy Kettlebell|Incline YTI/i;
+const LITE_BAN_BW = /Kettlebell|\bKB\b|Band|Jump Shrug|Cuban/i;
+const LITE_FB = {squat:["Squat Jump","Pogo Jumps"], hinge:["Broad Jump","Single Leg Hop"], hpush:["Plyo Push Up","Clap Push Up"], hpull:["Explosive Inverted Row","Prone Y Raise"], vpull:["Prone Y Raise","Scap Push Up"], core:["Dead Bugs","Plank Variations"], pow:["Squat Jump","Broad Jump"], sl:["Reverse Lunge","Split Squat"], vpush:["Pike Push Up"], acc:["Close Grip Push Up"]};
+function liteOpts(opts, cat){
+  if(cfg.equip !== "kb" && cfg.equip !== "bw") return opts;
+  const ok = opts.filter(o=>!LITE_BAN.test(o) && !(cfg.equip === "bw" && LITE_BAN_BW.test(o)));
+  return ok.length ? ok : (LITE_FB[cat] || opts);
+}
 function mkEx(opts, variant, cat, role, label, rx, note){
+  opts = liteOpts(opts, cat);
   return {cat, options:rotArr([...opts], variant % opts.length), sel:0, rec:{}, role, label, rx, note};
 }
 function circOf(x){ return CIRCUITS.find(c=>c.n === x.options[x.sel]) || CIRCUITS[0]; }
@@ -984,8 +1024,10 @@ function metDay(type, variant, di){
                 : type==="U" ? (variant%2 ? "hpull" : "hpush")
                 : ["squat","hpush","hinge"][variant%3];
   ex.push(mkEx(pool[mainCat], variant, mainCat, "main", null, null, "Wave: see weeks. Short rests"));
-  const circNames = CIRCUITS.map(c=>c.n);
-  const circ = CIRCUITS[di % CIRCUITS.length];
+  const LITE_CIRC = {kb:["Kettlebell Single Arm Circuit","Bodyweight GPP Circuit","PHA Strength Loop"], bw:["Bodyweight GPP Circuit"]};
+  const circList = LITE_CIRC[cfg.equip] ? CIRCUITS.filter(c=>LITE_CIRC[cfg.equip].includes(c.n)) : CIRCUITS;
+  const circNames = circList.map(c=>c.n);
+  const circ = circList[di % circList.length];
   if(circ.cls !== "full"){
     if(type==="L"){ ex.push(mkEx(pool.sl, variant, "sl", "accy")); ex.push(mkEx(pool.core, variant, "core", "accy")); }
     else if(type==="U"){ const o = variant%2 ? "hpush" : "hpull"; ex.push(mkEx(pool[o], variant, o, "accy")); ex.push(mkEx(pool.vpull, variant, "vpull", "accy")); }
@@ -994,15 +1036,16 @@ function metDay(type, variant, di){
   const circEx = mkEx(rotArr([...circNames], di % circNames.length), 0, "core", "main", "CX");
   circEx.dyn = "circ";
   ex.push(circEx);
-  ex.push(mkEx(CARRIES, di, "core", "accy", "CY", CARRY_RX, "Loaded carry finisher"));
+  ex.push(mkEx(cfg.equip === "bw" ? ["Bear Crawl", "Lunge Walk", "Crab Walk"] : CARRIES, di, "core", "accy", "CY", CARRY_RX, cfg.equip === "bw" ? "Distance finisher" : "Loaded carry finisher"));
   return ex;
 }
 function ncDay(variant){
   const pool = DB[cfg.equip], ex = [];
-  ex.push(mkEx(["10 m Acceleration", "20 m Sprint", "Sled Push 10 m"], variant, "pow", "main", "1", NC_RX.sprint, "Maximal intent every rep"));
+  const NCL = cfg.equip === "kb" || cfg.equip === "bw";
+  ex.push(mkEx(NCL ? ["10 m Acceleration", "20 m Sprint", "Hill Sprint 10 m"] : ["10 m Acceleration", "20 m Sprint", "Sled Push 10 m"], variant, "pow", "main", "1", NC_RX.sprint, "Maximal intent every rep"));
   ex.push(mkEx(pool.pow, variant, "pow", "main", "2", NC_RX.sp, "Wave 70 to 90% by week"));
   ex.push(mkEx(LOWER_PLYO, variant, "squat", "pow", "3", NC_RX.plyo, "Stick every landing"));
-  ex.push(mkEx(["10 m Prowler Push", "Sled Push 10 m", "Sled Pull 10 m"], variant, "squat", "main", "4", NC_RX.sprint, "Heavy and fast"));
+  ex.push(mkEx(NCL ? ["Hill Sprint 10 m", "Band Resisted Sprint 10 m", "Stair Sprint"] : ["10 m Prowler Push", "Sled Push 10 m", "Sled Pull 10 m"], variant, "squat", "main", "4", NC_RX.sprint, "Heavy and fast"));
   ex.push(mkEx(pool.pow, variant + 1, "pow", "main", "5", NC_RX.pw, "Wave 40 to 60% by week, bar speed rules"));
   ex.push(mkEx(LOWER_PLYO, variant + 2, "hinge", "pow", "6", NC_RX.plyo, "Elastic, minimal ground time"));
   return ex;
@@ -1103,7 +1146,7 @@ function buildProgram(){
       const multi = seqA.filter(t=>t===type).length > 1;
       const title = type==="L" ? ("Lower" + (multi ? " " + countsA[type] : ""))
                   : type==="U" ? ("Upper" + (multi ? " " + countsA[type] : ""))
-                  : ("Full Body" + (multi ? " " + "ABCDE"[variant] : ""));
+                  : ("Full Body" + (multi ? " " + "ABCDEF"[variant] : ""));
       const ex = cfg.focus==="pap" ? papDay(type, variant) : fcDay(type, variant);
       if(cfg.careOn) ex.push(...careRows(di));
       const cats = ex.map(x=>x.cat);
@@ -1123,7 +1166,7 @@ function buildProgram(){
     const multi = seq.filter(t=>t===type).length > 1;
     const title = type==="L" ? ("Lower" + (multi ? " " + counts[type] : ""))
                 : type==="U" ? ("Upper" + (multi ? " " + counts[type] : ""))
-                : ("Full Body" + (multi ? " " + "ABCDE"[variant] : ""));
+                : ("Full Body" + (multi ? " " + "ABCDEF"[variant] : ""));
     const cats = catsFor(type, variant, f.lifts, usePow);
     const seen = {};
     const ex = cats.map((cat, i)=>{
@@ -1267,7 +1310,7 @@ const SPEED = {
 };
 
 /* ---- Running Conditioning: complete named sessions, one per training day ---- */
-const CAT_NAME = {line:"Straight Line", shuttle:"Shuttle", pattern:"Pattern", downup:"Down-Up"};
+const CAT_NAME = {line:"Straight Line", shuttle:"Shuttle", pattern:"Pattern", curve:"Curve, Swerve and Zig-Zag", downup:"Down-Up and Crawl", hit:"Hit and Run", wrestle:"Wrestle and Run"};
 /* Each entry is one drill block sized for stacking 3 per session.
    dist = total running distance in metres, used to keep every
    session between 2000 and 4000 m.                                */
@@ -1409,11 +1452,111 @@ const RUNS = [
   {n:"Malcolms with Sprint", cat:"downup", dist:507, reps:3, viz:"Malcolms with Sprint", d:[
     "3 Malcolms back to back (backpedal {10}, down-up, forward {20}, down-up, back {10}, down-up)",
     "Then sprint {50} to the line. Whole sequence under 60 s",
-    "Rest 60 s, repeat the sequence 3 times"]}
+    "Rest 60 s, repeat the sequence 3 times"]},
+  /* Curve, Swerve and Zig-Zag, Hit and Run, Wrestle and Run, extra Down-Up and Crawl: aligned to the visualiser drill bank */
+  {n:"Single Curve In", cat:"curve", dist:1050, reps:10, viz:"Single Curve In", d:[
+    "10 x {105}: sprint straight to {22}, then run hard through one gentle curve drifting in to the {15} line",
+    "Walk back, going every 75 s"]},
+  {n:"Single Curve Across", cat:"curve", dist:1000, reps:8, viz:"Single Curve Across", d:[
+    "8 x {125}: run to {22} on the {5} line, then one long curve across the centre spot to the far side",
+    "Walk back, going every 75 s"]},
+  {n:"Banana Run", cat:"curve", dist:856, reps:8, viz:"Banana Run", d:[
+    "8 x {107}: an arc out toward the touchline at halfway and back in by the far {22}",
+    "Walk back, going every 75 s"]},
+  {n:"S-Curve", cat:"curve", dist:936, reps:8, viz:"S-Curve", d:[
+    "8 x {117}: straight to {22}, then an S-shaped run through the centre spot to the far {15} line",
+    "Walk back, going every 75 s"]},
+  {n:"S-Curve Wide", cat:"curve", dist:1056, reps:8, viz:"S-Curve Wide", d:[
+    "8 x {132}: sprint the first {22}, then run hard through a wide S-curve from one {5} line to the other",
+    "Walk back, going every 90 s"]},
+  {n:"Double S", cat:"curve", dist:1192, reps:8, viz:"Double S", d:[
+    "8 x {149}: two bends, across to the far {15} line at halfway and back to the near {15} line by the far {22}",
+    "Walk back, going every 75 s"]},
+  {n:"Swerve Around 50", cat:"curve", dist:920, reps:8, viz:"Swerve Around 50", d:[
+    "8 x {115}: run the centre line to {22}, swerve wide around halfway and back onto the centre line",
+    "Walk back, going every 75 s"]},
+  {n:"Double Swerve", cat:"curve", dist:1008, reps:8, viz:"Double Swerve", d:[
+    "8 x {126}: swerve left at halfway, back to the centre by the far {22}, then swerve right to the {15} line",
+    "Walk back, going every 75 s"]},
+  {n:"Swerve and Accelerate", cat:"curve", dist:920, reps:8, viz:"Swerve and Accelerate", d:[
+    "8 x {115}: swerve around halfway, then burst straight from the far {22} to the line",
+    "Walk back, going every 75 s"]},
+  {n:"Zig-Zag 22s", cat:"curve", dist:1134, reps:6, viz:"Zig-Zag 22s", d:[
+    "6 x {189}: zig-zag between the {15} lines at each {22} and halfway",
+    "Every sharp turn is a change of direction. Walk back, going every 75 s"]},
+  {n:"Zig-Zag Wide Sprint", cat:"curve", dist:1040, reps:4, viz:"Zig-Zag Wide Sprint", d:[
+    "4 x {260}: zig-zag between the {5} lines, sprint most of each long diagonal and run hard through the finish",
+    "Three sharp changes of direction per rep. Walk back, going every 90 s"]},
+  {n:"Zig-Zag to Swerve", cat:"curve", dist:996, reps:6, viz:"Zig-Zag to Swerve", d:[
+    "6 x {166}: two zig-zag cuts, then a smooth swerve through the far {22}",
+    "Walk back, going every 75 s"]},
+  {n:"Hit Shield to Sprint", cat:"hit", dist:528, reps:12, viz:"Hit Shield to Sprint", d:[
+    "Two shield hits, each driving about 3 steps, then up and away into a {22} sprint, jog back",
+    "12 reps going every 75 s. Partner holds the shield and swaps at rep 6"]},
+  {n:"Sprint to Hit Shield Finish", cat:"hit", dist:528, reps:12, viz:"Sprint to Hit Shield Finish", d:[
+    "Sprint {22}, jog back, then finish with two shield hits",
+    "12 reps going every 75 s. Partner holds the shield and swaps at rep 6"]},
+  {n:"Hit, Run, Down-Up, Hit", cat:"hit", dist:528, reps:12, viz:"Hit, Run, Down-Up, Hit", d:[
+    "One shield hit to start, run {22} and back, down-up, one shield hit to finish",
+    "12 reps going every 75 s. Partner holds the shield and swaps at rep 6"]},
+  {n:"Run and Hit Shield 40", cat:"hit", dist:800, reps:10, viz:"Run and Hit Shield 40", d:[
+    "Run {40} and back, then finish with three shield hits",
+    "10 reps going every 90 s. Partner holds the shield and swaps at rep 5"]},
+  {n:"Kneeling Wrestle to Sprint", cat:"wrestle", dist:528, reps:12, viz:"Kneeling Wrestle to Sprint", d:[
+    "8 s kneeling wrestle with a partner, then up and away into a {22} sprint, jog back",
+    "12 reps going every 75 s. Swap partners or roles each rep"]},
+  {n:"Standing Wrestle to Shuttle", cat:"wrestle", dist:528, reps:12, viz:"Standing Wrestle to Shuttle", d:[
+    "6 s standing wrestle with a partner, rotating and circling, then a {22} sprint shuttle",
+    "12 reps going every 75 s. Swap partners or roles each rep"]},
+  {n:"Wrestle Start and Finish", cat:"wrestle", dist:396, reps:9, viz:"Wrestle Start and Finish", d:[
+    "6 s kneeling wrestle, a {22} sprint shuttle, then 6 s standing wrestle to finish",
+    "9 reps going every 90 s. Swap partners or roles each rep"]},
+  {n:"Hit Shield to Standing Wrestle", cat:"wrestle", dist:396, reps:9, viz:"Hit Shield to Standing Wrestle", d:[
+    "Two shield hits, a {22} run and back, then 5 s standing wrestle to finish",
+    "9 reps going every 90 s. Swap partners or roles each rep"]},
+  {n:"Broken Pony", cat:"downup", dist:1120, reps:8, viz:"Broken Pony", d:[
+    "10 press-ups, {10} bear crawl out and back, then the {10}, {20}, {30} shuttle with backpedals",
+    "8 reps going every 105 s"]},
+  {n:"22m Down-Ups", cat:"downup", dist:1056, reps:12, viz:"22m Down-Ups", d:[
+    "Sprint out to {22} for a down-up, back to the goal line for a down-up, then out again",
+    "12 reps going every 60 s"]},
+  {n:"Double Down-Up 22", cat:"downup", dist:880, reps:20, viz:"Double Down-Up 22", d:[
+    "Two down-ups, then a {22} sprint shuttle",
+    "20 reps going every 30 s"]},
+  {n:"Bear Crawl 5-10 Pyramid", cat:"downup", dist:300, reps:10, viz:"Bear Crawl 5-10 Pyramid", d:[
+    "Bear crawl {5} out and back, then {10} out and back",
+    "10 reps going every 60 s"]},
+  {n:"Press-Up Bear Crawl", cat:"downup", dist:200, reps:10, viz:"Press-Up Bear Crawl", d:[
+    "8 press-ups, then a {10} bear crawl out and back",
+    "10 reps going every 60 s"]},
+  {n:"Hit Shield to Sprint 40", cat:"hit", dist:800, reps:10, viz:"Hit Shield to Sprint 40", d:[
+    "Two shield hits, then up and away into a {40} sprint, jog back",
+    "10 reps going every 90 s. Partner holds the shield and swaps at the halfway rep"]},
+  {n:"Hit Shield to Shuttle", cat:"hit", dist:528, reps:12, viz:"Hit Shield to Shuttle", d:[
+    "Two shield hits, then up and away into a {22} sprint shuttle",
+    "12 reps going every 75 s. Partner holds the shield and swaps at the halfway rep"]},
+  {n:"Hit, Down-Up, Sprint", cat:"hit", dist:528, reps:12, viz:"Hit, Down-Up, Sprint", d:[
+    "One shield hit, a down-up, then up and away into a {22} sprint, jog back",
+    "12 reps going every 75 s. Partner holds the shield and swaps at the halfway rep"]},
+  {n:"Backpedal to Hit Shield", cat:"hit", dist:528, reps:12, viz:"Backpedal to Hit Shield", d:[
+    "Start at {22}, backpedal to the goal line, two shield hits, then sprint back out to {22}",
+    "12 reps going every 75 s. Partner holds the shield and swaps at the halfway rep"]},
+  {n:"Kneeling Wrestle to Run 40", cat:"wrestle", dist:800, reps:10, viz:"Kneeling Wrestle to Run 40", d:[
+    "8 s kneeling wrestle with a partner, then up and run hard {40} and back",
+    "10 reps going every 90 s. Swap partners or roles each rep"]},
+  {n:"Standing Wrestle to Sprint", cat:"wrestle", dist:528, reps:12, viz:"Standing Wrestle to Sprint", d:[
+    "6 s standing wrestle with a partner, then away into a {22} sprint, jog back",
+    "12 reps going every 75 s. Swap partners or roles each rep"]},
+  {n:"Wrestle, Down-Up, Sprint", cat:"wrestle", dist:528, reps:12, viz:"Wrestle, Down-Up, Sprint", d:[
+    "6 s kneeling wrestle, a down-up, then a {22} sprint and a jog back",
+    "12 reps going every 75 s. Swap partners or roles each rep"]},
+  {n:"Standing Wrestle to Sprint 40", cat:"wrestle", dist:800, reps:10, viz:"Standing Wrestle to Sprint 40", d:[
+    "6 s standing wrestle, then a {40} sprint and a jog back",
+    "10 reps going every 90 s. Swap partners or roles each rep"]}
 ];
 
-const RUN_POOLS = {straight:["line"], shpat:["shuttle","pattern"], shdu:["shuttle","downup"], all:["line","shuttle","pattern","downup"]};
-const RUN_TYPE_NAME = {straight:"Straight Line Only", shpat:"Shuttle and Pattern", shdu:"Shuttle and Down-Up", all:"All Types"};
+const RUN_POOLS = {straight:["line","shuttle"], curve:["curve","pattern"], downup:["downup"], hit:["hit"], wrestle:["wrestle"], all:["line","curve","downup","hit","shuttle","wrestle","pattern"]};
+const RUN_TYPE_NAME = {straight:"Straight Line", curve:"Curve, Swerve and Zig-Zag", downup:"Down-Up and Crawl", hit:"Hit and Run", wrestle:"Wrestle and Run", all:"All Types"};
 
 function interleaveRuns(cats){
   const by = cats.map(c=>RUNS.filter(s=>s.cat===c));
@@ -1462,7 +1605,7 @@ function buildSpeedDays(){
    blocks between days so volume spreads evenly around target.  */
 function runPools(){
   const pools = {};
-  ["line","shuttle","pattern","downup"].forEach(c=>pools[c] = RUNS.filter(s=>s.cat===c));
+  ["line","shuttle","pattern","curve","downup","hit","wrestle"].forEach(c=>pools[c] = RUNS.filter(s=>s.cat===c));
   return pools;
 }
 function pickUnused(pool, startIdx, used, sel){
@@ -1476,6 +1619,11 @@ function pickUnused(pool, startIdx, used, sel){
     if(!sel.includes(c)) return c;
   }
   return pool[startIdx % pool.length];
+}
+/* Contact days (hit and run, wrestle and run) carry about half the running distance of other days */
+function dayTarget(cats){
+  const t = cfg.runVol || 3000;
+  return cats.every(c=>c==="hit" || c==="wrestle") ? t/2 : t;
 }
 function runDayBlocks(cats, dayIdx, used){
   const pools = runPools();
@@ -1491,7 +1639,7 @@ function runDayBlocks(cats, dayIdx, used){
     cats.forEach((c, i)=>sel.push(pickUnused(pools[c], dayIdx + i, used, sel)));
   }
   /* Aim at the volume target using only drills not yet used this week */
-  const target = cfg.runVol || 3000;
+  const target = dayTarget(cats);
   const total = () => sel.reduce((s, x)=>s + x.dist, 0);
   for(let g=0; g<12; g++){
     const cur = Math.abs(total() - target);
@@ -1509,7 +1657,7 @@ function runDayBlocks(cats, dayIdx, used){
   sel.forEach(s=>used.add(s.n));
   return sel;
 }
-function rebalanceWeek(sels, target){
+function rebalanceWeek(sels, targets){
   const dayTotal = s => s.reduce((a, x)=>a + x.dist, 0);
   for(let guard=0; guard<80; guard++){
     const totals = sels.map(dayTotal);
@@ -1519,8 +1667,8 @@ function rebalanceWeek(sels, target){
         const A = sels[i][a], B = sels[j][b];
         if(A.cat !== B.cat || A.n === B.n) continue;
         const sq = x => x * x;
-        const before = sq(totals[i] - target) + sq(totals[j] - target);
-        const after = sq(totals[i] - A.dist + B.dist - target) + sq(totals[j] - B.dist + A.dist - target);
+        const before = sq(totals[i] - targets[i]) + sq(totals[j] - targets[j]);
+        const after = sq(totals[i] - A.dist + B.dist - targets[i]) + sq(totals[j] - B.dist + A.dist - targets[j]);
         if(after < before - 100 && (!best || (before - after) > best.gain))
           best = {i, j, a, b, gain: before - after};
       }
@@ -1535,25 +1683,27 @@ function buildRunDays(){
   if(!cfg.runOn) return null;
   const used = new Set();
   const plan = [];
-  const add = (title, cats, dayIdx)=>plan.push({title, blocks: runDayBlocks(cats, dayIdx, used)});
+  const add = (title, cats, dayIdx)=>plan.push({title, tgt: dayTarget(cats), blocks: runDayBlocks(cats, dayIdx, used)});
   if(cfg.runApp === "split"){
-    add("Straight Line", ["line"], 0);
-    add("Shuttle and Pattern", ["shuttle","pattern"], 1);
-    add("Shuttle and Down-Up", ["shuttle","downup"], 2);
-    const four = ["line","shuttle","pattern","downup"];
-    for(let d=3; d<cfg.runDays; d++)
-      add("Hybrid Mix", [four[d%4], four[(d+1)%4], four[(d+2)%4]], d);
+    add("Straight Line", ["line","shuttle"], 0);
+    add("Curve, Swerve and Zig-Zag", ["curve","pattern"], 1);
+    add("Down-Up and Crawl", ["downup"], 2);
+    if(cfg.runDays > 3) add("Hit and Run", ["hit"], 3);
+    if(cfg.runDays > 4) add("Wrestle and Run", ["wrestle"], 4);
+    const mix = ["line","curve","downup","hit","shuttle","wrestle","pattern"];
+    for(let d=5; d<cfg.runDays; d++)
+      add("Hybrid Mix", [mix[(d*3)%7], mix[(d*3+1)%7], mix[(d*3+2)%7]], d);
   } else {
     const cats = RUN_POOLS[cfg.runType];
     for(let d=0; d<cfg.runDays; d++){
-      const dayCats = cats.length === 4 ? [cats[d%4], cats[(d+1)%4], cats[(d+2)%4]] : cats;
+      const dayCats = cats.length === 7 ? [cats[(d*3)%7], cats[(d*3+1)%7], cats[(d*3+2)%7]] : cats;
       const title = cats.length === 1 ? RUN_TYPE_NAME[cfg.runType]
-                  : cats.length === 4 ? "All Types Mix"
+                  : cats.length === 7 ? "All Types Mix"
                   : RUN_TYPE_NAME[cfg.runType] + " Mix";
       add(title, dayCats, d);
     }
   }
-  rebalanceWeek(plan.map(p=>p.blocks), cfg.runVol || 3000);
+  rebalanceWeek(plan.map(p=>p.blocks), plan.map(p=>p.tgt));
   return plan.map(p=>{
     const total = p.blocks.reduce((s, x)=>s + x.dist, 0);
     return {
@@ -1723,7 +1873,10 @@ function syncChips(){
 
 function applyState(s){
   Object.assign(cfg, s.cfg);
-  if(cfg.condDays > 4) cfg.condDays = 4;
+  if(cfg.condDays > 6) cfg.condDays = 6;
+  if(cfg.runType === "shpat") cfg.runType = "curve";
+  if(cfg.runType === "shdu") cfg.runType = "downup";
+  if(!EQUIP_NAME[cfg.equip]) cfg.equip = "machine";
   syncChips();
   buildProgram();
   (s.days||[]).forEach((sd,i)=>{
@@ -1757,7 +1910,7 @@ function renderLift(){
   el('liftSub').textContent = `${f.name} | ${cfg.liftDays} day${cfg.liftDays>1?"s":""} per week | ${cfg.weeks} weeks`;
   el('liftMeta').innerHTML =
     `<div><b>Focus</b>${f.name}</div>
-     <div><b>Equipment</b>${{machine:"Machine based",free:"Free weight",combo:"Machine and free weight",perf:"Performance gym"}[cfg.equip]}</div>
+     <div><b>Equipment</b>${EQUIP_NAME[cfg.equip]}</div>
      <div><b>Structure</b>${{split:"Lower/Upper split", full:"Full body only", hyb:"Hybrid"}[cfg.struct]}</div>
      <div><b>Emphasis</b>${{lower:"Lower body 2:1", upper:"Upper body 2:1", equal:"Equal 1:1"}[cfg.emph]}</div>
      <div><b>Progression</b>${cfg.focus==="tri" ? "Block: eccentric, isometric, concentric" : "Linear, 3 week waves"}${deloadWeeks().length ? " | Deload wk " + deloadWeeks().join(" and ") : ""}</div>
@@ -1937,7 +2090,7 @@ function printDoc(withRec){
   const SK = SKINS[activeSkin];
   const S = {pa:SK.print.accent, pad:SK.print.accentDark, pi:SK.print.ink, ph:SK.print.headBg, poa:SK.print.onAccent};
   const logo = document.querySelector('.p-head img').src;
-  const equipName = {machine:"Machine based", free:"Free weight", combo:"Machine and free weight", perf:"Performance gym"}[cfg.equip];
+  const equipName = EQUIP_NAME[cfg.equip];
 
   let wkCells = "";
   for(let w=1; w<=cfg.weeks; w++){
@@ -2120,7 +2273,7 @@ function libraryDoc(){
   const logo = document.querySelector('.p-head img') ? document.querySelector('.p-head img').src : SK.logoPrint;
   const CATN = {pow:"Power", squat:"Squat", hinge:"Hinge", sl:"Single Leg", hpush:"Horizontal Push",
     vpush:"Vertical Push", hpull:"Horizontal Pull", vpull:"Vertical Pull", core:"Core"};
-  const EQN = {machine:"Machine Based", free:"Free Weight", combo:"Machine + Free", perf:"Performance Gym"};
+  const EQN = {machine:"Machine Based", free:"Free Weight", combo:"Machine + Free", perf:"Performance Gym", kb:"Kettlebells + Bands", bw:"Bodyweight"};
   const weekLens = [...document.querySelectorAll('.chips[data-key="weeks"] .chip')].map(c=>+c.dataset.v);
 
   /* --- Page 1: exercise database --- */
@@ -2227,7 +2380,7 @@ function libraryDoc(){
   ${grid(emomCell)}
   <h3>Triphasic phase map</h3>
   ${grid(triCell)}
-  <p class="foot"><b>Deloads are fixed and named.</b> 4 week plan: none. 6 weeks: week 5. 8 weeks: week 7. 10 weeks: weeks 5 and 9. 12 weeks: weeks 6 and 11. A deload drops one set from every lift and pulls loads back 10 to 15%; the wave resumes the following week where it left off.</p>`;
+  <p class="foot"><b>Deloads are fixed and named.</b> 4 week plan: none. 6 weeks: week 5. 8 weeks: week 7. 10 weeks: weeks 5 and 9. 12 weeks: weeks 6 and 11. 16 weeks: weeks 5, 9 and 13. A deload drops one set from every lift and pulls loads back 10 to 15%; the wave resumes the following week where it left off.</p>`;
 
   /* --- Page 4: indoor conditioning --- */
   const condRows = Object.keys(COND).map(k=>{
@@ -2265,12 +2418,12 @@ function libraryDoc(){
   </tbody></table>`;
   const page6 = `
   <h2>6. Running Conditioning Bank: Straight Line and Shuttle</h2>
-  <p class="intro">Each running day stacks 3 blocks toward the coach's volume target (2000 to 4000 slider). Single type days use 3 of that type; two-type days mix both; All Types days use 3 different categories. No block appears twice in a programme.</p>
+  <p class="intro">Each running day stacks 3 blocks toward the coach's volume target (2000 to 4000 slider). Single type days use 3 of that type; two-type days mix both; All Types days use 3 different categories. Hit and Run and Wrestle and Run days aim at half the distance target because of the contact work. Every block lines up with a drill in the visualiser. No block appears twice in a programme.</p>
   <p class="foot"><b>Warm-up first.</b> ${U(FIELD_WARMUP)}</p>
   ${runCat("line")}${runCat("shuttle")}`;
   const page7 = `
-  <h2>7. Running Conditioning Bank: Pattern and Down-Up</h2>
-  ${runCat("pattern")}${runCat("downup")}`;
+  <h2>7. Running Conditioning Bank: Pattern, Curve, Down-Up, Hit and Wrestle</h2>
+  ${runCat("pattern")}${runCat("curve")}${runCat("downup")}${runCat("hit")}${runCat("wrestle")}`;
 
   const page8 = `
   <h2>8. Metabolic Circuit Menu and Loaded Carries</h2>
@@ -2459,7 +2612,7 @@ async function buildFillablePdf(){
   }
 
   /* ---------- Lifting pages ---------- */
-  const equipName = {machine:"Machine based", free:"Free weight", combo:"Machine and free weight", perf:"Performance gym"}[cfg.equip];
+  const equipName = EQUIP_NAME[cfg.equip];
   const liftMeta = `${f.name}  |  ${equipName}  |  ${cfg.liftDays} day${cfg.liftDays>1?"s":""}/wk  |  ${cfg.weeks} weeks`;
   newPage('Strength Programme', liftMeta);
 
@@ -2643,7 +2796,7 @@ const STP_ALIAS = {
  "10/20/30 Block": "10-20-30 Down-Up Shuttles",
  "Bronco": "Crusader Bronco"
 };
-const STP_DRILLS = ["Crusader Bronco", "Broken Bronco", "Lion Heart", "Reven", "Sixty2", "200s and 100s", "Double 150s", "Coathanger", "Far 40 and 22 Shuttle", "Shuttle Ladder 5-22-50", "3-2-1", "Scissors", "80-60-40", "80-60-40 Down-Ups", "The Gill", "Mini Gill", "Warrior", "Malcolms", "Titanium", "Franko", "Scuttler", "Dagger", "Accelerators", "Sled Contrasts 22", "150s", "44s", "88s", "22s", "Repeat 50s", "Repeat 100s", "10-20-30 Down-Up Shuttles", "Ladder Sprints", "Ladder Sprints 10-50", "Down-Up Acceleration 10m", "20m Acceleration", "Chest-Start 22", "45 Degree Cut", "Slalom Run 22m", "22m Down-Ups", "Double Down-Up 22", "Goodwins Rectangle", "MAS 15:15", "Touchline Tempo Lap", "Broken Pony", "Bear Crawl 10m", "Burpee Sprint 22", "Squat Jump Sprint 22", "Press-Up Sprint 22", "Drop-and-Roll Alternating", "Double Roll Out and Back", "Extended Bronco 20-40-60-80", "Sprint and Backpedal 22", "Sprint and Roll 22", "Crawl-Sprint 5-22", "Flying 20s", "Flying 30s", "Flying 40s", "Sprint Float Sprint", "70s", "80s", "Full Length 100", "Down-Up Flying 30", "Repeat 30s", "Repeat 40s", "Repeat 60s", "Triple 11s", "10m Acceleration", "30m Acceleration", "Jog-in Acceleration 20", "90 Degree Cut", "Zig-Zag 30m", "Pro Agility 5-10-5", "Down-Up Cut", "MAS 10:10", "MAS 15:15 Full Length", "MAS 30:30", "Tempo 100s", "Tempo 200s", "Tempo 300s", "Short Tempo Box", "Width Tempo 60s", "Diagonal Tempo", "Bear Crawl 5-10 Pyramid", "Backpedal 22 and Sprint", "Down-Up Bear Crawl", "Squat Sprint 22", "Press-Up Bear Crawl", "Burpee Shuttle 10", "Kneeling Wrestle to Sprint", "Standing Wrestle to Shuttle", "Down-Ups to Hit Shield", "Hit, Run, Down-Up, Hit", "Hit Shield to Sprint", "Sprint to Hit Shield Finish", "Wrestle Start and Finish", "Run and Hit Shield 40", "Hit Shield to Standing Wrestle", "Single Curve In", "Single Curve Across", "Banana Run", "S-Curve", "S-Curve Wide", "Double S", "Swerve Around 50", "Double Swerve", "Swerve and Accelerate", "Zig-Zag 22s", "Zig-Zag Wide Sprint", "Zig-Zag to Swerve", "Sled Push 5m", "Sled Push 10m", "Sled Push 15m", "Sled Push Contrast 5m", "Sled Push Contrast 10m", "Sled Push Contrast 15m", "Sled Sprint 22m", "Sled Sprint 25m", "Sled Sprint 30m", "Sled Sprint 40m", "Sled Sprint 50m", "Sled Sprint 60m", "Sled Sprint Contrast 22m", "Sled Sprint Contrast 25m", "Sled Sprint Contrast 30m", "Sled Sprint Contrast 40m", "Sled Sprint Contrast 50m", "Sled Sprint Contrast 60m", "Pyramid Repeats", "100/60/20", "Build-Ups", "Repeat Sprints: Short", "Repeat Sprints: Medium", "100/200 Drill", "50s Jog-Through", "Descending Ladder", "1 km Repeat", "Bucking Bronco", "22m Repeats", "Yo-Yo Shuttle", "150 Shuttles", "300 Shuttle", "Weave and Go", "Box Pattern", "Anaerobic Builder", "10-20-30s", "150 Down-Ups", "10/20/30 Block", "Malcolms with Sprint"];
+const STP_DRILLS = ["Crusader Bronco","Broken Bronco","Lion Heart","Reven","Sixty2","200s and 100s","Double 150s","Coathanger","Far 40 and 22 Shuttle","Shuttle Ladder 5-22-50","3-2-1","Scissors","80-60-40","80-60-40 Down-Ups","The Gill","Mini Gill","Warrior","Malcolms","Titanium","Franko","Scuttler","Dagger","Accelerators","Sled Contrasts 22","150s","44s","88s","22s","Repeat 50s","Repeat 100s","10-20-30 Down-Up Shuttles","Ladder Sprints","Ladder Sprints 10-50","Down-Up Acceleration 10m","20m Acceleration","Chest-Start 22","45 Degree Cut","Slalom Run 22m","22m Down-Ups","Double Down-Up 22","Goodwins Rectangle","MAS 15:15","Touchline Tempo Lap","Broken Pony","Bear Crawl 10m","Burpee Sprint 22","Squat Jump Sprint 22","Press-Up Sprint 22","Drop-and-Roll Alternating","Double Roll Out and Back","Extended Bronco 20-40-60-80","Sprint and Backpedal 22","Sprint and Roll 22","Crawl-Sprint 5-22","Flying 20s","Flying 30s","Flying 40s","Sprint Float Sprint","70s","80s","Full Length 100","Down-Up Flying 30","Repeat 30s","Repeat 40s","Repeat 60s","Triple 11s","10m Acceleration","30m Acceleration","Jog-in Acceleration 20","90 Degree Cut","Zig-Zag 30m","Pro Agility 5-10-5","Down-Up Cut","MAS 10:10","MAS 15:15 Full Length","MAS 30:30","Tempo 100s","Tempo 200s","Tempo 300s","Short Tempo Box","Width Tempo 60s","Diagonal Tempo","Bear Crawl 5-10 Pyramid","Backpedal 22 and Sprint","Down-Up Bear Crawl","Squat Sprint 22","Press-Up Bear Crawl","Burpee Shuttle 10","Kneeling Wrestle to Sprint","Standing Wrestle to Shuttle","Down-Ups to Hit Shield","Hit, Run, Down-Up, Hit","Hit Shield to Sprint","Sprint to Hit Shield Finish","Wrestle Start and Finish","Run and Hit Shield 40","Hit Shield to Standing Wrestle","Hit Shield to Sprint 40","Hit Shield to Shuttle","Hit, Down-Up, Sprint","Backpedal to Hit Shield","Kneeling Wrestle to Run 40","Standing Wrestle to Sprint","Wrestle, Down-Up, Sprint","Standing Wrestle to Sprint 40","Single Curve In","Single Curve Across","Banana Run","S-Curve","S-Curve Wide","Double S","Swerve Around 50","Double Swerve","Swerve and Accelerate","Zig-Zag 22s","Zig-Zag Wide Sprint","Zig-Zag to Swerve","Sled Push 5m","Sled Push 10m","Sled Push 15m","Sled Push Contrast 5m","Sled Push Contrast 10m","Sled Push Contrast 15m","Sled Sprint 22m","Sled Sprint 25m","Sled Sprint 30m","Sled Sprint 40m","Sled Sprint 50m","Sled Sprint 60m","Sled Sprint Contrast 22m","Sled Sprint Contrast 25m","Sled Sprint Contrast 30m","Sled Sprint Contrast 40m","Sled Sprint Contrast 50m","Sled Sprint Contrast 60m","Pyramid Repeats","100/60/20","Build-Ups","Repeat Sprints: Short","Repeat Sprints: Medium","100/200 Drill","50s Jog-Through","Descending Ladder","1 km Repeat","Bucking Bronco","22m Repeats","Yo-Yo Shuttle","150 Shuttles","300 Shuttle","Weave and Go","Box Pattern","Anaerobic Builder","10-20-30s","150 Down-Ups","10/20/30 Block","Malcolms with Sprint"];
 const stpNrm = s => String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
 const stpName = n => STP_ALIAS[n] || n;
 const stpReps = lines => { const m = (lines && lines[0] || '').match(/^(\d+)\s*x\s*\{/i); return m ? +m[1] : null; };
