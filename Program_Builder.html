@@ -1,0 +1,2615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="theme-color" content="#1A1A1A">
+<title>Program Builder</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+:root{
+  /* ---- Skin tokens. Set at load by applySkin(); defaults below are the Red Sox skin. ---- */
+  --primary:#BD3039; --primary-hi:#D34751;
+  --on-primary:#FFFFFF; --on-primary-dim:rgba(255,255,255,.78);
+  --bg:#0D2B56; --ink:#081E3E; --text:#EDF1F8;
+  --silver:#93A5C4; --white:#FFFFFF;
+  --panel:#123361; --panel2:#173C70;
+  --line:rgba(147,165,196,.25);
+  /* Print (PDF) tokens */
+  --p-accent:#BD3039; --p-accent-dark:#8E242B; --p-ink:#0C2340; --p-head-bg:#0C2340;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg); color:var(--text); font-family:'Inter',system-ui,sans-serif; font-size:15px; line-height:1.5;}
+
+.wrap{max-width:960px; margin:0 auto; padding:0 20px 120px;}
+
+/* Header */
+header{display:flex; align-items:center; gap:16px; padding:26px 0 20px; border-bottom:1px solid var(--line);}
+header img{width:74px; height:74px; object-fit:contain;}
+@media(min-width:641px){header img.wide{width:120px;}}
+.h-title{font-family:'Oswald',sans-serif; font-weight:600; font-size:26px; letter-spacing:.06em; text-transform:uppercase; color:var(--white); line-height:1.1;}
+.h-sub{font-family:'Oswald',sans-serif; font-weight:400; font-size:13px; letter-spacing:.22em; text-transform:uppercase; color:var(--primary); margin-top:4px;}
+
+/* Form */
+.builder{margin-top:26px;}
+.grp{margin-bottom:22px;}
+.grp-label{font-family:'Oswald',sans-serif; font-size:13px; font-weight:500; letter-spacing:.18em; text-transform:uppercase; color:var(--silver); margin-bottom:9px; display:flex; align-items:center; gap:10px;}
+.grp-label::after{content:""; flex:1; height:1px; background:var(--line);}
+.chips{display:flex; flex-wrap:wrap; gap:8px;}
+.chip{background:var(--panel); border:1px solid var(--line); color:#D8D8D8; padding:9px 16px; border-radius:3px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13.5px; font-weight:500; transition:border-color .15s, color .15s, background .15s; user-select:none;}
+.chip:hover{border-color:var(--silver);}
+.chip.on{border-color:var(--primary); color:var(--on-primary); background:var(--primary); font-weight:600;}
+.chip .sm{display:block; font-size:11px; color:var(--silver); font-weight:400; margin-top:1px;}
+.chip.on .sm{color:var(--on-primary-dim);}
+.two-col{display:grid; grid-template-columns:1fr 1fr; gap:0 32px;}
+@media(max-width:700px){.two-col{grid-template-columns:1fr;}}
+
+.build-btn{margin-top:6px; width:100%; background:var(--primary); color:var(--on-primary); border:none; font-family:'Oswald',sans-serif; font-weight:600; font-size:17px; letter-spacing:.14em; text-transform:uppercase; padding:15px; border-radius:3px; cursor:pointer; transition:background .15s;}
+.build-btn:hover{background:var(--primary-hi);}
+.build-btn:focus-visible, .chip:focus-visible{outline:2px solid var(--primary-hi); outline-offset:2px;}
+
+/* Output */
+#out{margin-top:34px; display:none;}
+.sec-head{display:flex; align-items:baseline; gap:14px; margin:34px 0 6px; padding-bottom:8px; border-bottom:2px solid var(--primary);}
+.sec-head h2{font-family:'Oswald',sans-serif; font-weight:600; font-size:21px; letter-spacing:.1em; text-transform:uppercase; color:var(--white);}
+.sec-head span{font-size:12.5px; color:var(--silver);}
+
+.meta-strip{display:flex; flex-wrap:wrap; gap:8px 22px; background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--primary); border-radius:3px; padding:13px 18px; margin-top:12px; font-size:13px;}
+.meta-strip b{color:var(--primary-hi); font-family:'Oswald',sans-serif; font-weight:500; letter-spacing:.08em; text-transform:uppercase; font-size:12px; margin-right:6px;}
+
+.wk-guide{margin-top:14px; border:1px solid var(--line); border-radius:3px; overflow:hidden;}
+.wk-row{display:grid; grid-template-columns:110px 1fr; border-bottom:1px solid var(--line); font-size:13px;}
+.wk-row:last-child{border-bottom:none;}
+.wk-row .wk{background:var(--panel); font-family:'Oswald',sans-serif; letter-spacing:.08em; text-transform:uppercase; font-size:12.5px; color:var(--primary); padding:9px 14px; font-weight:500;}
+.wk-row .wd{padding:9px 14px; color:#D5D5D5;}
+
+.day-card{background:var(--panel); border:1px solid var(--line); border-radius:3px; margin-top:16px; overflow:hidden;}
+.day-head{background:var(--ink); border-bottom:1px solid var(--primary); padding:11px 18px; display:flex; justify-content:space-between; align-items:center;}
+.day-head h3{font-family:'Oswald',sans-serif; font-weight:500; font-size:16px; letter-spacing:.1em; text-transform:uppercase; color:var(--white);}
+.day-head span{font-size:12px; color:var(--silver);}
+
+table.lift{width:100%; border-collapse:collapse; font-size:13.5px;}
+table.lift th{font-family:'Oswald',sans-serif; font-weight:500; font-size:11.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--silver); text-align:left; padding:9px 12px; border-bottom:1px solid var(--line);}
+table.lift td{padding:10px 12px; border-bottom:1px solid rgba(144,152,162,.12); vertical-align:top;}
+table.lift tr:last-child td{border-bottom:none;}
+td.ord{color:var(--primary); font-family:'Oswald',sans-serif; font-weight:500; width:38px;}
+td.exn{font-weight:600; color:var(--white);}
+.exn button{all:unset; cursor:pointer; color:var(--white); font-weight:600; border-bottom:1px dashed var(--primary); padding-bottom:1px;}
+.exn button:hover{color:var(--primary-hi);}
+.exn button:focus-visible{outline:2px solid var(--primary-hi); outline-offset:2px;}
+.exn .note{display:block; font-size:11.5px; color:var(--silver); font-weight:400; margin-top:2px;}
+td.num{white-space:nowrap; color:#D5D5D5;}
+
+/* Swap popover */
+.swap{margin-top:8px; background:var(--panel2); border:1px solid var(--primary); border-radius:3px; padding:10px 12px;}
+.swap p{font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--silver); font-family:'Oswald',sans-serif; margin-bottom:7px;}
+.swap .opt{display:block; width:100%; text-align:left; background:var(--ink); border:1px solid var(--line); color:var(--white); font-family:'Inter',sans-serif; font-size:13px; font-weight:500; padding:8px 11px; border-radius:3px; cursor:pointer; margin-bottom:6px;}
+.swap .opt:hover{border-color:var(--primary);}
+.swap .cancel{background:none; border:none; color:var(--silver); font-size:12px; cursor:pointer; padding:2px 0; text-decoration:underline;}
+
+/* Conditioning */
+.cond-card{background:var(--panel); border:1px solid var(--line); border-radius:3px; margin-top:16px; padding:16px 18px;}
+.cond-card h3{font-family:'Oswald',sans-serif; font-weight:500; font-size:15px; letter-spacing:.1em; text-transform:uppercase; color:var(--white); margin-bottom:8px;}
+.wr-line{display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin:8px 0;}
+.wr-box{background:var(--ink); border:1px solid var(--line); border-left:3px solid var(--primary); padding:7px 13px; border-radius:2px; font-size:13px;}
+.wr-box b{color:var(--primary-hi);}
+.cond-note{font-size:12.5px; color:var(--silver); margin-top:6px;}
+.poison{margin-top:12px; font-size:13px; color:#D5D5D5;}
+.poison b{font-family:'Oswald',sans-serif; font-weight:500; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--primary);}
+
+/* Export bar */
+.export-bar{position:fixed; left:0; right:0; bottom:0; background:color-mix(in srgb, var(--ink) 94%, transparent); backdrop-filter:blur(6px); border-top:1px solid var(--line); padding:12px 20px; display:none; justify-content:center; gap:12px; z-index:50;}
+.export-bar button{font-family:'Oswald',sans-serif; font-weight:600; letter-spacing:.12em; text-transform:uppercase; font-size:14px; padding:11px 26px; border-radius:3px; cursor:pointer;}
+#pdfBtn{background:var(--primary); color:var(--on-primary); border:none;}
+#pdfBtn:hover{background:var(--primary-hi);}
+#editBtn{background:none; color:var(--silver); border:1px solid var(--line);}
+#editBtn:hover{color:var(--white); border-color:var(--silver);}
+
+.tip{font-size:12px; color:var(--silver); margin-top:10px;}
+
+
+
+/* Focus tiers (Simple / Advanced rows) */
+.focus-tier{display:flex; align-items:flex-start; gap:10px; margin-bottom:9px;}
+.focus-tier:last-child{margin-bottom:0;}
+.tier-tag{flex:0 0 84px; text-align:center; font-family:'Oswald',sans-serif; font-size:10.5px; font-weight:500; letter-spacing:.16em; text-transform:uppercase; color:var(--silver); border:1px solid var(--line); border-radius:2px; padding:8px 0; margin-top:1px;}
+.focus-tier.adv .tier-tag{color:var(--primary-hi); border-color:var(--primary);}
+@media(max-width:640px){.focus-tier{flex-direction:column; gap:6px;} .tier-tag{flex:none; width:100%; padding:4px 0;}}
+
+/* Optional section toggles + drill rows */
+.grp-label .incSw{order:2; background:none; border:1.5px solid var(--silver); color:var(--silver); font-family:'Oswald',sans-serif; font-size:11px; font-weight:500; letter-spacing:.1em; text-transform:uppercase; padding:4px 14px; border-radius:2px; cursor:pointer; transition:background .15s, color .15s, border-color .15s;}
+.grp-label .incSw:hover{border-color:var(--primary); color:var(--primary-hi);}
+.grp-label .incSw.on{background:var(--primary); border-color:var(--primary); color:var(--on-primary); font-weight:600;}
+.grp-label::after{order:1;}
+.opt-body{margin-top:4px;}
+.mini{font-family:'Oswald',sans-serif; font-size:11px; font-weight:500; letter-spacing:.14em; text-transform:uppercase; color:var(--silver); margin:12px 0 7px;}
+.opt-body .mini:first-child{margin-top:2px;}
+.rule-note{font-size:11.5px; color:var(--silver); margin-top:9px;}
+.vol-row{display:flex; align-items:center; gap:16px; max-width:440px;}
+.vol-row input[type=range]{flex:1; accent-color:var(--primary); cursor:pointer; height:28px;}
+.vol-row span{font-family:'Oswald',sans-serif; font-size:14px; font-weight:500; letter-spacing:.08em; color:var(--primary-hi); min-width:74px; text-align:right;}
+.drill{display:flex; justify-content:space-between; align-items:baseline; gap:14px; padding:7px 0; border-bottom:1px solid var(--line); font-size:13px;}
+.drill:last-of-type{border-bottom:none;}
+.drill .dn{font-weight:600; color:var(--white);}
+.drill .dx{color:var(--silver); white-space:nowrap; font-size:12.5px;}
+.drill .ln{color:#D8DEE9; font-weight:400; line-height:1.5;}
+.blk{margin-top:12px; padding-top:2px;}
+.blk:first-of-type{margin-top:4px;}
+.blk-h{display:flex; justify-content:space-between; align-items:baseline; gap:12px; font-weight:600; color:var(--white); font-size:13.5px; padding-bottom:2px;}
+.blk-h span{font-family:'Oswald',sans-serif; font-weight:400; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--primary-hi); white-space:nowrap;}
+.ctag{font-family:'Oswald',sans-serif; font-weight:400; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--silver); margin-left:10px;}
+
+/* Skin picker */
+#skinPick{margin-left:auto; background:var(--panel); color:var(--text); border:1px solid var(--line); font-family:'Oswald',sans-serif; font-size:11.5px; font-weight:500; letter-spacing:.1em; text-transform:uppercase; padding:8px 10px; border-radius:3px; cursor:pointer;}
+#skinPick:hover{border-color:var(--silver);}
+#skinPick:focus-visible{outline:2px solid var(--primary-hi); outline-offset:2px;}
+@media(max-width:640px){#skinPick{font-size:10px; padding:6px 6px;}}
+
+#builderSw{margin-left:8px; background:var(--panel); color:var(--silver); border:1px solid var(--line); font-family:'Oswald',sans-serif; font-size:11.5px; font-weight:500; letter-spacing:.1em; text-transform:uppercase; padding:8px 12px; border-radius:3px; cursor:pointer; white-space:nowrap; transition:border-color .15s, color .15s;}
+#builderSw:hover:not(:disabled){color:var(--white); border-color:var(--silver);}
+#builderSw:disabled{opacity:.4; cursor:default;}
+#builderSw:focus-visible{outline:2px solid var(--primary-hi); outline-offset:2px;}
+@media(max-width:640px){#builderSw{font-size:10px; padding:6px 8px; margin-left:6px;}}
+
+/* Recording Sheet table view */
+th.sth{text-align:center;}
+td.si{padding:6px 4px; text-align:center;}
+td.si input{width:100%; max-width:66px; background:var(--ink); border:1px solid var(--line); border-bottom:2px solid var(--primary); color:var(--white); font-family:'Inter',sans-serif; font-size:13px; text-align:center; padding:6px 4px; border-radius:2px;}
+td.si input:focus{outline:none; border-color:var(--primary);}
+td.si.off{background:rgba(144,152,162,.05);}
+table.recmode .exn .note{margin-top:3px;}
+
+
+
+/* Mobile layout */
+.rx{display:none;}
+@media(max-width:640px){
+  .wrap{padding:0 12px 130px;}
+  header{padding:18px 0 14px;}
+  header img{width:56px; height:56px;}
+  .h-title{font-size:20px;}
+  table.lift th:nth-child(n+3), table.lift td.num{display:none;}
+  .rx{display:block; font-size:11.5px; color:var(--silver); margin-top:3px;}
+  table.lift td{padding:11px 12px;}
+  .day-head{flex-wrap:wrap; gap:6px;}
+  .day-head .screen-only{display:none;}
+  .rpe-chip{width:27px; height:29px; font-size:12px;}
+  .srpe{gap:4px; padding:11px 12px;}
+  .export-bar{padding:10px 10px calc(10px + env(safe-area-inset-bottom)); gap:7px;}
+  .export-bar button{font-size:12px; padding:9px 12px; flex:1 1 auto;}
+  .boxes input{width:62px; font-size:14px;}
+  .chip{padding:9px 13px;}
+}
+/* Session RPE */
+.srpe{display:flex; align-items:center; gap:6px; flex-wrap:wrap; padding:11px 16px; border-top:1px solid var(--line);}
+.srpe .lbl{font-family:'Oswald',sans-serif; font-size:11px; font-weight:500; letter-spacing:.16em; text-transform:uppercase; color:var(--silver); margin-right:6px;}
+.rpe-chip{width:31px; height:31px; display:flex; align-items:center; justify-content:center; background:var(--ink); border:1px solid var(--line); color:#D5D5D5; border-radius:2px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px;}
+.rpe-chip:hover{border-color:var(--silver);}
+.rpe-chip.on{background:var(--primary); border-color:var(--primary); color:var(--on-primary); font-weight:600;}
+.cond-card .srpe{padding:11px 0 2px; margin-top:10px;}
+#saveBtn, #loadBtn{background:none; color:var(--silver); border:1px solid var(--line);}
+#saveBtn:hover, #loadBtn:hover{color:var(--white); border-color:var(--silver);}
+/* Per-day record switch */
+.dh-right{display:flex; align-items:center; gap:12px;}
+.recSw{background:none; border:1.5px solid var(--primary); color:var(--primary); font-family:'Oswald',sans-serif; font-size:11px; font-weight:500; letter-spacing:.1em; text-transform:uppercase; padding:4px 12px; border-radius:2px; cursor:pointer; transition:background .15s, color .15s;}
+.recSw:hover{background:color-mix(in srgb, var(--primary) 18%, transparent);}
+.recSw.on{background:var(--primary); border-color:var(--primary); color:var(--on-primary); font-weight:600;}
+/* Prep block */
+.prep{display:grid; grid-template-columns:1fr 1fr; gap:0 18px; padding:11px 16px; border-bottom:1px solid var(--line); background:var(--ink);}
+.prep h4{font-family:'Oswald',sans-serif; font-weight:500; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--primary); margin-bottom:5px;}
+.prep ul{list-style:none;}
+.prep li{font-size:12.5px; color:#D5D5D5; padding:2px 0;}
+.prep li span{color:var(--silver); font-size:11.5px;}
+@media(max-width:560px){.prep{grid-template-columns:1fr;}}
+
+/* Recording grids */
+tr.rec td{padding-top:2px; border-bottom:1px solid rgba(144,152,162,.12);}
+.boxes{display:flex; flex-wrap:wrap; gap:6px; padding:2px 0 6px;}
+.boxes label{display:flex; flex-direction:column; font-size:10px; color:var(--silver); font-family:'Oswald',sans-serif; letter-spacing:.08em;}
+.boxes input{width:58px; background:var(--ink); border:1px solid var(--line); border-bottom:2px solid var(--primary); color:var(--white); font-family:'Inter',sans-serif; font-size:12.5px; padding:4px 6px; border-radius:2px; margin-top:2px;}
+.boxes input:focus{outline:none; border-color:var(--primary);}
+.cond-rec{margin-top:10px;}
+.cond-rec p{font-size:11px; letter-spacing:.12em; text-transform:uppercase; font-family:'Oswald',sans-serif; color:var(--silver); margin-bottom:5px;}
+#pdfRecBtn, #pdfFillBtn{background:none; color:var(--primary); border:1px solid var(--primary);}
+#pdfRecBtn:hover, #pdfFillBtn:hover{background:var(--primary); color:var(--on-primary);}
+#libBtn{background:none; color:var(--silver); border:1px solid var(--line);}
+#libBtn:hover{border-color:var(--silver); color:var(--text);}
+#pdfFillBtn:disabled{opacity:.55; cursor:wait;}
+.export-bar{flex-wrap:wrap;}
+
+/* ---------- PRINT: light theme, 2 pages ---------- */
+.print-only{display:none;}
+@media print{
+  @page{size:letter landscape; margin:0.4in;}
+  body{background:#fff; color:var(--p-ink); font-size:11px;}
+  .wrap{max-width:none; padding:0;}
+  header, .builder, .export-bar, .tip, .screen-only{display:none !important;}
+  #out{display:block !important; margin-top:0;}
+  .print-only{display:block;}
+  .p-head{display:flex; align-items:center; gap:12px; border-bottom:2px solid var(--p-accent); padding-bottom:8px; margin-bottom:10px;}
+  .p-head img{width:56px; height:56px; object-fit:contain;}
+  .p-head img.wide{width:110px;}
+  .p-head .t1{font-family:'Oswald',sans-serif; font-weight:600; font-size:17px; letter-spacing:.08em; text-transform:uppercase; color:var(--p-ink);}
+  .p-head .t2{font-family:'Oswald',sans-serif; font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:#6b6b6b; margin-top:2px;}
+  .sec-head{border-bottom-color:var(--p-accent); margin:0 0 4px; padding-bottom:4px;}
+  .sec-head h2{color:var(--p-ink); font-size:15px;}
+  .sec-head span{color:#555;}
+  .meta-strip{background:none; border:1px solid #ccc; color:var(--p-ink); padding:6px 10px; font-size:9.5px; margin-top:6px;}
+  .meta-strip b{color:var(--p-ink);}
+  .wk-guide{border-color:#ccc; margin-top:8px;}
+  .wk-row{border-color:#ddd; font-size:9.5px;}
+  .wk-row .wk{background:#f4f4f4; color:var(--p-ink);}
+  .wk-row .wd{color:var(--p-ink);}
+  .day-card{background:none; border:1px solid #bbb; margin-top:8px; break-inside:avoid;}
+  .day-head{background:var(--p-head-bg); border-bottom:2px solid var(--p-accent); padding:5px 10px;}
+  .day-head h3{color:#fff; font-size:11px;}
+  .day-head span{color:#bdbdbd; font-size:9px;}
+  table.lift{font-size:9.5px;}
+  table.lift th{color:var(--p-ink); border-bottom-color:#ccc; padding:4px 8px; font-size:8.5px;}
+  table.lift td{padding:4px 8px; border-bottom-color:#e4e4e4; color:var(--p-ink);}
+  td.ord{color:var(--p-ink); }
+  td.exn, .exn button{color:var(--p-ink); border-bottom:none; cursor:default;}
+  .exn .note{color:#555; font-size:8.5px;}
+  td.num{color:var(--p-ink);}
+  .swap{display:none !important;}
+  .prep{background:none; border-bottom:1px solid #ddd;}
+  .prep h4{color:var(--p-ink);}
+  .prep li{color:var(--p-ink); font-size:8.5px;}
+  .prep li span{color:#666;}
+  tr.rec, .cond-rec, .srpe{display:none !important;}
+  .drill{border-color:#e4e4e4;}
+  .drill .dn{color:var(--p-ink);}
+  .drill .dx{color:#555;}
+  .drill .ln{color:var(--p-ink);}
+  .ctag{color:#666;}
+  .blk-h{color:var(--p-ink);}
+  .blk-h span{color:#666;}
+  .cond-card{background:none; border:1px solid #bbb; padding:9px 12px; margin-top:8px; break-inside:avoid;}
+  .cond-card h3{color:var(--p-ink); font-size:11px;}
+  .wr-box{background:#f4f4f4; border-left-color:var(--p-accent); color:var(--p-ink); font-size:9.5px;}
+  .wr-box b{color:var(--p-ink);}
+  .cond-note{color:#444; font-size:9px;}
+  .poison{color:var(--p-ink); font-size:9.5px;}
+  .poison b{color:var(--p-ink);}
+  #liftPage{page-break-after:always;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <img id="brandLogo" src="" alt="">
+  <div>
+    <div class="h-title">Program Builder</div>
+    <div class="h-sub" id="brandSub"></div>
+  </div>
+  <select id="skinPick" aria-label="Choose skin"></select>
+  <button id="builderSw" type="button" aria-expanded="true" aria-controls="builder">Hide builder</button>
+</header>
+
+<section class="builder" id="builder">
+  <div class="grp">
+    <div class="grp-label">Lifting days per week</div>
+    <div class="chips" data-key="liftDays">
+      <button class="chip" data-v="1">1</button><button class="chip" data-v="2">2</button><button class="chip on" data-v="3">3</button><button class="chip" data-v="4">4</button><button class="chip" data-v="5">5</button>
+    </div>
+  </div>
+
+  <div class="grp opt-grp">
+    <div class="grp-label">CARE Finisher <button class="incSw" id="careSw" type="button">Off</button></div>
+    <div class="opt-body" id="careBody">
+      <p class="rule-note" style="margin-top:2px;">CARE (Core Accessory Robustness Exercises): a short two movement finisher added to the end of every lifting day. One core movement, loaded 3 x 5 or unloaded 3 x 15 alternating by day, plus one shoulder and scapular movement at 2 x 10. Both rotate and swap like any other exercise.</p>
+    </div>
+  </div>
+
+  <div class="grp">
+    <div class="grp-label">Program length</div>
+    <div class="chips" data-key="weeks">
+      <button class="chip" data-v="4">4 weeks</button><button class="chip on" data-v="6">6 weeks</button><button class="chip" data-v="8">8 weeks</button><button class="chip" data-v="10">10 weeks</button><button class="chip" data-v="12">12 weeks</button>
+    </div>
+  </div>
+
+  <div class="grp">
+    <div class="grp-label">Body emphasis</div>
+    <div class="chips" data-key="emph">
+      <button class="chip" data-v="lower">Lower Body Emphasis<span class="sm">2:1 toward lower</span></button>
+      <button class="chip" data-v="upper">Upper Body Emphasis<span class="sm">2:1 toward upper</span></button>
+      <button class="chip on" data-v="equal">Equal Focus<span class="sm">1:1 distribution</span></button>
+    </div>
+  </div>
+
+  <div class="grp">
+    <div class="grp-label">Lifting equipment</div>
+    <div class="chips" data-key="equip">
+      <button class="chip on" data-v="machine">Machine<span class="sm">Plate and pin loaded</span></button>
+      <button class="chip" data-v="free">Free weight<span class="sm">Barbell and dumbbell</span></button>
+      <button class="chip" data-v="combo">Combination<span class="sm">Machine and free weight</span></button>
+      <button class="chip" data-v="perf">Performance gym<span class="sm">Sleds, trap bar, med balls</span></button>
+    </div>
+  </div>
+
+  <div class="grp">
+    <div class="grp-label">Lifting focus</div>
+    <div class="focus-tier">
+      <span class="tier-tag">Simple</span>
+      <div class="chips" data-key="focus">
+        <button class="chip" data-v="maxs">Max Strength</button>
+        <button class="chip on" data-v="hyp">Hypertrophy</button>
+        <button class="chip" data-v="ss">Strength/Size Hybrid</button>
+        <button class="chip" data-v="pow">Explosive Power</button>
+        <button class="chip" data-v="sp">Strength/Power Hybrid</button>
+        <button class="chip" data-v="met">Metabolic<span class="sm">Lifts, circuits and carries</span></button>
+      </div>
+    </div>
+    <div class="focus-tier adv">
+      <span class="tier-tag">Advanced</span>
+      <div class="chips" data-key="focus">
+        <button class="chip" data-v="pap">Contrast Pairs<span class="sm">Heavy + plyo pairs (PAP)</span></button>
+        <button class="chip" data-v="fc">French Contrast<span class="sm">4-lift power complexes</span></button>
+        <button class="chip" data-v="tri">Triphasic<span class="sm">Ecc / iso / con phase blocks</span></button>
+        <button class="chip" data-v="nc">Neural Contrast<span class="sm">Sprint, lift, jump, sled</span></button>
+        <button class="chip" data-v="emom">EMOM Density<span class="sm">3-lift rotation on the minute</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="grp">
+    <div class="grp-label">Session structure</div>
+    <div class="chips" data-key="struct">
+      <button class="chip" data-v="split">Lower/Upper Split<span class="sm">Dedicated days</span></button>
+      <button class="chip" data-v="full">Full Body Only<span class="sm">Whole body each session</span></button>
+      <button class="chip on" data-v="hyb">Hybrid<span class="sm">Split pairs plus full body</span></button>
+    </div>
+  </div>
+
+  <div class="grp">
+    <div class="grp-label">Field distance units</div>
+    <div class="chips" data-key="units">
+      <button class="chip on" data-v="m">Metres</button>
+      <button class="chip" data-v="yd">Yards</button>
+    </div>
+  </div>
+
+  <div class="grp opt-grp">
+    <div class="grp-label">Speed <button class="incSw" id="spdSw" type="button">Off</button></div>
+    <div class="opt-body" id="spdBody">
+      <div class="mini">Quality</div>
+      <div class="chips" data-key="spdQual">
+        <button class="chip" data-v="acc">Acceleration</button>
+        <button class="chip" data-v="mv">Max Velocity</button>
+        <button class="chip" data-v="cod">Change of Direction</button>
+        <button class="chip on" data-v="all">All<span class="sm">Every quality</span></button>
+      </div>
+      <div class="two-col">
+        <div>
+          <div class="mini">Days per week</div>
+          <div class="chips" data-key="spdDays">
+            <button class="chip" data-v="1">1</button><button class="chip on" data-v="2">2</button><button class="chip" data-v="3">3</button>
+          </div>
+        </div>
+        <div>
+          <div class="mini">Approach</div>
+          <div class="chips" data-key="spdApp">
+            <button class="chip" data-v="split">Split<span class="sm">One quality per day</span></button>
+            <button class="chip on" data-v="hyb">Hybrid<span class="sm">Qualities blended each session</span></button>
+          </div>
+        </div>
+      </div>
+      <p class="rule-note">Split runs one dedicated quality per day, so it needs All qualities and exactly 3 days. Hybrid works with 1, 2 or 3 days.</p>
+    </div>
+  </div>
+
+  <div class="grp opt-grp">
+    <div class="grp-label">Running Conditioning <button class="incSw" id="runSw" type="button">Off</button></div>
+    <div class="opt-body" id="runBody">
+      <div class="mini">Type</div>
+      <div class="chips" data-key="runType">
+        <button class="chip on" data-v="straight">Straight Line Only</button>
+        <button class="chip" data-v="shpat">Shuttle &amp; Pattern</button>
+        <button class="chip" data-v="shdu">Shuttle &amp; Down-Up</button>
+        <button class="chip" data-v="all">All Types<span class="sm">Every type</span></button>
+      </div>
+      <div class="mini">Session volume target</div>
+      <div class="vol-row">
+        <input type="range" id="runVol" min="2000" max="4000" step="500" value="3000" aria-label="Session volume target">
+        <span id="runVolLbl">3000 m</span>
+      </div>
+      <div class="two-col">
+        <div>
+          <div class="mini">Days per week</div>
+          <div class="chips" data-key="runDays">
+            <button class="chip" data-v="1">1</button><button class="chip on" data-v="2">2</button><button class="chip" data-v="3">3</button><button class="chip" data-v="4">4</button><button class="chip" data-v="5">5</button>
+          </div>
+        </div>
+        <div>
+          <div class="mini">Approach</div>
+          <div class="chips" data-key="runApp">
+            <button class="chip" data-v="split">Split<span class="sm">One type per day</span></button>
+            <button class="chip on" data-v="hyb">Hybrid<span class="sm">Selected type each session</span></button>
+          </div>
+        </div>
+      </div>
+      <p class="rule-note">Split runs one type per day, so it needs All Types and at least 3 days: day 1 straight line, day 2 shuttle and pattern, day 3 shuttle and down-up. Days 4 and 5 become hybrid mix days.</p>
+    </div>
+  </div>
+
+  <div class="grp opt-grp">
+    <div class="grp-label">Indoor Conditioning <button class="incSw" id="condSw" type="button">On</button></div>
+    <div class="opt-body" id="condBody">
+      <div class="mini">Days per week</div>
+      <div class="chips" data-key="condDays">
+        <button class="chip" data-v="1">1</button><button class="chip on" data-v="2">2</button><button class="chip" data-v="3">3</button><button class="chip" data-v="4">4</button>
+      </div>
+      <div class="two-col">
+        <div>
+          <div class="mini">System</div>
+          <div class="chips" data-key="condSys">
+            <button class="chip on" data-v="aer">Aerobic<span class="sm">Longer work, short rest</span></button>
+            <button class="chip" data-v="ana">Anaerobic<span class="sm">Short work, long rest</span></button>
+            <button class="chip" data-v="hyb">Hybrid<span class="sm">Even work to rest</span></button>
+          </div>
+        </div>
+        <div>
+          <div class="mini">Minutes per session</div>
+          <div class="chips" data-key="condMins">
+            <button class="chip" data-v="5">5</button><button class="chip" data-v="10">10</button><button class="chip on" data-v="15">15</button><button class="chip" data-v="20">20</button><button class="chip" data-v="25">25</button><button class="chip" data-v="30">30</button>
+          </div>
+        </div>
+      </div>
+      <p class="rule-note">Machine based intervals: pick your poison each session. Bike erg, rower, ski erg, assault bike, treadmill, stair climber or curve runner.</p>
+    </div>
+  </div>
+
+  <button class="build-btn" id="buildBtn">Build program</button>
+  <p class="tip">Every setting can be changed and rebuilt. In the finished program, tap any lift to swap it for a progression, regression or substitution.</p>
+</section>
+
+<section id="out">
+  <div id="liftPage">
+    <div class="print-only p-head">
+      <img class="pLogo" src="" alt="">
+      <div><div class="t1">Strength Program</div><div class="t2 pBrand"></div></div>
+    </div>
+    <div class="sec-head"><h2>Lifting</h2><span id="liftSub"></span></div>
+    <div class="meta-strip" id="liftMeta"></div>
+    <div class="wk-guide" id="wkGuide"></div>
+    <div id="liftDaysWrap"></div>
+  </div>
+
+  <div id="condPage">
+    <div class="print-only p-head">
+      <img class="pLogo" src="" alt="">
+      <div><div class="t1">Conditioning Program</div><div class="t2 pBrand"></div></div>
+    </div>
+    <div class="sec-head"><h2>Indoor Conditioning</h2><span id="condSub"></span></div>
+    <div class="meta-strip" id="condMeta"></div>
+    <div id="condDaysWrap"></div>
+  </div>
+
+  <div id="spdPage" style="display:none">
+    <div class="sec-head"><h2>Speed</h2><span id="spdSub"></span></div>
+    <div class="meta-strip" id="spdMeta"></div>
+    <div id="spdDaysWrap"></div>
+  </div>
+
+  <div id="runPage" style="display:none">
+    <div class="sec-head"><h2>Running Conditioning</h2><span id="runSub"></span></div>
+    <div class="meta-strip" id="runMeta"></div>
+    <div id="runDaysWrap"></div>
+  </div>
+</section>
+
+</div>
+
+<div class="export-bar" id="exportBar">
+  <button id="editBtn">Edit settings</button>
+  <button id="saveBtn">Save</button>
+  <button id="loadBtn">Load</button>
+  <button id="pdfBtn">PDF: Program</button>
+  <button id="pdfRecBtn">PDF + Recording</button>
+  <button id="pdfFillBtn">Fillable PDF</button>
+  <button id="libBtn">Library</button>
+</div>
+<input type="file" id="loadFile" accept=".json" style="display:none">
+
+<script>
+/* ================= SKIN SYSTEM =================
+   White-label theming. To add a skin: add an entry to SKINS
+   (logos as data URIs or file paths, colors as hex) and it
+   appears in the picker. Everything else is shared logic.  */
+const LOGO_REDSOX_B   = "data:image/png;base64,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";
+const LOGO_REDSOX_SOX = "data:image/png;base64,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";
+const LOGO_STP_DARK   = "data:image/png;base64,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";
+const LOGO_STP_LIGHT  = "data:image/png;base64,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";
+
+const LOGO_USRUGBY   = "data:image/png;base64,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";
+
+const SKINS = {
+  redsox: {
+    label:"Red Sox", brand:"Boston Red Sox",
+    docTitle:"Red Sox | Program Builder", fileBase:"RedSox",
+    logoApp:LOGO_REDSOX_B, logoPrint:LOGO_REDSOX_SOX,
+    colors:{ primary:"#BD3039", primaryHi:"#D34751",
+      onPrimary:"#FFFFFF", onPrimaryDim:"rgba(255,255,255,.78)",
+      bg:"#0D2B56", ink:"#081E3E", text:"#EDF1F8", silver:"#93A5C4",
+      panel:"#123361", panel2:"#173C70", line:"rgba(147,165,196,.25)" },
+    print:{ accent:"#BD3039", accentDark:"#8E242B",
+      ink:"#0C2340", headBg:"#0C2340", onAccent:"#FFFFFF" }
+  },
+  monster: {
+    label:"Green Monster", brand:"Boston Red Sox",
+    docTitle:"Red Sox | Program Builder", fileBase:"RedSox_GreenMonster",
+    logoApp:LOGO_REDSOX_SOX, logoPrint:LOGO_REDSOX_SOX,
+    colors:{ primary:"#F2C34E", primaryHi:"#F7D06A",
+      onPrimary:"#22403A", onPrimaryDim:"rgba(34,64,58,.72)",
+      bg:"#31504A", ink:"#27403B", text:"#EFF5F3", silver:"#A9BFB9",
+      panel:"#3B5C55", panel2:"#446861", line:"rgba(169,191,185,.28)" },
+    print:{ accent:"#4B6B66", accentDark:"#38524E",
+      ink:"#22403A", headBg:"#31504A", onAccent:"#FFFFFF" }
+  },
+  usrugby: {
+    label:"US Rugby", brand:"US Rugby Players",
+    docTitle:"US Rugby Players | Program Builder", fileBase:"US_Rugby_Players",
+    logoApp:LOGO_USRUGBY, logoPrint:LOGO_USRUGBY, wideLogo:true,
+    colors:{ primary:"#B32615", primaryHi:"#CC3B23",
+      onPrimary:"#FFFFFF", onPrimaryDim:"rgba(255,255,255,.78)",
+      bg:"#131230", ink:"#0C0B20", text:"#EFEFF8", silver:"#9B9EC4",
+      panel:"#232155", panel2:"#2B2965", line:"rgba(155,158,196,.26)" },
+    print:{ accent:"#A82412", accentDark:"#7E1B0D",
+      ink:"#23205A", headBg:"#0B0B10", onAccent:"#FFFFFF" }
+  },
+  stperf: {
+    label:"ST Performance", brand:"ST Performance",
+    docTitle:"ST Performance | Program Builder", fileBase:"ST_Performance",
+    logoApp:LOGO_STP_DARK, logoPrint:LOGO_STP_LIGHT,
+    colors:{ primary:"#E7B530", primaryHi:"#EAC148",
+      onPrimary:"#1A1A1A", onPrimaryDim:"#3A3A3A",
+      bg:"#1A1A1A", ink:"#101010", text:"#EDEDED", silver:"#9098A2",
+      panel:"#202124", panel2:"#26282c", line:"rgba(144,152,162,.22)" },
+    print:{ accent:"#E7B530", accentDark:"#B8901F",
+      ink:"#1A1A1A", headBg:"#1A1A1A", onAccent:"#1A1A1A" }
+  }
+};
+let activeSkin = "redsox";
+
+function applySkin(id){
+  const SK = SKINS[id]; if(!SK) return;
+  activeSkin = id;
+  const r = document.documentElement.style, c = SK.colors, p = SK.print;
+  const map = {
+    "--primary":c.primary, "--primary-hi":c.primaryHi,
+    "--on-primary":c.onPrimary, "--on-primary-dim":c.onPrimaryDim,
+    "--bg":c.bg, "--ink":c.ink, "--text":c.text, "--silver":c.silver,
+    "--panel":c.panel, "--panel2":c.panel2, "--line":c.line,
+    "--p-accent":p.accent, "--p-accent-dark":p.accentDark,
+    "--p-ink":p.ink, "--p-head-bg":p.headBg
+  };
+  for(const k in map) r.setProperty(k, map[k]);
+  const logo = document.getElementById("brandLogo");
+  logo.src = SK.logoApp; logo.alt = SK.brand;
+  logo.classList.toggle("wide", !!SK.wideLogo);
+  document.getElementById("brandSub").textContent = SK.brand;
+  document.title = SK.docTitle;
+  document.querySelector('meta[name="theme-color"]').setAttribute("content", c.bg);
+  document.querySelectorAll(".pLogo").forEach(im=>{ im.src = SK.logoPrint; im.alt = SK.brand; im.classList.toggle("wide", !!SK.wideLogo); });
+  document.querySelectorAll(".pBrand").forEach(t=>{ t.textContent = SK.brand; });
+  document.getElementById("skinPick").value = id;
+  try{ localStorage.setItem("stp_skin", id); }catch(e){}
+}
+
+(function initSkins(){
+  const pick = document.getElementById("skinPick");
+  pick.innerHTML = Object.keys(SKINS).map(k=>`<option value="${k}">${SKINS[k].label}</option>`).join("");
+  pick.addEventListener("change", ()=>applySkin(pick.value));
+  let start = "redsox";
+  try{ const s = localStorage.getItem("stp_skin"); if(s && SKINS[s]) start = s; }catch(e){}
+  applySkin(start);
+})();
+
+/* ---------------- Exercise database ---------------- */
+const DB = {
+  machine: {
+    pow:  ["Smith Machine Jump Squat (light)", "Explosive Leg Press (light, fast drive)", "Cable Explosive Pull-Through"],
+    squat:["Leg Press", "Hack Squat", "Pendulum Squat"],
+    hinge:["45 Degree Back Extension", "Seated Leg Curl", "Glute Kickback Machine"],
+    hpush:["Chest Press Machine", "Incline Chest Press Machine", "Pec Deck Fly", "Hammer Chest Press"],
+    vpush:["Shoulder Press Machine", "Lateral Raise Machine", "Cable Overhead Press"],
+    hpull:["Seated Row Machine", "Chest Supported Row Machine", "Single Arm Cable Row", "Hammer ISO Row"],
+    vpull:["Lat Pulldown", "Neutral Grip Pulldown", "Assisted Chin Up"],
+    sl:   ["Single Leg Press", "Leg Extension", "Smith Machine Split Squat"],
+    core: ["Cable Pallof Press", "Machine Crunch", "Cable Chop"],
+    acc:  ["Cable Triceps Pushdown", "Cable Biceps Curl", "Reverse Pec Deck"]
+  },
+  free: {
+    pow:  ["Hang Power Clean", "Dumbbell Jump Squat", "Barbell Push Press", "Power Snatch", "Hang Snatch"],
+    squat:["Barbell Back Squat", "Barbell Front Squat", "Goblet Squat", "Box Squat"],
+    hinge:["Romanian Deadlift", "Barbell Deadlift", "Dumbbell RDL", "Good Morning", "Barbell Hip Thrust"],
+    hpush:["Barbell Bench Press", "Dumbbell Bench Press", "Incline Dumbbell Press", "Floor Press", "Close Grip Bench Press"],
+    vpush:["Dumbbell Shoulder Press", "Barbell Overhead Press", "Half Kneeling DB Press", "Push Press"],
+    hpull:["Barbell Bent Over Row", "Single Arm Dumbbell Row", "Chest Supported DB Row", "Pendlay Row"],
+    vpull:["Chin Up (weighted as able)", "Band Assisted Chin Up", "Dumbbell Pullover", "Upright Row"],
+    sl:   ["Dumbbell Split Squat", "Rear Foot Elevated Split Squat", "Dumbbell Walking Lunge", "Barbell Reverse Lunge", "Lateral Squat"],
+    core: ["Suitcase Carry", "Weighted Dead Bug", "Front Rack Carry", "Barbell Rollout", "Weighted Sit Up"],
+    acc:  ["Dumbbell Lateral Raise", "Dumbbell Hammer Curl", "Dumbbell Skull Crusher"]
+  },
+  combo: {
+    pow:  ["Hang Power Clean", "Dumbbell Jump Squat", "Smith Machine Jump Squat (light)", "Power Snatch"],
+    squat:["Barbell Back Squat", "Hack Squat", "Leg Press", "Barbell Front Squat"],
+    hinge:["Romanian Deadlift", "45 Degree Back Extension", "Seated Leg Curl", "Good Morning"],
+    hpush:["Barbell Bench Press", "Chest Press Machine", "Incline Dumbbell Press", "Floor Press"],
+    vpush:["Dumbbell Shoulder Press", "Shoulder Press Machine", "Barbell Overhead Press", "Push Press"],
+    hpull:["Chest Supported Row Machine", "Barbell Bent Over Row", "Single Arm Dumbbell Row", "Pendlay Row"],
+    vpull:["Lat Pulldown", "Chin Up (weighted as able)", "Neutral Grip Pulldown", "Dumbbell Pullover"],
+    sl:   ["Rear Foot Elevated Split Squat", "Single Leg Press", "Dumbbell Walking Lunge", "Barbell Reverse Lunge"],
+    core: ["Cable Pallof Press", "Suitcase Carry", "Machine Crunch", "Weighted Sit Up"],
+    acc:  ["Cable Triceps Pushdown", "Dumbbell Lateral Raise", "Dumbbell Hammer Curl"]
+  },
+  perf: {
+    pow:  ["Trap Bar Jump", "Med Ball Chest Throw", "Heavy Sled Sprint (10 to 15 m)", "Power Clean", "Trap Bar Jump Shrug"],
+    squat:["Safety Bar Squat", "Belt Squat", "Goblet Squat", "Box Squat"],
+    hinge:["Trap Bar Deadlift", "Heavy Kettlebell Swing", "Barbell RDL", "Glute Ham Raise"],
+    hpush:["Barbell Bench Press", "Weighted Push Up", "Landmine Press", "Swiss Bar Bench Press", "Jammer Press"],
+    vpush:["Landmine Half Kneeling Press", "Dumbbell Push Press", "Barbell Overhead Press", "Push Press", "Split Jerk"],
+    hpull:["Backward Sled Rope Row", "Chest Supported DB Row", "Barbell Bent Over Row", "Turkish Row", "Stone Row"],
+    vpull:["Chin Up (weighted as able)", "Band Assisted Chin Up", "Rope Climb Pull", "Rope Chin Up"],
+    sl:   ["Heavy Sled Push March", "Rear Foot Elevated Split Squat", "Dumbbell Walking Lunge", "Sprinter's Squat", "Lateral Squat"],
+    core: ["Farmer Carry", "Med Ball Rotational Throw", "Suitcase Carry", "Half Turkish Get Up", "Cross Body Carry"],
+    acc:  ["Sled Backward Drag", "Kettlebell Halo", "Banded Face Pull"]
+  }
+};
+
+/* ---------------- Mobility and activation prep ---------------- */
+const REGION = {pow:"lower", squat:"lower", hinge:"lower", sl:"lower", hpush:"push", vpush:"push", hpull:"pull", vpull:"pull", core:"trunk", acc:"push"};
+const MOB = {
+  lower:[["Deep Squat Hold with Reach","5 reps, 3 s hold"],["Half Kneeling Hip Flexor Stretch","6 per side"],["Hamstring Rock Back","8 per side"],["Ankle Rock Against Wall","8 per side"]],
+  push:[["Thoracic Extension over Roller","8 reps"],["Wall Slide","8 reps"],["Open Book Rotation","6 per side"]],
+  pull:[["Thread the Needle","6 per side"],["Band Lat Stretch","30 s per side"],["Cat Cow","8 reps"]]
+};
+const ACT = {
+  lower:[["Glute Bridge","2 x 10"],["Bodyweight Squat","2 x 8, slow down, fast up"],["Single Leg Glute Bridge","2 x 6 per side"],["Lateral Band Walk","2 x 8 per side"]],
+  push:[["Scap Push Up","2 x 8"],["Push Up","2 x 6, crisp"],["Band Shoulder Press","2 x 10"]],
+  pull:[["Band Pull Apart","2 x 12"],["Scap Pull (band or hang)","2 x 8"],["Band Row","2 x 10"]],
+  trunk:[["Dead Bug","2 x 6 per side"],["Bird Dog","2 x 6 per side"]]
+};
+
+function pickPrep(cats, di){
+  const regs = [...new Set(cats.map(c=>REGION[c]).filter(r=>r!=="trunk"))];
+  const n = regs.length === 1 ? 2 : 3;
+  const pick = db => {
+    const out = [], per = {};
+    for(let k=0; out.length<n && k<8; k++){
+      const r = regs[k % regs.length], arr = db[r];
+      const item = arr[(di + (per[r]||0)) % arr.length];
+      per[r] = (per[r]||0) + 1;
+      if(!out.some(o=>o[0]===item[0])) out.push(item);
+    }
+    return out;
+  };
+  const mob = pick(MOB);
+  const act = pick(ACT);
+  if(act.length < 3 && cats.includes("core")) act.push(ACT.trunk[di % ACT.trunk.length]);
+  return {mob, act};
+}
+
+/* ---------------- Lifting focus prescriptions ---------------- */
+const FOCUS = {
+  maxs: {name:"Max Strength", lifts:5,
+    main:{sets:"4", reps:"3 to 5", tempo:"20X1", rest:"2 to 3 min"},
+    accy:{sets:"3", reps:"6 to 8", tempo:"2011", rest:"90 s"},
+    note:"Heavy and crisp. Every rep moved with intent. Leave 1 or 2 reps in reserve until week 3 of each wave."},
+  hyp: {name:"Hypertrophy", lifts:6,
+    main:{sets:"4", reps:"8 to 10", tempo:"3010", rest:"90 s"},
+    accy:{sets:"3", reps:"10 to 12", tempo:"3011", rest:"60 to 75 s"},
+    note:"Control the lowering, own the full range. Take main lifts close to failure by the final set."},
+  ss: {name:"Strength/Size Hybrid", lifts:6,
+    main:{sets:"4", reps:"5 to 6", tempo:"20X1", rest:"2 min"},
+    accy:{sets:"3", reps:"8 to 10", tempo:"3010", rest:"75 to 90 s"},
+    note:"Heavy work up front, volume behind it. The first two lifts drive strength, the rest build size."},
+  pow: {name:"Explosive Power", lifts:4,
+    main:{sets:"5", reps:"3", tempo:"X", rest:"2 to 3 min"},
+    accy:{sets:"3", reps:"5", tempo:"20X1", rest:"2 min"},
+    note:"Speed is the target, not fatigue. Stop the set the moment bar speed drops. Full recovery between sets."},
+  sp: {name:"Strength/Power Hybrid", lifts:5,
+    main:{sets:"4", reps:"3", tempo:"20X1", rest:"20 s inside pair, 2 to 3 min after"},
+    accy:{sets:"3", reps:"6 to 8", tempo:"2011", rest:"90 s"},
+    note:"A1 and A2 run as a contrast pair: heavy lift, short rest, explosive movement, then full recovery."},
+  met: {name:"Metabolic",
+    main:{sets:"4 to 5", reps:"6 to 8", tempo:"20X1", rest:"30 to 60 s"},
+    accy:{sets:"3", reps:"10 to 12", tempo:"2010", rest:"30 to 60 s"},
+    note:"Fitness built in the weight room: lifting on short rests, a circuit anchoring every session, and a loaded carry to finish. Main lifts wave 4 x 6 at 70%, 4 x 8 at 72.5%, 5 x 6 at 75%. The rest cap is the workout: keep moving."},
+  /* ---- Advanced tier ---- */
+  pap: {name:"Contrast Pairs", adv:true,
+    accy:{sets:"3", reps:"8", tempo:"2011", rest:"90 s"},
+    main:{sets:"4", reps:"3", tempo:"20X1", rest:"2 to 3 min"},
+    note:"Post-activation potentiation. Each lettered pair runs together: heavy lift at 80 to 90% primes the nervous system, then 20 to 30 s later the matched plyometric, moved with maximum intent. Rest 3 min after each pair. If the plyo stops feeling springy, end the set."},
+  fc: {name:"French Contrast", adv:true,
+    accy:{sets:"3", reps:"8", tempo:"2011", rest:"90 s"},
+    main:{sets:"4", reps:"2 to 3", tempo:"20X1", rest:"20 s"},
+    note:"Four lifts per complex, run A1 to A4 back to back with about 20 s between moves, then rest 3 to 5 min and repeat the round. The sequence sweeps the force-velocity curve: heavy strength, plyometric, loaded speed, then overspeed. Highly demanding: earn it with Contrast Pairs first, and stop any set the moment speed drops."},
+  tri: {name:"Triphasic", adv:true, lifts:5,
+    main:{sets:"4", reps:"3 to 5", tempo:"By phase", rest:"2 to 3 min"},
+    accy:{sets:"3", reps:"6 to 8", tempo:"2011", rest:"90 s"},
+    note:"The program runs in three sequential phases that train each part of the muscle action on the main lifts: a slow 6 s eccentric block, a dead-stop isometric block, then an explosive concentric block. The week guide shows the phase and tempo for every week. Accessories keep normal tempo throughout."},
+  nc: {name:"Neural Contrast", adv:true,
+    main:{sets:"4", reps:"2 to 6 by week", tempo:"X", rest:"2 to 3 min"},
+    accy:{sets:"3 to 4", reps:"3 to 5", tempo:"X", rest:"full recovery"},
+    note:"A pure speed and power session woven through the weight room: acceleration work, an explosive lift, a plyometric, a prowler effort, a second lighter and faster lift, and a final plyometric. Two loading waves run in parallel: strength-power at 70 to 90% and pure power at 40 to 60%. Everything moves at maximal intent with full recovery."},
+  emom:{name:"EMOM Density", adv:true,
+    main:{sets:"6 to 8", reps:"4", tempo:"X", rest:"on the minute"},
+    accy:{sets:"3", reps:"10 to 15", tempo:"2010", rest:"60 s"},
+    note:"Density strength: three lifts rotate every minute on the minute at 75% for 4 crisp reps each. Minute 1 squat pattern, minute 2 press, minute 3 hinge or pull, then back to the top. Rounds build weekly from 6 to 8. If a set slows, the load is too heavy."}
+};
+
+/* ---------------- Advanced tier databases ---------------- */
+/* Matched plyometrics per movement pattern (bodyweight, band, med ball: any facility) */
+const PLYO = {
+  squat:["Box Jump", "Vertical Jump", "Tuck Jump", "Depth Jump", "Hurdle Jump"],
+  hinge:["Broad Jump", "Kettlebell Swing (light, fast)", "Hurdle Hop", "Standing Triple Jump", "Bound for Distance"],
+  hpush:["Plyo Push Up", "Med Ball Chest Pass", "Clap Push Up", "Rebound Push Up", "Push Up Jump to Box"],
+  hpull:["Med Ball Slam", "Explosive Band Row", "Med Ball Rotational Throw", "Round the World Slams", "Med Ball Overhead Throw"]
+};
+/* French Contrast slot 3: loaded speed-strength, about 30% load, moved fast */
+const FC_SPEED = {
+  squat:["Dumbbell Jump Squat (light)", "Trap Bar Jump (light)", "Barbell Speed Squat (30%)"],
+  hinge:["Kettlebell Swing (moderate)", "Jump Shrug (light)", "Band Speed RDL"],
+  hpush:["Med Ball Chest Throw (heavy ball)", "Speed Bench Press (30%)", "Landmine Punch Press"]
+};
+/* French Contrast slot 4: accelerated / overspeed plyometric */
+const FC_OVER = {
+  squat:["Band-Assisted Vertical Jump", "Depth Drop to Jump", "Pogo Jumps (max turnover)"],
+  hinge:["Band-Assisted Broad Jump", "Repeat Hurdle Hops", "Overspeed KB Swing (light)"],
+  hpush:["Band-Assisted Plyo Push Up", "Kneeling Med Ball Punch Throw (light)", "Drop to Clap Push Up"]
+};
+/* Per-slot prescriptions */
+const PAP_RX = {
+  heavy:{sets:"4", reps:"3", tempo:"20X1", rest:"20 to 30 s into pair"},
+  plyo: {sets:"4", reps:"5",  tempo:"X", rest:"3 min after pair"},
+  accy: {sets:"3", reps:"8",  tempo:"2011", rest:"90 s"}
+};
+const FC_RX = {
+  heavy:{sets:"4", reps:"2 to 3", tempo:"20X1", rest:"20 s"},
+  plyo: {sets:"4", reps:"3 to 5", tempo:"X", rest:"20 s"},
+  speed:{sets:"4", reps:"3 to 5", tempo:"X", rest:"20 s"},
+  over: {sets:"4", reps:"3 to 5", tempo:"X", rest:"3 to 5 min, next round"},
+  accy: {sets:"3", reps:"8", tempo:"2011", rest:"90 s"}
+};
+
+/* Triphasic phases: split program weeks into thirds (ecc gets the remainder first) */
+function triPhases(){
+  const W = effTotal();
+  const e = Math.ceil(W/3), c = Math.floor(W/3);
+  return {e, i:W-e-c, c};
+}
+function triPhaseOf(w){
+  const {e, i} = triPhases();
+  if(w <= e) return "ecc";
+  if(w <= e + i) return "iso";
+  return "con";
+}
+const TRI_PHASE = {
+  ecc:{label:"Eccentric", tempo:"60X0", text:"6 s controlled lowering on main lifts, then drive up hard. 75 to 85% loads."},
+  iso:{label:"Isometric", tempo:"23X0", text:"2 s down, 3 s dead-stop pause at the bottom, no bounce, explode out. 80 to 87%."},
+  con:{label:"Concentric", tempo:"10X0", text:"Normal lowering, maximum upward speed on every rep. 80 to 90%, end the set if the bar slows."}
+};
+
+/* ---------------- Metabolic circuits, carries, CARE, neural pools ---------------- */
+const CIRCUITS = [
+  {n:"EKAD Circuit", cls:"full", rx:{sets:"1", reps:"20 to 30 min", tempo:"-", rest:"continuous"},
+   note:"Row 300 m under 1 min, 10 Hindu push ups, 10 two arm KB swings, 10 KB jump squats, 10 bodyweight hang cleans, 10 MB around the world slams each side. Repeat continuously."},
+  {n:"Strongman Circuit", cls:"fin", rx:{sets:"2 to 3", reps:"1 lap", tempo:"-", rest:"as needed"},
+   note:"40 m Prowler, 20 m Tyre Flip, 40 m Farmer's Walk, 20 m Bear Crawl, 40 m Cross Carry. Vary distances and substitute movements as needed."},
+  {n:"Beastly Circuit 1", cls:"full", rx:{sets:"6", reps:"6 each", tempo:"-", rest:"cardio block between rounds"},
+   note:"One bar: Deadlift, Power Clean from Hang, Front Squat, Push Press, Bent Over Row, Romanian Deadlift. 6 reps each, cardio block after each circuit."},
+  {n:"Warren Metabolic Blast", cls:"fin", rx:{sets:"2 to 4", reps:"1 round", tempo:"-", rest:"30 s pattern"},
+   note:"30 s Prowler or loaded carry, 30 s rest, 30 s Assault Bike, Rower or Ski Erg, 30 s rest. That is one round."},
+  {n:"Bodyweight GPP Circuit", cls:"full", rx:{sets:"1", reps:"20 to 30 min", tempo:"-", rest:"non-stop"},
+   note:"10 reps each, non-stop: Grasshoppers, Hindu Push Ups, Knees to Feet Jumps, Scorpions, Mountain Climbers, Alternate Lunges, Rock and Rolls, Push Ups, Prisoner Jump Squats, Sit Ups."},
+  {n:"Tummonelli Plate 8s", cls:"fin", rx:{sets:"2 to 3", reps:"8 each", tempo:"-", rest:"minimal"},
+   note:"One plate: Overhead Squat, Swings, Bent Over Row, Reverse Lunge and Twist, Shoulder Press, Diagonal Chops, Overhead Walk. 8 reps each."},
+  {n:"Kettlebell Single Arm Circuit", cls:"full", rx:{sets:"3", reps:"8 each", tempo:"-", rest:"swap arms each round"},
+   note:"One kettlebell, alternating arms each round: Power Snatch, Push Press, Overhead Squat, Hang Clean, Single Arm Swing, Single Arm Row, Contralateral SL RDL, Waiter's Walk 40 m."},
+  {n:"PHA Strength Loop", cls:"fin", rx:{sets:"2 to 3", reps:"1 loop", tempo:"-", rest:"no rest between moves"},
+   note:"Peripheral heart action: one movement from each of Squat, Hinge, Upper Push, Upper Pull, Carry, moving straight between them. Rest only after the full loop."},
+  {n:"Beastly Circuit 2", cls:"full", rx:{sets:"6", reps:"6 each", tempo:"-", rest:"minimal between lifts"},
+   note:"One bar: Power Snatch from Floor, Overhead Squat, Push Jerk Behind Head, Good Morning, Jump Squat, Power Clean from Hang. 6 reps each."},
+  {n:"Poliquin Lactate Circuit", cls:"full", rx:{sets:"3", reps:"12 each", tempo:"-", rest:"60 s between lifts"},
+   note:"12 Squats at 12RM, rest 60 s, 12 Chins at 12RM, rest 60 s, 12 Deadlifts at 12RM, rest 60 s, 12 Dips at 12RM. 3 rounds."},
+  {n:"BW Blast Circuit", cls:"full", rx:{sets:"1", reps:"20 to 30 min", tempo:"-", rest:"continuous"},
+   note:"Chin Ups x 5, Dips x 5, Horizontal Row x 10, Push Ups x 10. Repeat continuously."}
+];
+const CARRIES = ["Farmer's Walk", "Suitcase Walk", "Zercher Carry", "Sandbag Carry", "Cross Body Carry"];
+const CARRY_RX = {sets:"3", reps:"20, 30, 40 m by week", tempo:"-", rest:"as needed"};
+
+const CARE_CORE_LOAD = ["Half Turkish Get Up", "Windmills", "Rollouts", "Suitcase Deadlift", "Weighted Sit Ups"];
+const CARE_CORE_UNL  = ["Dead Bugs", "Sprinter's Sit Ups", "Plank Variations", "Hanging Leg Raises"];
+const CARE_SHOULDER  = ["Incline YTIs", "Cuban Press", "DB Scarecrow", "Face Pulls", "Scap Push Up"];
+
+const LOWER_PLYO = ["Box Jumps", "Depth Jumps", "Hurdle Jumps", "Long Jumps", "Knees to Feet Jumps"];
+const NC_RX = {
+  sprint:{sets:"4", reps:"4 to 6 by week", tempo:"X", rest:"walk back, full recovery"},
+  sp:    {sets:"4", reps:"6, 4, 2 by week", tempo:"X", rest:"2 to 3 min"},
+  pw:    {sets:"6 to 8", reps:"2 to 3", tempo:"X", rest:"2 min"},
+  plyo:  {sets:"3 to 4", reps:"3 to 5 by week", tempo:"X", rest:"full recovery"}
+};
+const EMOM_RX = {sets:"6 to 8", reps:"4", tempo:"X", rest:"on the minute"};
+
+/* Fixed, named deload weeks by plan length. Slight pullback only. */
+const DELOADS = {4:[], 6:[5], 8:[7], 10:[5,9], 12:[6,11]};
+function deloadWeeks(){ return DELOADS[cfg.weeks] || []; }
+function isDeload(w){ return deloadWeeks().includes(w); }
+function effWeek(w){ let e = w; deloadWeeks().forEach(d=>{ if(d < w) e--; }); return e; }
+function effTotal(){ return cfg.weeks - deloadWeeks().length; }
+
+/* ---------------- Session structure and emphasis ---------------- */
+const rotArr = (a, n) => a.slice(n % a.length).concat(a.slice(0, n % a.length));
+
+function daySequence(){
+  const e = cfg.emph, st = cfg.struct, n = cfg.liftDays;
+  if(st === "full") return Array(n).fill("F");
+  if(st === "split"){
+    if(n === 1) return e==="lower" ? ["L"] : e==="upper" ? ["U"] : ["F"];
+    const first = e==="upper" ? "U" : "L", second = first==="L" ? "U" : "L";
+    const seq = [];
+    for(let i=0; i<n; i++) seq.push(i%2===0 ? first : second);
+    if(n%2===1 && e==="equal") seq[n-1] = "F";
+    return seq;
+  }
+  /* hybrid: split pairs with full body mixed in */
+  if(n === 1) return ["F"];
+  if(n === 2) return e==="lower" ? ["L","F"] : e==="upper" ? ["U","F"] : ["F","F"];
+  if(n === 3) return e==="upper" ? ["U","L","F"] : ["L","U","F"];
+  if(n === 4) return e==="lower" ? ["L","U","F","L"] : e==="upper" ? ["U","L","F","U"] : ["L","U","F","F"];
+  return e==="upper" ? ["U","L","F","U","L"] : ["L","U","F","L","U"];
+}
+
+function catsFor(type, variant, k, usePow){
+  let cats = [];
+  if(type === "L"){
+    if(usePow) cats.push("pow");
+    cats = cats.concat(variant%2 ? ["hinge","squat"] : ["squat","hinge"], ["sl"]);
+    const fill = ["sl","hinge","squat"];
+    let fi = variant;
+    while(cats.length < k-1) cats.push(fill[fi++ % fill.length]);
+  } else if(type === "U"){
+    cats = variant%2 ? ["hpull","hpush","vpull","vpush"] : ["hpush","hpull","vpush","vpull"];
+    while(cats.length < k-1) cats.push("acc");
+  } else {
+    if(usePow) cats.push("pow");
+    const rem = k - 1 - (usePow ? 1 : 0);
+    const share = cfg.emph==="lower" ? 2/3 : cfg.emph==="upper" ? 1/3 : 1/2;
+    let nL = Math.max(1, Math.round(rem * share));
+    nL = Math.min(nL, rem - 1);
+    let nU = rem - nL;
+    const lowSeq = rotArr(["squat","hinge","sl"], variant);
+    const upSeq = rotArr(["hpush","hpull","vpush","vpull"], variant);
+    let li = 0, ui = 0;
+    const domLower = cfg.emph !== "upper";
+    while(li < nL || ui < nU){
+      const pickLower = (li < nL) && (ui >= nU || (domLower ? li*nU <= ui*nL : li*nU < ui*nL));
+      if(pickLower){ cats.push(lowSeq[li % lowSeq.length]); li++; }
+      else { cats.push(upSeq[ui % upSeq.length]); ui++; }
+    }
+  }
+  cats = cats.slice(0, k-1);
+  cats.push("core");
+  return cats;
+}
+
+/* ---------------- Build lifting program: advanced tiers ---------------- */
+function mkEx(opts, variant, cat, role, label, rx, note){
+  return {cat, options:rotArr([...opts], variant % opts.length), sel:0, rec:{}, role, label, rx, note};
+}
+function circOf(x){ return CIRCUITS.find(c=>c.n === x.options[x.sel]) || CIRCUITS[0]; }
+function exRx(x, f){
+  if(x.dyn === "circ") return circOf(x).rx;
+  return x.rx || (x.role === "accy" ? f.accy : f.main);
+}
+function exNote(x){
+  if(x.dyn === "circ") return circOf(x).note;
+  return x.note || (x.role === "pow" ? "Move it fast" : "");
+}
+function careRows(di){
+  const loaded = di % 2 === 0;
+  const coreRx = loaded ? {sets:"3", reps:"5", tempo:"3010", rest:"45 s"} : {sets:"3", reps:"15", tempo:"2010", rest:"30 s"};
+  return [
+    mkEx(loaded ? CARE_CORE_LOAD : CARE_CORE_UNL, di, "core", "accy", "F1", coreRx, "CARE core"),
+    mkEx(CARE_SHOULDER, di, "vpull", "accy", "F2", {sets:"2", reps:"10", tempo:"2011", rest:"30 s"}, "CARE shoulder")
+  ];
+}
+function metDay(type, variant, di){
+  const pool = DB[cfg.equip], ex = [];
+  const mainCat = type==="L" ? (variant%2 ? "hinge" : "squat")
+                : type==="U" ? (variant%2 ? "hpull" : "hpush")
+                : ["squat","hpush","hinge"][variant%3];
+  ex.push(mkEx(pool[mainCat], variant, mainCat, "main", null, null, "Wave: see weeks. Short rests"));
+  const circNames = CIRCUITS.map(c=>c.n);
+  const circ = CIRCUITS[di % CIRCUITS.length];
+  if(circ.cls !== "full"){
+    if(type==="L"){ ex.push(mkEx(pool.sl, variant, "sl", "accy")); ex.push(mkEx(pool.core, variant, "core", "accy")); }
+    else if(type==="U"){ const o = variant%2 ? "hpush" : "hpull"; ex.push(mkEx(pool[o], variant, o, "accy")); ex.push(mkEx(pool.vpull, variant, "vpull", "accy")); }
+    else { ex.push(mkEx(pool[variant%2 ? "hpush" : "hpull"], variant, variant%2 ? "hpush" : "hpull", "accy")); ex.push(mkEx(pool.sl, variant, "sl", "accy")); }
+  }
+  const circEx = mkEx(rotArr([...circNames], di % circNames.length), 0, "core", "main", "CX");
+  circEx.dyn = "circ";
+  ex.push(circEx);
+  ex.push(mkEx(CARRIES, di, "core", "accy", "CY", CARRY_RX, "Loaded carry finisher"));
+  return ex;
+}
+function ncDay(variant){
+  const pool = DB[cfg.equip], ex = [];
+  ex.push(mkEx(["10 m Acceleration", "20 m Sprint", "Sled Push 10 m"], variant, "pow", "main", "1", NC_RX.sprint, "Maximal intent every rep"));
+  ex.push(mkEx(pool.pow, variant, "pow", "main", "2", NC_RX.sp, "Wave 70 to 90% by week"));
+  ex.push(mkEx(LOWER_PLYO, variant, "squat", "pow", "3", NC_RX.plyo, "Stick every landing"));
+  ex.push(mkEx(["10 m Prowler Push", "Sled Push 10 m", "Sled Pull 10 m"], variant, "squat", "main", "4", NC_RX.sprint, "Heavy and fast"));
+  ex.push(mkEx(pool.pow, variant + 1, "pow", "main", "5", NC_RX.pw, "Wave 40 to 60% by week, bar speed rules"));
+  ex.push(mkEx(LOWER_PLYO, variant + 2, "hinge", "pow", "6", NC_RX.plyo, "Elastic, minimal ground time"));
+  return ex;
+}
+function emomDay(variant){
+  const pool = DB[cfg.equip], ex = [];
+  const trio = [["squat","hpush","hinge"], ["squat","hpull","hinge"], ["squat","vpush","hinge"]][variant % 3];
+  trio.forEach((cat, i)=>ex.push(mkEx(pool[cat], variant, cat, "main", "A" + (i+1), EMOM_RX, i===0 ? "75% 1RM, rotate every minute" : "75% 1RM")));
+  ex.push(mkEx(pool.vpull, variant, "vpull", "accy", "B"));
+  ex.push(mkEx(pool.core, variant, "core", "accy", "C"));
+  return ex;
+}
+
+function papDay(type, variant){
+  const pool = DB[cfg.equip], ex = [];
+  const pair = (cat, L) => {
+    ex.push(mkEx(pool[cat], variant, cat, "main", L+"1", PAP_RX.heavy, "80 to 90% 1RM"));
+    ex.push(mkEx(PLYO[cat], variant, cat, "pow", L+"2", PAP_RX.plyo, "Max intent, land soft"));
+  };
+  if(type==="L"){
+    variant%2 ? (pair("hinge","A"), pair("squat","B")) : (pair("squat","A"), pair("hinge","B"));
+    ex.push(mkEx(pool.sl, variant, "sl", "accy", "C", PAP_RX.accy));
+  } else if(type==="U"){
+    variant%2 ? (pair("hpull","A"), pair("hpush","B")) : (pair("hpush","A"), pair("hpull","B"));
+    ex.push(mkEx(pool[variant%2 ? "vpush" : "vpull"], variant, variant%2 ? "vpush" : "vpull", "accy", "C", PAP_RX.accy));
+  } else {
+    pair(variant%2 ? "hinge" : "squat", "A");
+    pair(variant%2 ? "hpull" : "hpush", "B");
+    ex.push(mkEx(pool[variant%2 ? "squat" : "hinge"], variant, variant%2 ? "squat" : "hinge", "accy", "C", PAP_RX.accy));
+  }
+  ex.push(mkEx(pool.core, variant, "core", "accy", "D", PAP_RX.accy));
+  return ex;
+}
+function fcComplex(pattern, letter, variant){
+  const pool = DB[cfg.equip];
+  return [
+    mkEx(pool[pattern], variant, pattern, "main", letter+"1", FC_RX.heavy, "80 to 90% 1RM"),
+    mkEx(PLYO[pattern], variant, pattern, "pow", letter+"2", FC_RX.plyo, "Max force each rep"),
+    mkEx(FC_SPEED[pattern], variant, pattern, "pow", letter+"3", FC_RX.speed, "About 30% load, move fast"),
+    mkEx(FC_OVER[pattern], variant, pattern, "pow", letter+"4", FC_RX.over, "Overspeed, faster than bodyweight")
+  ];
+}
+function fcDay(type, variant){
+  const pool = DB[cfg.equip];
+  let ex = [];
+  if(type==="L"){
+    ex = fcComplex(variant%2 ? "hinge" : "squat", "A", variant);
+    ex.push(mkEx(pool.sl, variant, "sl", "accy", "B", FC_RX.accy));
+  } else if(type==="U"){
+    ex = fcComplex("hpush", "A", variant);
+    ex.push(mkEx(pool.hpull, variant, "hpull", "accy", "B", FC_RX.accy));
+    ex.push(mkEx(pool.vpull, variant, "vpull", "accy", "C", FC_RX.accy));
+  } else {
+    ex = fcComplex(variant%2 ? "hinge" : "squat", "A", variant).concat(fcComplex("hpush", "B", variant));
+  }
+  ex.push(mkEx(pool.core, variant, "core", "accy", type==="U" ? "D" : "C", FC_RX.accy));
+  return ex;
+}
+
+/* ---------------- Build lifting program ---------------- */
+function buildProgram(){
+  const f = FOCUS[cfg.focus];
+
+  /* Metabolic, Neural Contrast and EMOM Density build their own day structures */
+  if(cfg.focus==="met" || cfg.focus==="nc" || cfg.focus==="emom"){
+    const seqM = daySequence();
+    const countsM = {L:0, U:0, F:0};
+    const days = seqM.map((type, di)=>{
+      countsM[type]++;
+      const variant = countsM[type] - 1;
+      let title, ex;
+      if(cfg.focus==="met"){
+        const multi = seqM.filter(t=>t===type).length > 1;
+        title = (type==="L" ? "Lower" : type==="U" ? "Upper" : "Full Body") + (multi ? " " + countsM[type] : "");
+        ex = metDay(type, variant, di);
+      } else if(cfg.focus==="nc"){
+        title = "Neural Session" + (seqM.length > 1 ? " " + (di+1) : "");
+        ex = ncDay(di);
+      } else {
+        title = "Density Session" + (seqM.length > 1 ? " " + (di+1) : "");
+        ex = emomDay(di);
+      }
+      if(cfg.careOn) ex.push(...careRows(di));
+      const cats = ex.map(x=>x.cat);
+      return {title, ex, prep: pickPrep(cats, di), recOn:false, rpe:null};
+    });
+    program = {days, condRpe:{}, spdRpe:{}, runRpe:{}, speed:buildSpeedDays(), run:buildRunDays()};
+    return;
+  }
+
+  /* Advanced grouped methods build their own day structures */
+  if(cfg.focus==="pap" || cfg.focus==="fc"){
+    const seqA = daySequence();
+    const countsA = {L:0, U:0, F:0};
+    const days = seqA.map((type, di)=>{
+      countsA[type]++;
+      const variant = countsA[type] - 1;
+      const multi = seqA.filter(t=>t===type).length > 1;
+      const title = type==="L" ? ("Lower" + (multi ? " " + countsA[type] : ""))
+                  : type==="U" ? ("Upper" + (multi ? " " + countsA[type] : ""))
+                  : ("Full Body" + (multi ? " " + "ABCDE"[variant] : ""));
+      const ex = cfg.focus==="pap" ? papDay(type, variant) : fcDay(type, variant);
+      if(cfg.careOn) ex.push(...careRows(di));
+      const cats = ex.map(x=>x.cat);
+      return {title, ex, prep: pickPrep(cats, di), recOn:false, rpe:null};
+    });
+    program = {days, condRpe:{}, spdRpe:{}, runRpe:{}, speed:buildSpeedDays(), run:buildRunDays()};
+    return;
+  }
+
+  const pool = DB[cfg.equip];
+  const usePow = (cfg.focus==="pow" || cfg.focus==="sp");
+  const seq = daySequence();
+  const counts = {L:0, U:0, F:0};
+  const days = seq.map((type, di)=>{
+    counts[type]++;
+    const variant = counts[type] - 1;
+    const multi = seq.filter(t=>t===type).length > 1;
+    const title = type==="L" ? ("Lower" + (multi ? " " + counts[type] : ""))
+                : type==="U" ? ("Upper" + (multi ? " " + counts[type] : ""))
+                : ("Full Body" + (multi ? " " + "ABCDE"[variant] : ""));
+    const cats = catsFor(type, variant, f.lifts, usePow);
+    const seen = {};
+    const ex = cats.map((cat, i)=>{
+      const shift = (variant + (seen[cat]||0)) % pool[cat].length;
+      seen[cat] = (seen[cat]||0) + 1;
+      const opts = rotArr([...pool[cat]], shift);
+      const isMain = usePow ? (i<2) : (i===0 || (i===1 && ["squat","hinge","hpush","hpull"].includes(cat)));
+      const isPow = cat==="pow";
+      return {cat, options:opts, sel:0, rec:{}, role: isPow ? "pow" : (isMain ? "main" : "accy")};
+    });
+    if(cfg.careOn) ex.push(...careRows(di));
+    return {title, ex, prep: pickPrep(ex.map(x=>x.cat), di), recOn:false, rpe:null};
+  });
+  program = {days, condRpe:{}, spdRpe:{}, runRpe:{}, speed:buildSpeedDays(), run:buildRunDays()};
+}
+
+/* ---------------- Conditioning ---------------- */
+const COND = {
+  aer:{name:"Aerobic", rpe:"6 to 7 of 10",
+    schemes:[["3 min work : 1 min easy","3:1"],["4 min work : 2 min easy","2:1"],["2 min work : 1 min easy","2:1"]],
+    note:"Strong but repeatable pace. You should finish the last round at the same output as the first."},
+  ana:{name:"Anaerobic", rpe:"9 of 10",
+    schemes:[["30 s hard : 90 s easy","1:3"],["20 s hard : 80 s easy","1:4"],["15 s hard : 75 s easy","1:5"]],
+    note:"Near maximal efforts. The rest is long on purpose, use all of it so quality holds."},
+  hyb:{name:"Hybrid", rpe:"8 of 10",
+    schemes:[["60 s work : 60 s easy","1:1"],["40 s work : 80 s easy","1:2"],["90 s work : 90 s easy","1:1"]],
+    note:"Uncomfortable but sustainable. Hold the same wattage, pace or level across every round."}
+};
+const MACHINES = "Bike erg, rower, ski erg, assault bike, treadmill, stair climber or curve runner. Pick one machine per session and change it as often as you like.";
+
+const parseScheme = s => {
+  const m = s.match(/(\d+)\s*(min|s)\s*\w+\s*:\s*(\d+)\s*(min|s)/);
+  const w = +m[1] * (m[2]==="min"?60:1), r = +m[3] * (m[4]==="min"?60:1);
+  return [w, r];
+};
+
+/* ---------------- Speed and Running Conditioning ----------------
+   SESSION LIBRARY sourced from the coach's uploaded resources:
+   Crusaders Running Options, All Blacks 7s S&C Guidelines 2013/14,
+   Leinster Conditioning Booklet 2014. All field lines converted to
+   raw distances. Distances are written as {N} tokens (metres) and
+   rendered in metres or yards via the Field Units toggle.          */
+const YD = 1.09361;
+function distTxt(m){
+  if(cfg.units === "yd"){
+    let v = m * YD;
+    v = v >= 100 ? Math.round(v/5)*5 : Math.round(v);
+    return v + " yd";
+  }
+  return m + " m";
+}
+function U(s){ return s.replace(/\{(\d+)\}/g, (_, n)=>distTxt(+n)); }
+
+const FIELD_WARMUP = "Field warm-up before every session: glute bridge, scorpions, calf raise, pogos, single leg RDL, knee hug, all x 8. Then A-skip, backwards run, stride out over {20} to {30}, all x 2.";
+
+/* ---- Speed: each quality has full session options, plyo pairings, and short blend versions ---- */
+const SPEED = {
+  acc:{name:"Acceleration",
+    opts:[
+      {n:"Acceleration Ladder", d:[
+        "Sprint 2 x {10}, 2 x {20}, 2 x {30} in ladder fashion, starting from varied positions: stomach, back, crouch",
+        "Walk back plus 60 s rest between sprints, 3 min between sets. Repeat the ladder twice",
+        "Every rep above 90% intent. If in doubt, rest longer"]},
+      {n:"Sled Sprints", d:[
+        "Sled at 5 to 10% of bodyweight, no more",
+        "Set 1: 10 x {10}, 45 s rest. Set 2: 5 x {20}, 90 s rest. Set 3: 5 x {30}, 2 min rest",
+        "Rest 3 min between sets. Total {350}"]},
+      {n:"Hill Sprints", d:[
+        "Find a 10 to 30 degree hill. Every sprint starts from a static position",
+        "Set 1: 5 x {10} on 45 s, 5 x {20} on 60 s, 3 x {30} on 90 s. Rest 3 min",
+        "Set 2: 3 x {30} on 90 s, 3 x {40} on 2 min"]},
+      {n:"Partner Resisted Accels", d:[
+        "Partner-resisted acceleration: {5} resisted into {15} free sprint. 5 reps, walk back recovery",
+        "Then step-and-straighten starts from varied positions (knees, back, chest, roll): 4 reps",
+        "Finish with straight {22} accelerations x 2, and a 1 v 1 race over {20}, 2 each"]}],
+    plyo:[["Broad Jump from static start","4 sets of 4, 20 s between reps"],
+          ["Box Jump","4 sets of 3, 30 s between reps"],
+          ["Static Kneeling Jump","3 sets of 4, 30 s between reps"],
+          ["Med Ball Forward Scoop Throw","3 sets of 4, 30 s between reps"]],
+    mini:["Accel Ladder short: 2 x {10}, 2 x {20} from varied starts, walk back + 45 s",
+          "Push-up start sprints: 4 x {20}, full recovery between reps",
+          "Partner-resisted accels: {5} resisted into {15} free sprint, x 4, walk back"]},
+  mv:{name:"Max Velocity",
+    opts:[
+      {n:"Flying Sprints", d:[
+        "Build over {30} to reach maximal speed, hold max for {30}, then decelerate gradually",
+        "2 sets of 5, 2 min between reps, 4 min between sets",
+        "Every fly above 90% of max speed or it does not count"]},
+      {n:"Bound to Sprint", d:[
+        "Alternating bounds for {22}, jumping out as far as possible each contact",
+        "At {22} shift immediately into a full sprint through {28}",
+        "2 sets of 5, walk back + 90 s between reps, 4 min between sets"]},
+      {n:"Partner 40s", d:[
+        "Partner of similar speed starts {5} ahead over a {40} sprint",
+        "Chaser tries to catch, rabbit tries to hold the gap. Swap roles each rep",
+        "2 sets of 4, walk back + 2 min between reps, 4 min between sets"]},
+      {n:"Explosive Runs Builder", d:[
+        "2 x {50} at 70%, then 1 x {40} at 80%, 1 x {30} at 90%, 2 x {20} at 100%",
+        "Decelerate within {6} after every rep. Walk back recoveries",
+        "Progress week to week by lengthening the 100% reps, up to 2 x {40}"]}],
+    plyo:[["Jog to Triple Jump","3 sets of 3, 1 min between reps"],
+          ["Medium Hurdle Jumps, 5 hurdles","3 sets of 4, minimal ground contact"],
+          ["Depth Jump to Box Jump","4 sets of 3, 45 s between reps"],
+          ["Borzov Hops","3 sets of 4 per leg, full recovery"]],
+    mini:["Flying sprints short: build {30}, hold max {30}, x 3, 2 min rest",
+          "Build-ups: 3 x {40} at 70, 80, 90%, walk back recovery",
+          "Explosive runs: 1 x {40} at 80%, 1 x {30} at 90%, 2 x {20} at 100%, walk back"]},
+  cod:{name:"Change of Direction",
+    opts:[
+      {n:"Accelerate-Decelerate", d:[
+        "Sprint {10} then stop as fast as possible: drop the hips, stay on the balls of the feet",
+        "4 reps at {10} with 60 s rest, rest 3 min",
+        "4 reps at {15} with 60 s rest"]},
+      {n:"Lateral Jump to Sprint", d:[
+        "Jump laterally off the outside foot, land, and immediately sprint {13}",
+        "The transfer from landing to sprinting is the whole point: make it instant",
+        "2 sets of 6 total (3 per foot), 45 s between reps, 3 min between sets"]},
+      {n:"React and Evade", d:[
+        "1 v 1 over {10}: attacker evades, defender tracks front-on or from the side",
+        "Attacker finishes every rep with a maximal {10} sprint",
+        "2 sets of 6 per player, 45 s between reps, 3 min between sets"]},
+      {n:"Weave Run", d:[
+        "6 cones in a zig-zag about {3} apart over {22}, run the weave at max speed",
+        "Straighten and sprint {18} through the finish",
+        "2 sets of 5, walk back + 90 s between reps, 4 min between sets"]},
+      {n:"Change of Pace and Swerve", d:[
+        "Change of pace: {10} build, {10} hold, {20} accelerate hard. 2 reps",
+        "6 x single-leg hop into a {30} swerving sprint (3 per leg), walk back",
+        "Pattern run as a partner race: {10} out, {20} straight, {20} swerve in. 2 reps"]}],
+    plyo:[["Skater Hops","3 sets of 5 per side, 1 min rest"],
+          ["Lateral Stiff-Leg Hops","4 sets of 3 per side, 45 s rest"],
+          ["Zig-Zag Alternating Bounds","2 sets of 4 per leg, 1 min rest"],
+          ["Ice Skater Jumps","3 sets of 5 per side, 45 s rest"]],
+    mini:["Pro Agility {5}-{10}-{5}: 4 reps (2 per side), 90 s rest",
+          "Accel-Decel: sprint {10} to a dead stop, x 4, 60 s rest",
+          "Single-leg hop into a {30} swerving sprint: 4 reps (2 per leg), walk back"]}
+};
+
+/* ---- Running Conditioning: complete named sessions, one per training day ---- */
+const CAT_NAME = {line:"Straight Line", shuttle:"Shuttle", pattern:"Pattern", downup:"Down-Up"};
+/* Each entry is one drill block sized for stacking 3 per session.
+   dist = total running distance in metres, used to keep every
+   session between 2000 and 4000 m.                                */
+const RUNS = [
+  /* Straight line */
+  {n:"Repeat 100s", cat:"line", dist:800, d:[
+    "8 x {100}, target 16 to 20 s",
+    "Go every 60 s"]},
+  {n:"Repeat 50s", cat:"line", dist:500, d:[
+    "10 x {50}, target 8 to 10 s",
+    "Go every 30 s"]},
+  {n:"150s", cat:"line", dist:1200, d:[
+    "8 x {150} at 24 to 28 s",
+    "Go every 60 s, rest 2 min after rep 4"]},
+  {n:"Long 150s", cat:"line", dist:1800, d:[
+    "12 x {150} at 24 to 28 s",
+    "Go every 60 s, rest 3 min after rep 6"]},
+  {n:"Pyramid Repeats", cat:"line", dist:1300, d:[
+    "{50} x 4 every 30 s, {100} x 3 every 60 s, {200} x 2 every 90 s, {400} x 1",
+    "Targets: {50} under 9 s, {100} under 20 s, {200} under 40 s, {400} under 1:40"]},
+  {n:"200/100s", cat:"line", dist:900, d:[
+    "Run {200} under 40 s on a 60 s turnaround, then {100} under 20 s on a 60 s turnaround",
+    "3 rounds"]},
+  {n:"100/60/20", cat:"line", dist:940, d:[
+    "Sprint {100} x 3 going every 60 s, then sprint {60} jog {40} x 4 every 45 s",
+    "Finish: sprint {20} jog {20} x 6 every 20 s"]},
+  {n:"Build-Ups", cat:"line", dist:800, d:[
+    "Reps 1-2: sprint {22}, jog {78}. Reps 3-4: sprint {50}, jog {50}",
+    "Reps 5-6: sprint {78}, jog {22}. Reps 7-8: sprint the full {100}. Go every 60 s"]},
+  {n:"Repeat Sprints: Short", cat:"line", dist:600, d:[
+    "20 x {10} maximal sprints on a 10 s turnaround, jog through after each",
+    "Rest 2 min, then 20 x {20} maximal sprints on a 15 s turnaround",
+    "Vary start positions, carry a ball, race a partner"]},
+  {n:"Repeat Sprints: Medium", cat:"line", dist:620, d:[
+    "12 x {20} maximal sprints on a 15 s turnaround, jog through after each",
+    "Rest 2 min, then 10 x {30} maximal sprints on a 20 s turnaround",
+    "Vary start positions, carry a ball, race a partner"]},
+  {n:"100/200 Drill", cat:"line", dist:900, d:[
+    "Run {100} in 20 s, rest 40 s. Then run {200} in 40 s, rest 20 s",
+    "That is one round. Complete 3 rounds"]},
+  {n:"50s Jog-Through", cat:"line", dist:1000, d:[
+    "Sprint {50} in about 7 s, then jog through the remaining {50}",
+    "10 reps on a 30 to 40 s turnaround"]},
+  {n:"Descending Ladder", cat:"line", dist:1000, d:[
+    "Run {400}, then {300}, then {200}, then {100}",
+    "Rest 1.5 times the work after each rep (about 2:30, 2:00, 1:15, 40 s)"]},
+  {n:"1 km Repeat", cat:"line", dist:1000, d:[
+    "Run {1000} at your maximal sustainable pace, target under 4 min",
+    "One rep. Pace it: the last {200} as fast as the first"]},
+  {n:"Tempo 200s", cat:"line", dist:800, d:[
+    "4 x {200} at 75 to 80% effort, tall and relaxed",
+    "Walk 60 s between reps"]},
+  /* Shuttles */
+  {n:"Bronco", cat:"shuttle", dist:1200, d:[
+    "Run {20} and back, {40} and back, {60} and back ({240} per round)",
+    "5 rounds, each under 60 s, going every 90 s"]},
+  {n:"Bucking Bronco", cat:"shuttle", dist:1440, d:[
+    "One Bronco = {20} and back, {40} and back, {60} and back ({240})",
+    "Run 3 continuous, rest 2 min. Then 2 continuous, rest 1 min. Then 1 all-out under 60 s"]},
+  {n:"Sixty Squared", cat:"shuttle", dist:960, d:[
+    "Run {60} and back, twice ({240} per rep)",
+    "4 reps, each under 60 s, going every 90 s"]},
+  {n:"80/60/40", cat:"shuttle", dist:1080, d:[
+    "Run {80}, turn and run back {60}, turn and run {40} ({180} per rep), target under 30 s",
+    "6 reps, jog back as the rest, going every 90 s"]},
+  {n:"22m Repeats", cat:"shuttle", dist:1150, d:[
+    "Run {22} out, back, and out again ({66}), target 13 to 15 s, jog {78} as recovery",
+    "Go every 60 s. 2 blocks of 4 reps, rest 2 min between blocks"]},
+  {n:"Yo-Yo Shuttle", cat:"shuttle", dist:930, d:[
+    "Run {10} out and back, then {28} out, back {18}, then {38} through (about {105})",
+    "Target 20 to 25 s, jog back. 6 reps, going every 60 s"]},
+  {n:"150 Shuttles", cat:"shuttle", dist:720, d:[
+    "Sprint {22} and back, then {50} and back ({144} per rep)",
+    "Each rep in 30 s, going every 60 s. 5 reps"]},
+  {n:"300 Shuttle", cat:"shuttle", dist:900, d:[
+    "{50} there and back, 3 times continuous ({300} per rep), target under 65 s",
+    "3 reps, rest 3 min between reps"]},
+  /* Patterns */
+  {n:"Goodwins", cat:"pattern", dist:1470, d:[
+    "Rectangle: long side {70}, short side {22}. Hard long sides in 15 s, easy short sides in 15 s",
+    "8 continuous laps. Option: 5 burpees at each short side"]},
+  {n:"Accelerators", cat:"pattern", dist:800, d:[
+    "Across {100}: sprint {22}, jog {18}, sprint {20}, jog {18}, sprint {22}",
+    "8 reps. Rest as needed so every sprint stays sharp"]},
+  {n:"Weave and Go", cat:"pattern", dist:400, d:[
+    "6 cones in a zig-zag about {3} apart over {22}, weave at speed, then sprint {18} through",
+    "10 reps, going every 60 s"]},
+  {n:"Box Pattern", cat:"pattern", dist:480, d:[
+    "Sprint {20}, side shuffle {10}, backpedal {20}, carioca {10}",
+    "8 laps, 90 s between laps, alternate shuffle and carioca sides"]},
+  {n:"Coat Hangers", cat:"pattern", dist:1150, d:[
+    "Start on the sideline at halfway: sprint to the near posts, go through, then the length of the field",
+    "Go through the far posts and back to the start (about {230} per rep)",
+    "5 reps, rest 60 s between reps"]},
+  {n:"Anaerobic Builder", cat:"pattern", dist:700, d:[
+    "6 x 20 s efforts at 85 to 95%: mix shuttles, swerves, forward and backward running, fast down-ups",
+    "Change the movement pattern every rep. Rest 60 s between efforts",
+    "Progress over weeks toward 8 x 30 s at maximal intensity"]},
+  {n:"10/20/30 Block", cat:"pattern", dist:1050, d:[
+    "Each minute: 10 s max sprint with direction changes, 20 s strong run at 60 to 70%, 30 s jog",
+    "5 continuous minutes. Use position-specific movement patterns"]},
+  /* Down-ups */
+  {n:"The Gill", cat:"downup", dist:1160, d:[
+    "Go hard 6 x {22} with a down-up at every turn, then jog {100}",
+    "5 reps, each under 70 s, going every 2 min"]},
+  {n:"Mini Gill", cat:"downup", dist:1330, d:[
+    "3 x {22} with a down-up at every turn, easy jog {100} as recovery",
+    "8 reps, the next rep starts on arrival"]},
+  {n:"Warrior", cat:"downup", dist:640, d:[
+    "From the ground: sprint {10} forward and back, down-up, {20} forward and back, down-up, {10} forward and back",
+    "8 reps, each under 30 s, going every 60 s"]},
+  {n:"Malcolms", cat:"downup", dist:400, d:[
+    "From your stomach: backpedal {10}, down-up, run forward {20}, down-up, back {10}, down-up",
+    "10 reps under 10 s each, going every 30 s"]},
+  {n:"Titanium", cat:"downup", dist:800, d:[
+    "Crawl {5} forward, run {35} out and back, crawl {5} home",
+    "10 reps, each under 25 s, going every 45 s"]},
+  {n:"Franko", cat:"downup", dist:430, d:[
+    "2 down-ups, crawl {5} out and back, down-up, run {22} out and back",
+    "8 reps, each under 25 s, going every 45 s"]},
+  {n:"Scuttler", cat:"downup", dist:530, d:[
+    "Run hard {22} and back, then complete 2 down-ups",
+    "12 reps on a 30 s turnaround"]},
+  {n:"Dagger", cat:"downup", dist:600, d:[
+    "2 down-ups, run {40} out, back, and out again, finish with 1 down-up",
+    "5 reps, each under 30 s, going every 60 s"]},
+  {n:"Lion Heart", cat:"downup", dist:1220, d:[
+    "Run {50} and back, down-up, {22} and back, down-up, {50} and back",
+    "5 reps, each under 60 s, going every 90 s"]},
+  {n:"10-20-30s", cat:"downup", dist:340, d:[
+    "Cones at {10}, {20}, {30}, down-up at each far line: {10} x 3 every 20 s, {20} x 2 every 30 s, {30} x 1, then back down",
+    "Each distance block starts every 60 s"]},
+  {n:"Chest Start 22s", cat:"downup", dist:440, d:[
+    "From your chest on the ground, get up and sprint {22}",
+    "Go every 15 s. 20 reps"]},
+  {n:"150 Down-Ups", cat:"downup", dist:750, d:[
+    "Sprint to {50}, down-up, sprint back to the start, down-up, sprint back to {50}",
+    "Each rep in 30 s, going every 60 s. 5 reps"]},
+  {n:"Malcolms with Sprint", cat:"downup", dist:510, d:[
+    "3 Malcolms back to back (backpedal {10}, down-up, forward {20}, down-up, back {10}, down-up)",
+    "Then sprint {50} to the line. Whole sequence under 60 s",
+    "Rest 60 s, repeat the sequence 3 times"]}
+];
+
+const RUN_POOLS = {straight:["line"], shpat:["shuttle","pattern"], shdu:["shuttle","downup"], all:["line","shuttle","pattern","downup"]};
+const RUN_TYPE_NAME = {straight:"Straight Line Only", shpat:"Shuttle and Pattern", shdu:"Shuttle and Down-Up", all:"All Types"};
+
+function interleaveRuns(cats){
+  const by = cats.map(c=>RUNS.filter(s=>s.cat===c));
+  const out = []; let i = 0, added = true;
+  while(added){
+    added = false;
+    by.forEach(arr=>{ if(arr[i]){ out.push(arr[i]); added = true; } });
+    i++;
+  }
+  return out;
+}
+
+function buildSpeedDays(){
+  if(!cfg.spdOn) return null;
+  const days = [];
+  const focused = (q, v) => {
+    const S = SPEED[q];
+    const o = S.opts[v % S.opts.length], p = S.plyo[v % S.plyo.length];
+    return {title:o.n, tag:S.name, lines:o.d.concat(["Plyo pairing: " + p[0] + ", " + p[1]])};
+  };
+  if(cfg.spdApp === "split"){
+    ["acc","mv","cod"].forEach(q=>days.push(focused(q, 0)));
+    return days;
+  }
+  if(cfg.spdQual !== "all"){
+    for(let d=0; d<cfg.spdDays; d++) days.push(focused(cfg.spdQual, d));
+    return days;
+  }
+  for(let d=0; d<cfg.spdDays; d++){
+    days.push({title:"All Qualities Blend", tag:"Blend", lines:[
+      "Acceleration: " + SPEED.acc.mini[d % SPEED.acc.mini.length],
+      "Max Velocity: " + SPEED.mv.mini[d % SPEED.mv.mini.length],
+      "Change of Direction: " + SPEED.cod.mini[d % SPEED.cod.mini.length]
+    ]});
+  }
+  return days;
+}
+
+/* ---- Running day assembly: 3 drill blocks per session ----
+   Composition: single type = 3 blocks of that type; two-type
+   days = one of each plus an alternating third; All Types = 3
+   different categories rotating across days.
+   Uniqueness: no drill appears twice anywhere in the program.
+   Volume: each day aims at the coach's slider target using only
+   unused drills, then a week-level pass trades same-category
+   blocks between days so volume spreads evenly around target.  */
+function runPools(){
+  const pools = {};
+  ["line","shuttle","pattern","downup"].forEach(c=>pools[c] = RUNS.filter(s=>s.cat===c));
+  return pools;
+}
+function pickUnused(pool, startIdx, used, sel){
+  for(let k=0; k<pool.length; k++){
+    const c = pool[(startIdx + k) % pool.length];
+    if(!used.has(c.n) && !sel.includes(c)) return c;
+  }
+  /* Safety net if a future bank edit shrinks a pool: reuse rather than fail */
+  for(let k=0; k<pool.length; k++){
+    const c = pool[(startIdx + k) % pool.length];
+    if(!sel.includes(c)) return c;
+  }
+  return pool[startIdx % pool.length];
+}
+function runDayBlocks(cats, dayIdx, used){
+  const pools = runPools();
+  const sel = [];
+  if(cats.length === 1){
+    for(let i=0; i<3; i++) sel.push(pickUnused(pools[cats[0]], dayIdx + i, used, sel));
+  } else if(cats.length === 2){
+    const [a, b] = cats;
+    sel.push(pickUnused(pools[a], dayIdx, used, sel));
+    sel.push(pickUnused(pools[b], dayIdx, used, sel));
+    sel.push(pickUnused(pools[dayIdx % 2 ? b : a], dayIdx + 1, used, sel));
+  } else {
+    cats.forEach((c, i)=>sel.push(pickUnused(pools[c], dayIdx + i, used, sel)));
+  }
+  /* Aim at the volume target using only drills not yet used this week */
+  const target = cfg.runVol || 3000;
+  const total = () => sel.reduce((s, x)=>s + x.dist, 0);
+  for(let g=0; g<12; g++){
+    const cur = Math.abs(total() - target);
+    let best = null;
+    sel.forEach((s, i)=>{
+      pools[s.cat].forEach(alt=>{
+        if(sel.includes(alt) || used.has(alt.n)) return;
+        const diff = Math.abs(total() - s.dist + alt.dist - target);
+        if(diff < cur - 1 && (!best || diff < best.diff)) best = {i, alt, diff};
+      });
+    });
+    if(!best) break;
+    sel[best.i] = best.alt;
+  }
+  sel.forEach(s=>used.add(s.n));
+  return sel;
+}
+function rebalanceWeek(sels, target){
+  const dayTotal = s => s.reduce((a, x)=>a + x.dist, 0);
+  for(let guard=0; guard<80; guard++){
+    const totals = sels.map(dayTotal);
+    let best = null;
+    for(let i=0; i<sels.length; i++) for(let j=i+1; j<sels.length; j++){
+      for(let a=0; a<sels[i].length; a++) for(let b=0; b<sels[j].length; b++){
+        const A = sels[i][a], B = sels[j][b];
+        if(A.cat !== B.cat || A.n === B.n) continue;
+        const sq = x => x * x;
+        const before = sq(totals[i] - target) + sq(totals[j] - target);
+        const after = sq(totals[i] - A.dist + B.dist - target) + sq(totals[j] - B.dist + A.dist - target);
+        if(after < before - 100 && (!best || (before - after) > best.gain))
+          best = {i, j, a, b, gain: before - after};
+      }
+    }
+    if(!best) break;
+    const t = sels[best.i][best.a];
+    sels[best.i][best.a] = sels[best.j][best.b];
+    sels[best.j][best.b] = t;
+  }
+}
+function buildRunDays(){
+  if(!cfg.runOn) return null;
+  const used = new Set();
+  const plan = [];
+  const add = (title, cats, dayIdx)=>plan.push({title, blocks: runDayBlocks(cats, dayIdx, used)});
+  if(cfg.runApp === "split"){
+    add("Straight Line", ["line"], 0);
+    add("Shuttle and Pattern", ["shuttle","pattern"], 1);
+    add("Shuttle and Down-Up", ["shuttle","downup"], 2);
+    const four = ["line","shuttle","pattern","downup"];
+    for(let d=3; d<cfg.runDays; d++)
+      add("Hybrid Mix", [four[d%4], four[(d+1)%4], four[(d+2)%4]], d);
+  } else {
+    const cats = RUN_POOLS[cfg.runType];
+    for(let d=0; d<cfg.runDays; d++){
+      const dayCats = cats.length === 4 ? [cats[d%4], cats[(d+1)%4], cats[(d+2)%4]] : cats;
+      const title = cats.length === 1 ? RUN_TYPE_NAME[cfg.runType]
+                  : cats.length === 4 ? "All Types Mix"
+                  : RUN_TYPE_NAME[cfg.runType] + " Mix";
+      add(title, dayCats, d);
+    }
+  }
+  rebalanceWeek(plan.map(p=>p.blocks), cfg.runVol || 3000);
+  return plan.map(p=>{
+    const total = p.blocks.reduce((s, x)=>s + x.dist, 0);
+    return {
+      title: p.title,
+      tag: "{" + total + "} total",
+      blocks: p.blocks.map((s, i)=>({n:(i+1) + ". " + s.n, cat:CAT_NAME[s.cat], dist:s.dist, lines:s.d})),
+      lines: p.blocks.reduce((arr, s, i)=>arr.concat(
+        [(i+1) + ". " + s.n + "  |  " + CAT_NAME[s.cat] + "  |  {" + s.dist + "}"], s.d), [])
+    };
+  });
+}
+
+
+/* Option rules: keep selections legal after every click */
+function reconcileOptional(key){
+  if(key === "spdApp" && cfg.spdApp === "split"){ cfg.spdQual = "all"; cfg.spdDays = 3; }
+  if(key === "spdQual" && cfg.spdQual !== "all" && cfg.spdApp === "split") cfg.spdApp = "hyb";
+  if(key === "spdDays" && cfg.spdDays < 3 && cfg.spdApp === "split") cfg.spdApp = "hyb";
+  if(key === "runApp" && cfg.runApp === "split"){ cfg.runType = "all"; if(cfg.runDays < 3) cfg.runDays = 3; }
+  if(key === "runType" && cfg.runType !== "all" && cfg.runApp === "split") cfg.runApp = "hyb";
+  if(key === "runDays" && cfg.runDays < 3 && cfg.runApp === "split") cfg.runApp = "hyb";
+  syncChips();
+}
+
+function syncOptional(){
+  [["careOn","careSw","careBody"],["condOn","condSw","condBody"],["spdOn","spdSw","spdBody"],["runOn","runSw","runBody"]].forEach(([k, sw, body])=>{
+    const on = !!cfg[k];
+    el(sw).textContent = on ? "On" : "Off";
+    el(sw).classList.toggle("on", on);
+    el(body).style.display = on ? "" : "none";
+  });
+}
+
+/* ---------------- State ---------------- */
+const cfg = {liftDays:3, careOn:false, condOn:true, condDays:2, weeks:6, emph:"equal", equip:"machine", focus:"hyp", struct:"hyb", condSys:"aer", condMins:15,
+  units:"m",
+  spdOn:false, spdQual:"all", spdDays:2, spdApp:"hyb",
+  runOn:false, runType:"straight", runDays:2, runApp:"hyb", runVol:3000};
+let program = null;
+
+document.querySelectorAll('.chips').forEach(g=>{
+  g.addEventListener('click', e=>{
+    const c = e.target.closest('.chip'); if(!c) return;
+    /* clear selection across ALL groups sharing this key (Simple + Advanced rows) */
+    document.querySelectorAll(`.chips[data-key="${g.dataset.key}"] .chip`).forEach(x=>x.classList.remove('on'));
+    c.classList.add('on');
+    const v = c.dataset.v;
+    cfg[g.dataset.key] = isNaN(+v) ? v : +v;
+    reconcileOptional(g.dataset.key);
+    if(g.dataset.key === "units"){ syncRunVol(); if(program){ renderSpeed(); renderRun(); persist(); } }
+  });
+});
+
+/* ---------------- Week guide ---------------- */
+function weekGuide(){
+  const rows = [];
+  const push = (w, html) => rows.push(`<div class="wk-row"><div class="wk">Week ${w}</div><div class="wd">${html}</div></div>`);
+  const DL = `<b style="color:var(--primary-hi)">Deload</b> | Pull back slightly: drop one set from every lift and take 10 to 15% off the loads. Move well, leave fresh. The wave resumes next week where it left off.`;
+  let prevPhase = "";
+  for(let w=1; w<=cfg.weeks; w++){
+    if(isDeload(w)){ push(w, DL); continue; }
+    const e = effWeek(w), step = (e-1)%3, wave = Math.floor((e-1)/3)+1;
+    if(cfg.focus==="tri"){
+      const ph = triPhaseOf(e), Pp = TRI_PHASE[ph];
+      const first = ph !== prevPhase; prevPhase = ph;
+      const load = first ? "Set phase loads with 1 or 2 reps in reserve"
+                         : "Add 2.5 to 5% on main lifts completed cleanly last week";
+      push(w, `<b style="color:var(--primary-hi)">${Pp.label} phase</b> | Tempo ${Pp.tempo}. ${Pp.text} ${load}.`);
+    } else if(cfg.focus==="pap" || cfg.focus==="fc"){
+      const rpe = [7,8,9][step];
+      const load = step===0 ? "Set loads: heavy lifts crisp with 2 reps in reserve"
+                 : step===1 ? "Add 2.5 to 5% on heavy lifts only if every rep stayed fast"
+                 : "Heaviest quality loads of the wave, speed still rules";
+      push(w, `Effort ${rpe} of 10. ${load}. Plyos progress by height and distance, never by load.`);
+    } else if(cfg.focus==="met"){
+      const lift = ["4 x 6 at 70%", "4 x 8 at 72.5%", "5 x 6 at 75%"][step];
+      const circ = ["circuits as written", "circuits as written plus 1 round", "circuits as written plus 2 rounds"][step];
+      const carry = ["3 x 20 m", "3 x 30 m", "3 x 40 m"][step];
+      push(w, `Main lifts ${lift}, rest 30 to 60 s. Run ${circ}. Carries ${carry}.`);
+    } else if(cfg.focus==="nc"){
+      const sp = ["4 x 6 at 70%", "4 x 4 at 80%", "4 x 2 at 90%"][step];
+      const pw = ["6 x 3 at 40%", "8 x 3 at 50%", "6 x 2 at 60%"][step];
+      const pl = ["3 x 3", "3 x 5", "4 x 4"][step];
+      const spr = ["4", "5", "6"][step];
+      push(w, `Strength-power lift ${sp}. Power lift ${pw}. Plyos ${pl}. Sprints and prowler ${spr} reps. Full recovery everywhere.`);
+    } else if(cfg.focus==="emom"){
+      const rounds = [6,7,8][step];
+      push(w, `${rounds} rounds of the 3 lift rotation at 75%, 4 reps each on the minute. If any set slows, drop 5%.`);
+    } else {
+      const rpe = [7,8,9][step];
+      const load = step===0
+        ? (wave===1 ? "Establish working weights, 2 reps in reserve"
+          : (e===effTotal() ? "Push week: take top sets 2.5 to 5% above your best week so far"
+          : "Restart the wave 2.5 to 5% above wave "+(wave-1)+" week 1"))
+        : "Add 2.5 to 5% on all lifts completed in full last week";
+      push(w, `Effort ${rpe} of 10. ${load}.`);
+    }
+  }
+  return rows.join("");
+}
+
+
+/* ---------------- Render ---------------- */
+const el = id => document.getElementById(id);
+const setsOf = p => parseInt(p.sets) || 3;
+
+function prepHTML(prep){
+  const li = arr => arr.map(([n,d])=>`<li>${n} <span>| ${d}</span></li>`).join("");
+  return `<div class="prep">
+    <div><h4>Mobility</h4><ul>${li(prep.mob)}</ul></div>
+    <div><h4>Activation</h4><ul>${li(prep.act)}</ul></div>
+  </div>`;
+}
+
+
+function rpeRow(scope, di, current){
+  let chips = "";
+  for(let r=1; r<=10; r++){
+    chips += `<button class="rpe-chip${current===r?" on":""}" data-scope="${scope}" data-di="${di}" data-r="${r}">${r}</button>`;
+  }
+  return `<div class="srpe"><span class="lbl">Session RPE</span>${chips}</div>`;
+}
+
+function wireRpe(root){
+  (root || document).querySelectorAll('.rpe-chip').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const r = +b.dataset.r, di = +b.dataset.di, sc = b.dataset.scope;
+      if(sc === "lift"){
+        const d = program.days[di];
+        d.rpe = (d.rpe === r) ? null : r;
+        renderLift();
+      } else if(sc === "spd"){
+        program.spdRpe[di] = (program.spdRpe[di] === r) ? null : r;
+        renderSpeed();
+      } else if(sc === "run"){
+        program.runRpe[di] = (program.runRpe[di] === r) ? null : r;
+        renderRun();
+      } else {
+        program.condRpe[di] = (program.condRpe[di] === r) ? null : r;
+        renderCond();
+      }
+      persist();
+    });
+  });
+}
+
+/* ---------------- Save, load, autosave ---------------- */
+function stateJSON(){
+  return JSON.stringify({
+    cfg,
+    days: program.days.map(d=>({recOn:d.recOn, rpe:d.rpe, ex:d.ex.map(x=>({sel:x.sel, rec:x.rec}))})),
+    condRpe: program.condRpe,
+    spdRpe: program.spdRpe,
+    runRpe: program.runRpe
+  });
+}
+
+function syncChips(){
+  document.querySelectorAll('.chips').forEach(g=>{
+    const key = g.dataset.key;
+    g.querySelectorAll('.chip').forEach(c=>{
+      const v = isNaN(+c.dataset.v) ? c.dataset.v : +c.dataset.v;
+      c.classList.toggle('on', v === cfg[key]);
+    });
+  });
+}
+
+function applyState(s){
+  Object.assign(cfg, s.cfg);
+  if(cfg.condDays > 4) cfg.condDays = 4;
+  syncChips();
+  buildProgram();
+  (s.days||[]).forEach((sd,i)=>{
+    const d = program.days[i]; if(!d) return;
+    d.recOn = !!sd.recOn; d.rpe = sd.rpe ?? null;
+    (sd.ex||[]).forEach((sx,k)=>{
+      if(d.ex[k]){ d.ex[k].sel = Math.min(sx.sel||0, d.ex[k].options.length-1); d.ex[k].rec = sx.rec || {}; }
+    });
+  });
+  program.condRpe = s.condRpe || {};
+  program.spdRpe = s.spdRpe || {};
+  program.runRpe = s.runRpe || {};
+  syncOptional(); syncRunVol();
+  renderLift(); renderCond(); renderSpeed(); renderRun(); showOut(false);
+}
+
+function persist(){
+  if(!program) return;
+  try{ localStorage.setItem('stp_program_state', stateJSON()); }catch(e){}
+}
+
+function showOut(scroll){
+  el('out').style.display = 'block';
+  el('exportBar').style.display = 'flex';
+  syncBuilderSw();
+  if(scroll) el('out').scrollIntoView({behavior:'smooth'});
+}
+
+function renderLift(){
+  const f = FOCUS[cfg.focus];
+  el('liftSub').textContent = `${f.name} | ${cfg.liftDays} day${cfg.liftDays>1?"s":""} per week | ${cfg.weeks} weeks`;
+  el('liftMeta').innerHTML =
+    `<div><b>Focus</b>${f.name}</div>
+     <div><b>Equipment</b>${{machine:"Machine based",free:"Free weight",combo:"Machine and free weight",perf:"Performance gym"}[cfg.equip]}</div>
+     <div><b>Structure</b>${{split:"Lower/Upper split", full:"Full body only", hyb:"Hybrid"}[cfg.struct]}</div>
+     <div><b>Emphasis</b>${{lower:"Lower body 2:1", upper:"Upper body 2:1", equal:"Equal 1:1"}[cfg.emph]}</div>
+     <div><b>Progression</b>${cfg.focus==="tri" ? "Block: eccentric, isometric, concentric" : "Linear, 3 week waves"}${deloadWeeks().length ? " | Deload wk " + deloadWeeks().join(" and ") : ""}</div>
+     <div style="flex-basis:100%; color:#C9C9C9;">${f.note}</div>`;
+  el('wkGuide').innerHTML = weekGuide();
+
+  el('liftDaysWrap').innerHTML = program.days.map((d, di)=>{
+    const rows = d.ex.map((x, xi)=>{
+      const p = exRx(x, f);
+      const label = x.label || ((cfg.focus==="sp" && d.ex[0].cat==="pow" && xi<2) ? ["A1","A2"][xi] : (xi+1));
+      const note = exNote(x);
+      let rec = "";
+      if(d.recOn){
+        const n = setsOf(p);
+        let boxes = "";
+        for(let s=1; s<=n; s++){
+          boxes += `<label>Set ${s}<input inputmode="decimal" data-d="${di}" data-x="${xi}" data-s="${s}" value="${x.rec[s]||""}"></label>`;
+        }
+        rec = `<tr class="rec"><td></td><td colspan="5"><div class="boxes">${boxes}</div></td></tr>`;
+      }
+      return `<tr>
+        <td class="ord">${label}</td>
+        <td class="exn"><button data-d="${di}" data-x="${xi}" class="swapBtn" title="Swap this lift">${x.options[x.sel]}</button>${note?`<span class="note">${note}</span>`:""}<span class="rx">${p.sets} x ${p.reps} &nbsp;|&nbsp; ${p.tempo} &nbsp;|&nbsp; ${p.rest}</span><div class="swapHost"></div></td>
+        <td class="num">${p.sets}</td>
+        <td class="num">${p.reps}</td>
+        <td class="num">${p.tempo}</td>
+        <td class="num">${p.rest}</td>
+      </tr>${rec}`;
+    }).join("");
+    return `<div class="day-card">
+      <div class="day-head"><h3>Day ${di+1} | ${d.title}</h3>
+        <div class="dh-right">
+          <span class="screen-only">Tap a lift to swap</span>
+          <button class="recSw${d.recOn?" on":""}" data-di="${di}">Record ${d.recOn?"On":"Off"}</button>
+        </div>
+      </div>
+      ${prepHTML(d.prep)}
+      <table class="lift">
+        <thead><tr><th></th><th>Exercise</th><th>Sets</th><th>Reps</th><th>Tempo</th><th>Rest</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      ${rpeRow("lift", di, d.rpe)}
+    </div>`;
+  }).join("");
+
+  document.querySelectorAll('.swapBtn').forEach(b=>{
+    b.addEventListener('click', ()=>openSwap(+b.dataset.d, +b.dataset.x, b));
+  });
+  document.querySelectorAll('.recSw').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const d = program.days[+b.dataset.di];
+      d.recOn = !d.recOn;
+      renderLift(); persist();
+    });
+  });
+  document.querySelectorAll('.boxes input[data-x]').forEach(inp=>{
+    inp.addEventListener('input', ()=>{
+      program.days[+inp.dataset.d].ex[+inp.dataset.x].rec[+inp.dataset.s] = inp.value;
+      persist();
+    });
+  });
+  wireRpe(el('liftDaysWrap'));
+}
+
+function openSwap(di, xi, btn){
+  document.querySelectorAll('.swap').forEach(s=>s.remove());
+  const x = program.days[di].ex[xi];
+  const alts = x.options.map((o,i)=>({o,i})).filter(a=>a.i!==x.sel);
+  const host = btn.parentElement.querySelector('.swapHost');
+  const box = document.createElement('div');
+  box.className = 'swap';
+  box.innerHTML = `<p>Swap for progression, regression or substitution</p>` +
+    alts.map(a=>`<button class="opt" data-i="${a.i}">${a.o}</button>`).join("") +
+    `<button class="cancel">Keep ${x.options[x.sel]}</button>`;
+  host.appendChild(box);
+  box.querySelectorAll('.opt').forEach(o=>o.addEventListener('click', ()=>{
+    x.sel = +o.dataset.i; renderLift(); persist();
+  }));
+  box.querySelector('.cancel').addEventListener('click', ()=>box.remove());
+}
+
+function condPlan(d){
+  const c = COND[cfg.condSys];
+  const [label, ratio] = c.schemes[d % c.schemes.length];
+  const [w, r] = parseScheme(label);
+  const rounds = Math.max(1, Math.floor((cfg.condMins*60)/(w+r)));
+  const used = Math.round(rounds*(w+r)/60);
+  return {c, label, ratio, rounds, used};
+}
+
+function renderCond(){
+  el('condPage').style.display = cfg.condOn ? "" : "none";
+  if(!cfg.condOn) return;
+  const c = COND[cfg.condSys];
+  el('condSub').textContent = `${c.name} | ${cfg.condDays} day${cfg.condDays>1?"s":""} per week | ${cfg.condMins} min per session`;
+  el('condMeta').innerHTML =
+    `<div><b>System</b>${c.name}</div>
+     <div><b>Target effort</b>${c.rpe}</div>
+     <div><b>Session total</b>${cfg.condMins} minutes</div>
+     <div style="flex-basis:100%; color:#C9C9C9;">${c.note}</div>`;
+
+  let html = "";
+  for(let d=0; d<cfg.condDays; d++){
+    const {label, ratio, rounds, used} = condPlan(d);
+    html += `<div class="cond-card">
+      <h3>Day ${d+1} | ${c.name} Intervals</h3>
+      <div class="wr-line">
+        <div class="wr-box"><b>${label}</b> &nbsp;(W:R ${ratio})</div>
+        <div class="wr-box"><b>${rounds} rounds</b> &nbsp;${used} min total</div>
+        <div class="wr-box">Effort <b>${c.rpe}</b></div>
+      </div>
+      <div class="cond-note">Warm up 3 to 5 minutes easy on your chosen machine before round 1, outside the session total.</div>
+      ${rpeRow("cond", d, program.condRpe[d] ?? null)}
+    </div>`;
+  }
+  html += `<div class="cond-card"><div class="poison"><b>Pick your poison.</b> ${MACHINES}</div>
+    <div class="cond-note">Progression follows the same 3 week wave as the lifting: hold the structure and lift the output. Week 1 find your paces, week 2 nudge them up, week 3 push the ceiling, then restart above where you began.</div></div>`;
+  el('condDaysWrap').innerHTML = html;
+  wireRpe(el('condDaysWrap'));
+}
+
+/* ---------------- Speed and Running render ---------------- */
+function linesHTML(lines){
+  return lines.map(l=>`<div class="drill"><span class="ln">${U(l)}</span></div>`).join("");
+}
+function blocksHTML(blocks){
+  return blocks.map(b=>`
+    <div class="blk">
+      <div class="blk-h">${b.n}<span>${b.cat} &nbsp;|&nbsp; ${U("{"+b.dist+"}")}</span></div>
+      ${linesHTML(b.lines)}
+    </div>`).join("");
+}
+function fieldCards(days, scope, rpeMap){
+  return days.map((d, di)=>`
+    <div class="cond-card">
+      <h3>Day ${di+1} | ${d.title}<span class="ctag">${U(d.tag)}</span></h3>
+      ${d.blocks ? blocksHTML(d.blocks) : linesHTML(d.lines)}
+      ${rpeRow(scope, di, rpeMap[di] ?? null)}
+    </div>`).join("");
+}
+function renderSpeed(){
+  const show = !!program.speed;
+  el('spdPage').style.display = show ? "" : "none";
+  if(!show) return;
+  const appName = cfg.spdApp === "split" ? "Split, one quality per day" : "Hybrid, blended sessions";
+  const qualName = cfg.spdQual === "all" ? "All qualities" : SPEED[cfg.spdQual].name;
+  el('spdSub').textContent = `${qualName} | ${program.speed.length} day${program.speed.length>1?"s":""} per week`;
+  el('spdMeta').innerHTML =
+    `<div><b>Quality</b>${qualName}</div>
+     <div><b>Approach</b>${appName}</div>
+     <div><b>Effort</b>Maximal intent, full recovery</div>
+     <div style="flex-basis:100%; color:#C9C9C9;">${U(FIELD_WARMUP)}</div>
+     <div style="flex-basis:100%; color:#C9C9C9;">Speed is a skill, not conditioning. No session repeats within the week. Every rep at full intent and full recovery. Cut the session the moment quality drops.</div>`;
+  el('spdDaysWrap').innerHTML = fieldCards(program.speed, "spd", program.spdRpe);
+  wireRpe(el('spdDaysWrap'));
+}
+function renderRun(){
+  const show = !!program.run;
+  el('runPage').style.display = show ? "" : "none";
+  if(!show) return;
+  const appName = cfg.runApp === "split" ? "Split, one type per day" : "Hybrid, rotating sessions";
+  el('runSub').textContent = `${RUN_TYPE_NAME[cfg.runType]} | ${program.run.length} day${program.run.length>1?"s":""} per week`;
+  el('runMeta').innerHTML =
+    `<div><b>Type</b>${RUN_TYPE_NAME[cfg.runType]}</div>
+     <div><b>Volume target</b>${distTxt(cfg.runVol)} per session</div>
+     <div><b>Approach</b>${appName}</div>
+     <div><b>Effort</b>Hit the targets, hold the output</div>
+     <div style="flex-basis:100%; color:#C9C9C9;">${U(FIELD_WARMUP)}</div>
+     <div style="flex-basis:100%; color:#C9C9C9;">Three drill blocks per session, built to land as close as possible to the volume target. No drill appears twice in the program. Hold the same times across every rep: the last rep at the same speed as the first is the goal.</div>`;
+  el('runDaysWrap').innerHTML = fieldCards(program.run, "run", program.runRpe);
+  wireRpe(el('runDaysWrap'));
+}
+
+/* ---------------- PDF export: landscape popup ---------------- */
+function printDoc(withRec){
+  const f = FOCUS[cfg.focus], c = COND[cfg.condSys];
+  const SK = SKINS[activeSkin];
+  const S = {pa:SK.print.accent, pad:SK.print.accentDark, pi:SK.print.ink, ph:SK.print.headBg, poa:SK.print.onAccent};
+  const logo = document.querySelector('.p-head img').src;
+  const equipName = {machine:"Machine based", free:"Free weight", combo:"Machine and free weight", perf:"Performance gym"}[cfg.equip];
+
+  let wkCells = "";
+  for(let w=1; w<=cfg.weeks; w++){
+    let mid, txt;
+    if(isDeload(w)){
+      mid = "Deload"; txt = "-1 set, -10 to 15%";
+    } else {
+      const e = effWeek(w), step = (e-1)%3, wave = Math.floor((e-1)/3)+1;
+      if(cfg.focus==="tri"){
+        const P = TRI_PHASE[triPhaseOf(e)];
+        mid = P.label; txt = "Tempo " + P.tempo;
+      } else if(cfg.focus==="pap" || cfg.focus==="fc"){
+        mid = "Effort " + [7,8,9][step] + "/10";
+        txt = step===0 ? "Set loads, 2 in reserve" : step===1 ? "+2.5 to 5% if reps fast" : "Top quality loads";
+      } else if(cfg.focus==="met"){
+        mid = ["4x6 @70%","4x8 @72.5%","5x6 @75%"][step];
+        txt = ["Circuits as written","Circuits +1 round","Circuits +2 rounds"][step];
+      } else if(cfg.focus==="nc"){
+        mid = ["4x6 @70% / 6x3 @40%","4x4 @80% / 8x3 @50%","4x2 @90% / 6x2 @60%"][step];
+        txt = "Plyos " + ["3x3","3x5","4x4"][step] + ", sprints " + ["4","5","6"][step];
+      } else if(cfg.focus==="emom"){
+        mid = [6,7,8][step] + " rounds @75%";
+        txt = "4 reps per minute";
+      } else {
+        mid = "Effort " + [7,8,9][step] + "/10";
+        txt = step===0 ? (wave===1 ? "Set weights, 2 in reserve" : (e===effTotal() ? "Push week, best +2.5 to 5%" : "Restart 2.5 to 5% up")) : "Add 2.5 to 5%";
+      }
+    }
+    wkCells += `<div class="wkc"><b>WK ${w}</b><i>${mid}</i><span>${txt}</span></div>`;
+  }
+
+  const liftCols = withRec ? Math.min(cfg.liftDays, 2) : (cfg.liftDays<=3 ? cfg.liftDays : (cfg.liftDays===4 ? 2 : 3));
+  const bx = (n, rec) => Array.from({length:n}, (_,i)=>`<span class="bx"><i>S${i+1}</i>${rec && rec[i+1] ? `<b>${rec[i+1]}</b>` : ""}</span>`).join("");
+  const rpeStrip = v => `<div class="prpe"><b>Session RPE</b>` +
+    Array.from({length:10}, (_,i)=>`<span class="rc${v===i+1?" sel":""}">${i+1}</span>`).join("") + `</div>`;
+  const prepLine = prep =>
+    `<div class="pprep"><b>Mobility</b> ${prep.mob.map(m=>m[0]+" ("+m[1]+")").join(", ")}<br><b>Activation</b> ${prep.act.map(a=>a[0]+" ("+a[1]+")").join(", ")}</div>`;
+
+  const liftCards = program.days.map((d, di)=>{
+    const rows = d.ex.map((x, xi)=>{
+      const p = exRx(x, f);
+      const label = x.label || ((cfg.focus==="sp" && d.ex[0].cat==="pow" && xi<2) ? ["A1","A2"][xi] : (xi+1));
+      const recTd = withRec ? `<td class="recc">${bx(setsOf(p), x.rec)}</td>` : "";
+      const dynNote = x.dyn ? `<br><span style="font-size:7px; color:#555; font-weight:400;">${exNote(x)}</span>` : "";
+      return `<tr><td class="o">${label}</td><td class="e">${x.options[x.sel]}${dynNote}</td><td>${p.sets}</td><td>${p.reps}</td><td>${p.tempo}</td><td>${p.rest}</td>${recTd}</tr>`;
+    }).join("");
+    const recTh = withRec ? `<th>Load per set</th>` : "";
+    return `<div class="card"><div class="ch">Day ${di+1} | ${d.title}</div>
+      ${prepLine(d.prep)}
+      <table><thead><tr><th></th><th>Exercise</th><th>Sets</th><th>Reps</th><th>Tempo</th><th>Rest</th>${recTh}</tr></thead>
+      <tbody>${rows}</tbody></table>${withRec ? rpeStrip(d.rpe) : ""}</div>`;
+  }).join("");
+
+  /* Optional Speed + Running sections */
+  const lineRows = lines => lines.map(l=>`<div class="dl">${U(l)}</div>`).join("");
+  const optSection = (title, sub, days, note) => {
+    const cards = days.map((d, di)=>`<div class="card"><div class="ch">Day ${di+1} | ${d.title} &nbsp;<i>${U(d.tag)}</i></div><div class="cb">${lineRows(d.lines)}</div></div>`).join("");
+    const cols = Math.min(days.length, 3);
+    return `<div class="sect"><b>${title}</b><span>${sub}</span></div>
+      <div class="foot" style="margin:6px 0 9px;"><b>Warm-up first.</b> <span class="note">${U(FIELD_WARMUP)}</span></div>
+      <div class="ogrid" style="grid-template-columns:repeat(${cols},1fr)">${cards}</div>
+      <div class="foot"><span class="note">${note}</span></div>`;
+  };
+  let extraCards = "";
+  if(program.speed){
+    const qualName = cfg.spdQual === "all" ? "All qualities" : SPEED[cfg.spdQual].name;
+    extraCards += optSection("Speed", `${qualName} | ${cfg.spdApp==="split" ? "Split" : "Hybrid"} | ${program.speed.length} day${program.speed.length>1?"s":""} per week`,
+      program.speed, "Maximal intent, full recovery between reps. Cut the session the moment quality drops.");
+  }
+  if(program.run){
+    extraCards += optSection("Running Conditioning", `${RUN_TYPE_NAME[cfg.runType]} | ${cfg.runApp==="split" ? "Split" : "Hybrid"} | ${program.run.length} day${program.run.length>1?"s":""} per week`,
+      program.run, "Hold the same times across every rep. The last rep at the same speed as the first is the goal.");
+  }
+
+  const condCols = Math.min(Math.max(cfg.condDays,1), withRec ? 2 : 3);
+  let condCards = "";
+  for(let d=0; cfg.condOn && d<cfg.condDays; d++){
+    const {label, ratio, rounds, used} = condPlan(d);
+    const rec = withRec
+      ? `<div class="rbxwrap"><b>Record pace, watts or level per round</b><div class="rbx">${Array.from({length:rounds},(_,i)=>`<span class="bx"><i>R${i+1}</i></span>`).join("")}</div></div>`
+      : "";
+    condCards += `<div class="card"><div class="ch">Day ${d+1} | ${c.name} Intervals</div>
+      <div class="cb"><div class="pill"><b>${label}</b> (W:R ${ratio})</div>
+      <div class="pill"><b>${rounds} rounds</b>, ${used} min total</div>
+      <div class="pill">Effort <b>${c.rpe}</b></div>
+      <p>Warm up 3 to 5 minutes easy before round 1, outside the session total.</p>${rec}${withRec ? rpeStrip(program.condRpe[d] ?? null) : ""}</div></div>`;
+  }
+
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${SK.brand} Program</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Inter:wght@400;500;600&display=swap');
+@page{size:letter landscape; margin:0.4in;}
+*{box-sizing:border-box; margin:0; padding:0;}
+body{font-family:'Inter',sans-serif; color:${S.pi}; background:#fff; font-size:10px;}
+.page{page-break-after:always;}
+.page:last-child{page-break-after:auto;}
+.hd{display:flex; align-items:center; gap:12px; border-bottom:2.5px solid ${S.pa}; padding-bottom:7px; margin-bottom:9px;}
+.hd img{width:52px; height:52px; object-fit:contain;}
+.hd img.wide{width:104px;}
+.hd .t1{font-family:'Oswald',sans-serif; font-weight:600; font-size:17px; letter-spacing:.08em; text-transform:uppercase;}
+.hd .t2{font-family:'Oswald',sans-serif; font-size:9px; letter-spacing:.2em; text-transform:uppercase; color:#9098A2; margin-top:2px;}
+.hd .meta{margin-left:auto; text-align:right; font-size:9.5px; color:#444; line-height:1.5;}
+.hd .meta b{font-family:'Oswald',sans-serif; font-weight:500; letter-spacing:.08em; text-transform:uppercase; color:${S.pi};}
+.wks{display:grid; grid-template-columns:repeat(${cfg.weeks},1fr); gap:4px; margin-bottom:9px;}
+.wkc{border:1px solid #d9d9d9; border-top:2.5px solid ${S.pa}; border-radius:2px; padding:4px 6px; line-height:1.35;}
+.wkc b{font-family:'Oswald',sans-serif; font-weight:600; font-size:9px; letter-spacing:.08em; display:block;}
+.wkc i{font-style:normal; color:${S.pi}; font-weight:600; font-size:8.5px; display:block;}
+.wkc span{color:#666; font-size:7.8px; display:block;}
+.grid{display:grid; grid-template-columns:repeat(${liftCols},1fr); gap:9px; align-items:start;}
+.cgrid{display:grid; grid-template-columns:repeat(${condCols},1fr); gap:9px; align-items:start;}
+.card{border:1px solid #bbb; border-radius:2px; overflow:hidden; break-inside:avoid;}
+.ch{background:${S.ph}; color:#fff; font-family:'Oswald',sans-serif; font-weight:500; font-size:10px; letter-spacing:.1em; text-transform:uppercase; padding:5px 9px; border-bottom:2px solid ${S.pa};}
+.pprep{padding:5px 9px; border-bottom:1px solid #ddd; background:#fafafa; font-size:8px; color:#333; line-height:1.5;}
+.pprep b{font-family:'Oswald',sans-serif; font-weight:600; font-size:7.5px; letter-spacing:.12em; text-transform:uppercase; color:${S.pi}; margin-right:3px;}
+table{width:100%; border-collapse:collapse; font-size:8.8px;}
+th{font-family:'Oswald',sans-serif; font-weight:500; font-size:7.6px; letter-spacing:.12em; text-transform:uppercase; color:#555; text-align:left; padding:4px 7px; border-bottom:1px solid #ccc;}
+td{padding:4px 7px; border-bottom:1px solid #e6e6e6; vertical-align:top;}
+tr:last-child td{border-bottom:none;}
+td.o{font-family:'Oswald',sans-serif; font-weight:600; color:${S.pad}; width:20px;}
+td.e{font-weight:600;}
+td.recc{white-space:nowrap;}
+.bx{display:inline-block; width:34px; height:16px; border:1px solid #999; border-bottom:1.5px solid ${S.pa}; border-radius:1px; margin:0 2px 2px 0; position:relative; vertical-align:middle;}
+.bx i{position:absolute; top:-1px; left:1.5px; font-style:normal; font-size:5.5px; color:#999; font-family:'Oswald',sans-serif; letter-spacing:.05em;}\n.bx b{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:8px; font-weight:600; color:${S.pi};}
+.cb{padding:8px 10px;}
+.pill{background:#f5f5f5; border-left:3px solid ${S.pa}; border-radius:2px; padding:5px 8px; margin-bottom:5px; font-size:9px;}
+.note, .cb p{color:#666; font-size:8.3px; margin-top:5px;}
+.rbxwrap{margin-top:7px;}
+.rbxwrap b{font-family:'Oswald',sans-serif; font-weight:600; font-size:7.5px; letter-spacing:.12em; text-transform:uppercase; color:${S.pi}; display:block; margin-bottom:3px;}
+.prpe{padding:4px 9px 6px; border-top:1px solid #ddd; font-size:8px;}
+.prpe b{font-family:'Oswald',sans-serif; font-weight:600; font-size:7.5px; letter-spacing:.12em; text-transform:uppercase; margin-right:5px;}
+.prpe .rc{display:inline-block; width:14px; height:12px; border:1px solid #999; border-radius:1px; margin-right:2px; text-align:center; font-size:7px; line-height:12px; color:#666;}
+.prpe .rc.sel{background:${S.pa}; border-color:${S.pa}; color:${S.poa}; font-weight:600;}
+.foot{margin-top:9px; border:1px solid #bbb; border-left:3px solid ${S.pa}; border-radius:2px; padding:7px 10px; font-size:9px;}
+.sect{display:flex; align-items:baseline; gap:10px; margin:12px 0 6px; border-bottom:2px solid ${S.pa}; padding-bottom:3px;}
+.sect b{font-family:'Oswald',sans-serif; font-weight:600; font-size:13px; letter-spacing:.1em; text-transform:uppercase;}
+.sect span{font-size:8.5px; color:#666;}
+.ogrid{display:grid; gap:9px; align-items:start;}
+.dl{padding:3px 0; border-bottom:1px solid #e6e6e6; font-size:8.6px; line-height:1.45;}
+.dl:last-child{border-bottom:none;}
+.ch i{font-style:normal; font-weight:400; font-size:8px; letter-spacing:.14em; opacity:.75;}
+.foot b{font-family:'Oswald',sans-serif; font-weight:600; font-size:8.5px; letter-spacing:.12em; text-transform:uppercase;}
+</style></head><body>
+
+<div class="page">
+  <div class="hd"><img class="${SK.wideLogo ? "wide" : ""}" src="${logo}" alt="${SK.brand}">
+    <div><div class="t1">Strength Program</div><div class="t2">${SK.brand}</div></div>
+    <div class="meta"><b>${f.name}</b> | ${equipName} | ${{split:"Lower/Upper split", full:"Full body only", hyb:"Hybrid"}[cfg.struct]} | ${{lower:"Lower body 2:1", upper:"Upper body 2:1", equal:"Equal 1:1"}[cfg.emph]}${withRec ? " | Recording sheet" : ""}<br>${cfg.liftDays} day${cfg.liftDays>1?"s":""} per week | ${cfg.weeks} weeks | ${cfg.focus==="tri" ? "Triphasic blocks: ecc / iso / con" : "Linear, 3 week waves"}${deloadWeeks().length ? " | Deload wk " + deloadWeeks().join(" and ") : ""}</div>
+  </div>
+  <div class="wks">${wkCells}</div>
+  <div class="grid">${liftCards}</div>
+  <div class="foot"><b>Coaching note.</b> ${f.note}</div>
+</div>
+
+${(cfg.condOn || extraCards) ? `<div class="page">
+  <div class="hd"><img class="${SK.wideLogo ? "wide" : ""}" src="${logo}" alt="${SK.brand}">
+    <div><div class="t1">${cfg.condOn ? "Conditioning Program" : "Speed and Running"}</div><div class="t2">${SK.brand}</div></div>
+    <div class="meta">${cfg.condOn ? `<b>${c.name}</b> | Effort ${c.rpe}${withRec ? " | Recording sheet" : ""}<br>${cfg.condDays} day${cfg.condDays>1?"s":""} per week | ${cfg.condMins} min per session` : `<b>Field work</b>${withRec ? " | Recording sheet" : ""}`}</div>
+  </div>
+  ${cfg.condOn ? `<div class="cgrid">${condCards}</div>
+  <div class="foot"><b>Pick your poison.</b> ${MACHINES}<br>
+  <span class="note">${c.note} Progression follows the same 3 week wave as the lifting: hold the structure and lift the output.</span></div>` : ""}
+  ${extraCards}
+</div>` : ""}
+
+<scr` + `ipt>window.onload = () => setTimeout(() => { window.focus(); window.print(); }, 350);</scr` + `ipt>
+</body></html>`;
+}
+
+/* ---------------- Reference Library booklet ----------------
+   Generated live from the wired-in data structures (DB, FOCUS,
+   COND, SPEED, RUNS), so it always matches exactly what the
+   builder can prescribe. Portrait, one section per page.       */
+function libraryDoc(){
+  const SK = SKINS[activeSkin];
+  const S = {pa:SK.print.accent, pi:SK.print.ink, ph:SK.print.headBg};
+  const logo = document.querySelector('.p-head img') ? document.querySelector('.p-head img').src : SK.logoPrint;
+  const CATN = {pow:"Power", squat:"Squat", hinge:"Hinge", sl:"Single Leg", hpush:"Horizontal Push",
+    vpush:"Vertical Push", hpull:"Horizontal Pull", vpull:"Vertical Pull", core:"Core"};
+  const EQN = {machine:"Machine Based", free:"Free Weight", combo:"Machine + Free", perf:"Performance Gym"};
+  const weekLens = [...document.querySelectorAll('.chips[data-key="weeks"] .chip')].map(c=>+c.dataset.v);
+
+  /* --- Page 1: exercise database --- */
+  const equipKeys = Object.keys(DB);
+  const dbRows = Object.keys(CATN).map(cat=>`<tr><td class="cat">${CATN[cat]}</td>${
+    equipKeys.map(eq=>`<td>${(DB[eq][cat]||[]).map(x=>`<div>${x}</div>`).join("")}</td>`).join("")}</tr>`).join("");
+  const advPool = (title, obj) => `<tr><td class="cat">${title}</td>${
+    ["squat","hinge","hpush","hpull"].map(k=>`<td>${(obj[k]||[]).map(x=>`<div>${x}</div>`).join("") || "<div class=dim>-</div>"}</td>`).join("")}</tr>`;
+  const page1 = `
+  <h2>1. Exercise Database</h2>
+  <p class="intro">Every lift the builder can prescribe, by movement category and facility type. Each program day draws one exercise per slot with the remaining options available through the swap menu.</p>
+  <table><thead><tr><th></th>${equipKeys.map(e=>`<th>${EQN[e]}</th>`).join("")}</tr></thead><tbody>${dbRows}</tbody></table>
+  <h3>Advanced tier pools (Contrast Pairs and French Contrast)</h3>
+  <table><thead><tr><th></th><th>Squat pattern</th><th>Hinge pattern</th><th>Horizontal Push</th><th>Horizontal Pull</th></tr></thead><tbody>
+    ${advPool("Matched Plyometrics", PLYO)}
+    ${advPool("Loaded Speed (~30%)", FC_SPEED)}
+    ${advPool("Overspeed / Assisted", FC_OVER)}
+  </tbody></table>`;
+
+  /* --- Page 2: lifting prescriptions --- */
+  const fRows = Object.keys(FOCUS).map(k=>{
+    const f = FOCUS[k];
+    const rx = p => p ? `${p.sets} x ${p.reps}<br><span class="dim">${p.tempo} | ${p.rest}</span>` : "-";
+    return `<tr><td class="cat">${f.name}${f.adv ? ' <span class="adv">ADV</span>' : ''}</td>
+      <td>${rx(f.main)}</td><td>${rx(f.accy)}</td><td class="note">${f.note || "-"}</td></tr>`;
+  }).join("");
+  const slotRow = (label, p, extra) => `<tr><td class="cat">${label}</td><td>${p.sets} x ${p.reps}</td><td>${p.tempo}</td><td>${p.rest}</td><td class="note">${extra}</td></tr>`;
+  const page2 = `
+  <h2>2. Lifting Prescriptions</h2>
+  <p class="intro">Set and rep schemes by focus. Main lifts are the first movements of each day; accessories fill the remaining slots.</p>
+  <table><thead><tr><th>Focus</th><th>Main</th><th>Accessory</th><th>Coaching note</th></tr></thead><tbody>${fRows}</tbody></table>
+  <h3>Contrast Pairs: slot prescriptions</h3>
+  <table><thead><tr><th>Slot</th><th>Sets x Reps</th><th>Tempo</th><th>Rest</th><th>Intent</th></tr></thead><tbody>
+    ${slotRow("A1 / B1 Heavy lift", PAP_RX.heavy, "80 to 90% 1RM")}
+    ${slotRow("A2 / B2 Plyometric", PAP_RX.plyo, "Maximal intent, land soft")}
+    ${slotRow("Accessories", PAP_RX.accy, "Quality movement")}
+  </tbody></table>
+  <h3>French Contrast: complex slots (A1 to A4 back to back, 20 s between, 3 to 5 min between rounds)</h3>
+  <table><thead><tr><th>Slot</th><th>Sets x Reps</th><th>Tempo</th><th>Rest</th><th>Intent</th></tr></thead><tbody>
+    ${slotRow("1. Heavy compound", FC_RX.heavy, "80 to 90% 1RM")}
+    ${slotRow("2. Plyometric", FC_RX.plyo, "Max force each rep")}
+    ${slotRow("3. Loaded speed", FC_RX.speed, "About 30% load, move fast")}
+    ${slotRow("4. Overspeed plyo", FC_RX.over, "Faster than bodyweight")}
+  </tbody></table>
+  <h3>Triphasic: phase tempos on main lifts</h3>
+  <table><thead><tr><th>Phase</th><th>Tempo</th><th>Execution</th></tr></thead><tbody>
+    ${Object.keys(TRI_PHASE).map(k=>`<tr><td class="cat">${TRI_PHASE[k].label}</td><td>${TRI_PHASE[k].tempo}</td><td class="note">${TRI_PHASE[k].text}</td></tr>`).join("")}
+  </tbody></table>`;
+
+  /* --- Page 3: weekly schemes by program length --- */
+  const maxW = Math.max(...weekLens);
+  const dlOf = W => DELOADS[W] || [];
+  const effOf = (w, W) => w - dlOf(W).filter(d=>d < w).length;
+  const DLCELL = '<b>DELOAD</b> -1 set, -10-15%';
+  const stdCell = (w, W) => {
+    if(dlOf(W).includes(w)) return DLCELL;
+    const e = effOf(w, W), effT = W - dlOf(W).length;
+    const step = (e-1)%3, wave = Math.floor((e-1)/3)+1;
+    if(step===0) return wave===1 ? "E7 - set loads, 2 in reserve" : (e===effT ? "E7 - push week, best +2.5-5%" : "E7 - restart 2.5-5% up");
+    return step===1 ? "E8 - add 2.5 to 5%" : "E9 - add 2.5 to 5%";
+  };
+  const papCell = (w, W) => {
+    if(dlOf(W).includes(w)) return DLCELL;
+    return ["E7 - set loads, 2 in reserve","E8 - +2.5-5% if reps fast","E9 - top quality loads"][(effOf(w, W)-1)%3];
+  };
+  const metCell = (w, W) => {
+    if(dlOf(W).includes(w)) return DLCELL;
+    const step = (effOf(w, W)-1)%3;
+    return ["4x6 @70%, circuits as written","4x8 @72.5%, circuits +1 round","5x6 @75%, circuits +2 rounds"][step];
+  };
+  const ncCell = (w, W) => {
+    if(dlOf(W).includes(w)) return DLCELL;
+    const step = (effOf(w, W)-1)%3;
+    return ["4x6 @70% / 6x3 @40% / plyo 3x3","4x4 @80% / 8x3 @50% / plyo 3x5","4x2 @90% / 6x2 @60% / plyo 4x4"][step];
+  };
+  const emomCell = (w, W) => {
+    if(dlOf(W).includes(w)) return DLCELL;
+    return [6,7,8][(effOf(w, W)-1)%3] + " rounds of 4 @75%";
+  };
+  const triCell = (w, W) => {
+    if(dlOf(W).includes(w)) return DLCELL;
+    const effT = W - dlOf(W).length, ew = effOf(w, W);
+    const e = Math.ceil(effT/3), c = Math.floor(effT/3), i = effT - e - c;
+    const ph = ew <= e ? TRI_PHASE.ecc : (ew <= e+i ? TRI_PHASE.iso : TRI_PHASE.con);
+    return `${ph.label} ${ph.tempo}`;
+  };
+  const grid = cellFn => `<table class="wk"><thead><tr><th>Week</th>${weekLens.map(W=>`<th>${W} wk plan</th>`).join("")}</tr></thead><tbody>${
+    Array.from({length:maxW}, (_, idx)=>{
+      const w = idx+1;
+      return `<tr><td class="cat">Wk ${w}</td>${weekLens.map(W=>`<td>${w<=W ? cellFn(w, W) : '<span class="dim">-</span>'}</td>`).join("")}</tr>`;
+    }).join("")}</tbody></table>`;
+  const page3 = `
+  <h2>3. Weekly Progression by Program Length</h2>
+  <p class="intro">E7/E8/E9 = target effort of 10. Standard focuses run 3 week waves; Contrast methods progress load only when bar speed holds; Metabolic waves the main lift and circuit rounds together; Neural Contrast runs two loading waves in parallel; Triphasic splits the program into eccentric, isometric and concentric phases. Deload weeks are shaded into each grid at their fixed positions.</p>
+  <h3>Standard focuses (Max Strength, Hypertrophy, Strength/Size, Explosive Power, Strength/Power)</h3>
+  ${grid(stdCell)}
+  <h3>Contrast Pairs and French Contrast <span class="dim">(plyos progress by height and distance, never load)</span></h3>
+  ${grid(papCell)}
+  <h3>Metabolic <span class="dim">(main lift wave + circuit rounds, rest 30 to 60 s)</span></h3>
+  ${grid(metCell)}
+  <h3>Neural Contrast <span class="dim">(strength-power wave / power wave / plyometric wave)</span></h3>
+  ${grid(ncCell)}
+  <h3>EMOM Density <span class="dim">(3 lift rotation on the minute)</span></h3>
+  ${grid(emomCell)}
+  <h3>Triphasic phase map</h3>
+  ${grid(triCell)}
+  <p class="foot"><b>Deloads are fixed and named.</b> 4 week plan: none. 6 weeks: week 5. 8 weeks: week 7. 10 weeks: weeks 5 and 9. 12 weeks: weeks 6 and 11. A deload drops one set from every lift and pulls loads back 10 to 15%; the wave resumes the following week where it left off.</p>`;
+
+  /* --- Page 4: indoor conditioning --- */
+  const condRows = Object.keys(COND).map(k=>{
+    const c = COND[k];
+    return `<tr><td class="cat">${c.name}<br><span class="dim">Effort ${c.rpe}</span></td>
+      <td>${c.schemes.map(s=>`<div>${s[0]} <span class="dim">(W:R ${s[1]})</span></div>`).join("")}</td>
+      <td class="note">${c.note}</td></tr>`;
+  }).join("");
+  const page4 = `
+  <h2>4. Indoor Conditioning</h2>
+  <p class="intro">Machine based intervals. Sessions cycle through the schemes below by day; rounds are computed from the chosen minutes per session (5 to 30). Days per week: 1 to 4.</p>
+  <table><thead><tr><th>System</th><th>Interval schemes</th><th>Coaching note</th></tr></thead><tbody>${condRows}</tbody></table>
+  <p class="foot"><b>Pick your poison.</b> ${MACHINES}</p>`;
+
+  /* --- Page 5: speed library --- */
+  const spdQual = q => {
+    const Sq = SPEED[q];
+    return `<h3>${Sq.name}</h3>
+    <table><thead><tr><th>Session option</th><th>Detail</th></tr></thead><tbody>
+      ${Sq.opts.map(o=>`<tr><td class="cat">${o.n}</td><td class="note">${o.d.map(l=>`<div>${U(l)}</div>`).join("")}</td></tr>`).join("")}
+      <tr><td class="cat">Plyo pairings</td><td class="note">${Sq.plyo.map(p=>`<div>${p[0]} - ${p[1]}</div>`).join("")}</td></tr>
+      <tr><td class="cat">Blend day short forms</td><td class="note">${Sq.mini.map(m=>`<div>${U(m)}</div>`).join("")}</td></tr>
+    </tbody></table>`;
+  };
+  const page5 = `
+  <h2>5. Speed Library</h2>
+  <p class="intro">Focused days run one full option plus a plyo pairing, rotating so nothing repeats within a week. Blend days use one short form per quality. Split requires all qualities across 3 days.</p>
+  <p class="foot"><b>Warm-up first.</b> ${U(FIELD_WARMUP)}</p>
+  ${spdQual("acc")}${spdQual("mv")}${spdQual("cod")}`;
+
+  /* --- Pages 6-7: running bank --- */
+  const runCat = cat => `<h3>${CAT_NAME[cat]} <span class="dim">(${RUNS.filter(s=>s.cat===cat).length} blocks)</span></h3>
+  <table><thead><tr><th>Block</th><th>Volume</th><th>Detail</th></tr></thead><tbody>
+    ${RUNS.filter(s=>s.cat===cat).map(s=>`<tr><td class="cat">${s.n}</td><td>${U("{"+s.dist+"}")}</td><td class="note">${s.d.map(l=>`<div>${U(l)}</div>`).join("")}</td></tr>`).join("")}
+  </tbody></table>`;
+  const page6 = `
+  <h2>6. Running Conditioning Bank: Straight Line and Shuttle</h2>
+  <p class="intro">Each running day stacks 3 blocks toward the coach's volume target (2000 to 4000 slider). Single type days use 3 of that type; two-type days mix both; All Types days use 3 different categories. No block appears twice in a program.</p>
+  <p class="foot"><b>Warm-up first.</b> ${U(FIELD_WARMUP)}</p>
+  ${runCat("line")}${runCat("shuttle")}`;
+  const page7 = `
+  <h2>7. Running Conditioning Bank: Pattern and Down-Up</h2>
+  ${runCat("pattern")}${runCat("downup")}`;
+
+  const page8 = `
+  <h2>8. Metabolic Circuit Menu and Loaded Carries</h2>
+  <p class="intro">One circuit anchors every Metabolic session. Full session circuits stand alone with the main lift; finisher circuits sit after the full lifting block. A loaded carry closes every Metabolic day, dosed 3 x 20 m, 3 x 30 m, 3 x 40 m across the wave.</p>
+  <table><thead><tr><th>Circuit</th><th>Type</th><th>Dose</th><th>Protocol</th></tr></thead><tbody>
+    ${CIRCUITS.map(c=>`<tr><td class="cat">${c.n}</td><td>${c.cls==="full" ? "Full session" : "Finisher"}</td><td>${c.rx.sets} x ${c.rx.reps}<br><span class="dim">${c.rx.rest}</span></td><td class="note">${c.note}</td></tr>`).join("")}
+  </tbody></table>
+  <h3>Loaded carry options</h3>
+  <table><thead><tr><th>Options</th><th>Dose</th></tr></thead><tbody>
+    <tr><td class="note">${CARRIES.join(" &nbsp;·&nbsp; ")}</td><td>${CARRY_RX.sets} x ${CARRY_RX.reps}, rest ${CARRY_RX.rest}</td></tr>
+  </tbody></table>`;
+  const page9 = `
+  <h2>9. CARE Finisher</h2>
+  <p class="intro">CARE (Core Accessory Robustness Exercises): an optional two movement finisher appended to the end of every lifting day when toggled on. The core slot alternates loaded and unloaded days; the shoulder slot runs every day.</p>
+  <table><thead><tr><th>Slot</th><th>Dose</th><th>Movement options</th></tr></thead><tbody>
+    <tr><td class="cat">Core, loaded<br><span class="dim">alternating days</span></td><td>3 x 5</td><td class="note">${CARE_CORE_LOAD.join(" · ")}</td></tr>
+    <tr><td class="cat">Core, unloaded<br><span class="dim">alternating days</span></td><td>3 x 15</td><td class="note">${CARE_CORE_UNL.join(" · ")}</td></tr>
+    <tr><td class="cat">Shoulder and scapular</td><td>2 x 10</td><td class="note">${CARE_SHOULDER.join(" · ")}</td></tr>
+  </tbody></table>`;
+  const pages = [page1, page2, page3, page4, page5, page6, page7, page8, page9];
+  const totalBlocks = RUNS.length;
+  const totalSpeed = SPEED.acc.opts.length + SPEED.mv.opts.length + SPEED.cod.opts.length;
+
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${SK.brand} Training Library</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+@page{size:letter portrait; margin:11mm;}
+*{margin:0; padding:0; box-sizing:border-box;}
+body{font-family:'Inter',sans-serif; color:${S.pi}; background:#fff; font-size:9px; -webkit-print-color-adjust:exact; print-color-adjust:exact;}
+.page{page-break-after:always; padding:2px;}
+.page:last-child{page-break-after:auto;}
+.hd{display:flex; align-items:center; gap:10px; border-bottom:3px solid ${S.pa}; padding-bottom:8px; margin-bottom:10px;}
+.hd img{width:44px; height:44px; object-fit:contain;}
+.hd img.wide{width:88px;}
+.hd .t1{font-family:'Oswald',sans-serif; font-weight:700; font-size:17px; letter-spacing:.06em; text-transform:uppercase;}
+.hd .t2{font-size:8.5px; color:#666; letter-spacing:.14em; text-transform:uppercase;}
+.hd .meta{margin-left:auto; text-align:right; font-size:8px; color:#666;}
+h2{font-family:'Oswald',sans-serif; font-weight:600; font-size:13.5px; letter-spacing:.08em; text-transform:uppercase; border-bottom:2px solid ${S.pa}; padding-bottom:3px; margin-bottom:6px;}
+h3{font-family:'Oswald',sans-serif; font-weight:600; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; margin:10px 0 4px; color:${S.pi};}
+.intro{font-size:8.5px; color:#555; margin-bottom:7px; line-height:1.45;}
+table{width:100%; border-collapse:collapse; margin-bottom:4px;}
+th{font-family:'Oswald',sans-serif; font-weight:600; font-size:7.5px; letter-spacing:.1em; text-transform:uppercase; background:${S.ph}; color:#fff; padding:4px 6px; text-align:left;}
+td{border:1px solid #ddd; padding:4px 6px; vertical-align:top; font-size:8.3px; line-height:1.4;}
+td.cat{font-weight:600; white-space:nowrap;}
+td .adv{font-size:6.5px; background:${S.pa}; color:#fff; padding:1px 4px; border-radius:2px; letter-spacing:.08em; vertical-align:1px;}
+.note{color:#444;}
+.dim{color:#999;}
+table.wk td{font-size:7.6px; padding:3px 5px;}
+.foot{border:1px solid #ccc; border-left:3px solid ${S.pa}; border-radius:2px; padding:5px 8px; font-size:8px; color:#444; margin-bottom:8px;}
+tr{page-break-inside:avoid;}
+</style></head><body>
+${pages.map((p, i)=>`<div class="page">
+  <div class="hd"><img class="${SK.wideLogo ? "wide" : ""}" src="${logo}" alt="${SK.brand}">
+    <div><div class="t1">Training Library</div><div class="t2">${SK.brand} | Back End Reference</div></div>
+    <div class="meta">Section ${i+1} of ${pages.length}<br>${totalBlocks} running blocks | ${totalSpeed} speed sessions | ${Object.keys(FOCUS).length} lifting focuses</div>
+  </div>
+  ${p}
+</div>`).join("")}
+<script>window.onload = ()=>setTimeout(()=>window.print(), 400);<\/script>
+</body></html>`;
+}
+function exportLibrary(){
+  const w = window.open('', '_blank');
+  if(!w) return;
+  w.document.open(); w.document.write(libraryDoc()); w.document.close();
+}
+
+function exportPdf(withRec){
+  document.querySelectorAll('.swap').forEach(s=>s.remove());
+  const w = window.open('', '_blank');
+  if(!w){ window.print(); return; }
+  w.document.open(); w.document.write(printDoc(withRec)); w.document.close();
+}
+
+/* ---------------- Fillable PDF (AcroForm) ----------------
+   Generates a real PDF with typeable fields via pdf-lib, so
+   athletes can open it on any device, enter numbers in the
+   boxes, and save. Values already recorded in the app are
+   pre-filled. The library loads on first use from a CDN.   */
+let pdfLibPromise = null;
+function loadPdfLib(){
+  if(window.PDFLib) return Promise.resolve(window.PDFLib);
+  if(pdfLibPromise) return pdfLibPromise;
+  pdfLibPromise = new Promise((res, rej)=>{
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js';
+    s.onload = ()=>res(window.PDFLib);
+    s.onerror = ()=>{ pdfLibPromise = null; rej(new Error('pdf-lib failed to load')); };
+    document.head.appendChild(s);
+  });
+  return pdfLibPromise;
+}
+
+function weekLines(){
+  const tmp = document.createElement('div');
+  tmp.innerHTML = weekGuide();
+  return [...tmp.querySelectorAll('.wk-row')].map(r=>
+    r.querySelector('.wk').textContent + ' - ' + r.querySelector('.wd').textContent);
+}
+
+async function buildFillablePdf(){
+  const PL = await loadPdfLib();
+  const { PDFDocument, StandardFonts, rgb } = PL;
+  const SK = SKINS[activeSkin], f = FOCUS[cfg.focus], co = COND[cfg.condSys];
+  const hx = s => { const n = parseInt(s.slice(1),16); return rgb(((n>>16)&255)/255, ((n>>8)&255)/255, (n&255)/255); };
+  const ACC = hx(SK.print.accent), INK = hx(SK.print.ink), HEAD = hx(SK.print.headBg);
+  const GREY = rgb(.42,.42,.42), FIELD_BG = rgb(.97,.97,.97), FIELD_BD = rgb(.62,.62,.62);
+
+  const doc = await PDFDocument.create();
+  const helv = await doc.embedFont(StandardFonts.Helvetica);
+  const bold = await doc.embedFont(StandardFonts.HelveticaBold);
+  const form = doc.getForm();
+
+  let logoImg = null;
+  try{
+    const b64 = SK.logoPrint.split(',')[1];
+    const bin = atob(b64), arr = new Uint8Array(bin.length);
+    for(let i=0;i<bin.length;i++) arr[i] = bin.charCodeAt(i);
+    logoImg = await doc.embedPng(arr);
+  }catch(e){}
+
+  const W = 792, H = 612, M = 28, RIGHT = W - M;
+  let page, y;
+  const trunc = (s, font, size, maxW) => {
+    if(font.widthOfTextAtSize(s, size) <= maxW) return s;
+    while(s.length && font.widthOfTextAtSize(s + '...', size) > maxW) s = s.slice(0,-1);
+    return s + '...';
+  };
+  const wrap = (s, font, size, maxW) => {
+    const words = s.split(' '), lines = [];
+    let cur = '';
+    words.forEach(wd=>{
+      const t = cur ? cur + ' ' + wd : wd;
+      if(font.widthOfTextAtSize(t, size) > maxW){ if(cur) lines.push(cur); cur = wd; }
+      else cur = t;
+    });
+    if(cur) lines.push(cur);
+    return lines;
+  };
+  const txt = (s, x, yy, size, font, color) => page.drawText(String(s), {x, y:yy, size, font, color: color||INK});
+
+  function newPage(title, metaLine){
+    page = doc.addPage([W, H]);
+    y = H - M;
+    if(logoImg){
+      const wide = logoImg.width > logoImg.height * 1.4;
+      const lw = wide ? 74 : 34, lh = lw * (logoImg.height/logoImg.width);
+      page.drawImage(logoImg, {x:M, y:y-lh, width:lw, height:lh});
+    }
+    const tx = M + (SKINS[activeSkin].wideLogo ? 86 : 44);
+    txt(title.toUpperCase(), tx, y-16, 14, bold);
+    txt(SK.brand.toUpperCase(), tx, y-28, 7.5, helv, GREY);
+    const mw = helv.widthOfTextAtSize(metaLine, 8);
+    txt(metaLine, RIGHT-mw, y-16, 8, helv, GREY);
+    const tip = 'Type in the boxes on any device, or print and write.';
+    const tw = helv.widthOfTextAtSize(tip, 7);
+    txt(tip, RIGHT-tw, y-27, 7, helv, GREY);
+    page.drawRectangle({x:M, y:y-44, width:W-2*M, height:2, color:ACC});
+    y -= 56;
+  }
+  function ensure(need, title, metaLine){
+    if(y - need < M + 6) newPage(title, metaLine);
+  }
+  function field(name, x, yy, w, hgt, val, size){
+    const tf = form.createTextField(name);
+    tf.addToPage(page, {x, y:yy, width:w, height:hgt, borderColor:FIELD_BD, borderWidth:.75, backgroundColor:FIELD_BG});
+    if(val !== undefined && val !== null && val !== '') tf.setText(String(val));
+    tf.setFontSize(size || 8);
+  }
+
+  /* ---------- Lifting pages ---------- */
+  const equipName = {machine:"Machine based", free:"Free weight", combo:"Machine and free weight", perf:"Performance gym"}[cfg.equip];
+  const liftMeta = `${f.name}  |  ${equipName}  |  ${cfg.liftDays} day${cfg.liftDays>1?"s":""}/wk  |  ${cfg.weeks} weeks`;
+  newPage('Strength Program', liftMeta);
+
+  /* week guide */
+  const wl = weekLines();
+  const wgH = 14 + wl.length*10 + 8;
+  ensure(wgH, 'Strength Program', liftMeta);
+  txt('WEEK GUIDE', M, y-8, 8, bold, ACC); y -= 18;
+  wl.forEach(l=>{ txt(trunc(l, helv, 7.5, W-2*M), M, y, 7.5, helv, GREY); y -= 10; });
+  y -= 8;
+
+  program.days.forEach((d, di)=>{
+    const nMax = Math.max(...d.ex.map(x=>setsOf(x.rx || (x.role==="accy" ? f.accy : f.main))));
+    const fw = 46, fg = 3, xF = RIGHT - nMax*(fw+fg) + fg;
+    const blockH = 22 + 12 + d.ex.length*20 + 20;
+    ensure(blockH, 'Strength Program', liftMeta);
+
+    page.drawRectangle({x:M, y:y-16, width:W-2*M, height:16, color:HEAD});
+    page.drawRectangle({x:M, y:y-18, width:W-2*M, height:2, color:ACC});
+    txt(`DAY ${di+1}  |  ${d.title.toUpperCase()}`, M+7, y-11.5, 9, bold, rgb(1,1,1));
+    y -= 28;
+    txt('EXERCISE', M+30, y, 6.5, bold, GREY);
+    txt('PRESCRIPTION', 316, y, 6.5, bold, GREY);
+    for(let s=1; s<=nMax; s++) txt('SET '+s, xF + (s-1)*(fw+fg) + 13, y, 6.5, bold, GREY);
+    y -= 6;
+
+    d.ex.forEach((x, xi)=>{
+      const p = exRx(x, f);
+      const label = x.label || ((cfg.focus==="sp" && d.ex[0].cat==="pow" && xi<2) ? ["A1","A2"][xi] : (xi+1));
+      const n = setsOf(p);
+      y -= 15;
+      txt(label, M+4, y, 8.5, bold, ACC);
+      let nm = x.options[x.sel];
+      const nx = exNote(x);
+      if(nx) nm += '  (' + nx + ')';
+      txt(trunc(nm, helv, 8, 250), M+30, y, 8, helv);
+      txt(trunc(`${p.sets} x ${p.reps}  |  ${p.tempo}  |  ${p.rest}`, helv, 7, 148), 316, y, 7, helv, GREY);
+      for(let s=1; s<=n; s++)
+        field(`d${di}x${xi}s${s}`, xF + (s-1)*(fw+fg), y-4, fw, 14, x.rec[s], 8);
+      y -= 5;
+    });
+
+    y -= 16;
+    txt('SESSION RPE (1-10)', M+4, y, 7, bold, GREY);
+    field(`rpeL${di}`, M+100, y-4, 34, 14, d.rpe, 8);
+    y -= 16;
+  });
+
+  /* ---------- Conditioning page ---------- */
+  const condMeta = `${co.name}  |  Effort ${co.rpe}  |  ${cfg.condDays} day${cfg.condDays>1?"s":""}/wk  |  ${cfg.condMins} min per session`;
+  if(cfg.condOn){
+  newPage('Conditioning Program', condMeta);
+  txt(trunc('Pick your poison: ' + MACHINES, helv, 7.5, W-2*M), M, y-4, 7.5, helv, GREY);
+  y -= 20;
+
+  for(let dd=0; dd<cfg.condDays; dd++){
+    const {label, ratio, rounds, used} = condPlan(dd);
+    const perRow = 8, lines = Math.ceil(rounds/perRow);
+    const blockH = 22 + 14 + lines*20 + 22;
+    ensure(blockH, 'Conditioning Program', condMeta);
+
+    page.drawRectangle({x:M, y:y-16, width:W-2*M, height:16, color:HEAD});
+    page.drawRectangle({x:M, y:y-18, width:W-2*M, height:2, color:ACC});
+    txt(`DAY ${dd+1}  |  ${co.name.toUpperCase()} INTERVALS`, M+7, y-11.5, 9, bold, rgb(1,1,1));
+    y -= 30;
+    txt(`${label}  (W:R ${ratio})   |   ${rounds} rounds, ${used} min total   |   Effort ${co.rpe}   |   Warm up 3-5 min easy first`, M+4, y, 8, helv);
+    y -= 14;
+    txt('PACE, WATTS OR LEVEL PER ROUND', M+4, y, 6.5, bold, GREY);
+    y -= 4;
+    for(let r=1; r<=rounds; r++){
+      const col = (r-1) % perRow, row = Math.floor((r-1)/perRow);
+      const fx = M + 4 + col*88, fy = y - 16 - row*20;
+      txt('R'+r, fx, fy+4, 6.5, helv, GREY);
+      field(`c${dd}r${r}`, fx+14, fy, 60, 14, undefined, 8);
+    }
+    y -= 16 + lines*20;
+    txt('SESSION RPE (1-10)', M+4, y, 7, bold, GREY);
+    field(`rpeC${dd}`, M+100, y-4, 34, 14, program.condRpe[dd], 8);
+    y -= 20;
+  }
+  } else if(program.speed || program.run){
+    newPage('Speed and Running', 'Field work');
+  }
+
+  /* ---------- Optional Speed / Running blocks ---------- */
+  function optBlock(secTitle, days, rpeMap, prefix, metaLine){
+    days.forEach((d, di)=>{
+      const blockH = 22 + d.lines.length*13 + 44;
+      ensure(blockH, secTitle, metaLine);
+      page.drawRectangle({x:M, y:y-16, width:W-2*M, height:16, color:HEAD});
+      page.drawRectangle({x:M, y:y-18, width:W-2*M, height:2, color:ACC});
+      txt(`${secTitle.toUpperCase()}  DAY ${di+1}  |  ${d.title.toUpperCase()}  (${U(d.tag).toUpperCase()})`, M+7, y-11.5, 9, bold, rgb(1,1,1));
+      y -= 26;
+      d.lines.forEach(l=>{
+        txt(trunc(U(l), helv, 8, W-2*M-12), M+4, y, 8, helv);
+        y -= 13;
+      });
+      y -= 4;
+      txt('TIMES / NOTES', M+4, y, 7, bold, GREY);
+      field(`${prefix}n${di}`, M+78, y-4, 560, 14, undefined, 8);
+      txt('RPE', 690, y, 7, bold, GREY);
+      field(`${prefix}rpe${di}`, 712, y-4, 34, 14, rpeMap[di], 8);
+      y -= 22;
+    });
+  }
+  if(program.speed){
+    const qualName = cfg.spdQual === "all" ? "All qualities" : SPEED[cfg.spdQual].name;
+    const spdMeta = `${qualName}  |  ${cfg.spdApp==="split" ? "Split" : "Hybrid"}  |  ${program.speed.length} day${program.speed.length>1?"s":""}/wk`;
+    ensure(96, 'Speed', spdMeta);
+    y -= 4;
+    txt('SPEED  -  maximal intent, full recovery between reps', M, y, 8, bold, ACC);
+    y -= 11;
+    txt('WARM-UP FIRST', M, y, 7, bold, GREY);
+    y -= 10;
+    wrap(U(FIELD_WARMUP), helv, 7.5, W - 2*M).forEach(l=>{ txt(l, M, y, 7.5, helv, GREY); y -= 10; });
+    y -= 4;
+    optBlock('Speed', program.speed, program.spdRpe, 'spd', spdMeta);
+  }
+  if(program.run){
+    const runMeta = `${RUN_TYPE_NAME[cfg.runType]}  |  ${cfg.runApp==="split" ? "Split" : "Hybrid"}  |  ${program.run.length} day${program.run.length>1?"s":""}/wk`;
+    ensure(96, 'Running Conditioning', runMeta);
+    y -= 4;
+    txt('RUNNING CONDITIONING  -  hold the same times on every rep', M, y, 8, bold, ACC);
+    y -= 11;
+    txt('WARM-UP FIRST', M, y, 7, bold, GREY);
+    y -= 10;
+    wrap(U(FIELD_WARMUP), helv, 7.5, W - 2*M).forEach(l=>{ txt(l, M, y, 7.5, helv, GREY); y -= 10; });
+    y -= 4;
+    optBlock('Running', program.run, program.runRpe, 'run', runMeta);
+  }
+
+  form.updateFieldAppearances(helv);
+  return await doc.save();
+}
+
+/* ---------------- Wire up ---------------- */
+el('buildBtn').addEventListener('click', ()=>{
+  buildProgram(); renderLift(); renderCond(); renderSpeed(); renderRun();
+  showOut(true); persist();
+});
+function syncRunVol(){
+  el('runVol').value = cfg.runVol;
+  el('runVolLbl').textContent = distTxt(cfg.runVol);
+}
+el('runVol').addEventListener('input', ()=>{
+  cfg.runVol = +el('runVol').value;
+  syncRunVol();
+  if(program && program.run){ program.run = buildRunDays(); renderRun(); persist(); }
+});
+el('careSw').addEventListener('click', ()=>{ cfg.careOn = !cfg.careOn; syncOptional(); });
+el('condSw').addEventListener('click', ()=>{ cfg.condOn = !cfg.condOn; syncOptional(); });
+el('spdSw').addEventListener('click', ()=>{ cfg.spdOn = !cfg.spdOn; syncOptional(); });
+el('runSw').addEventListener('click', ()=>{ cfg.runOn = !cfg.runOn; syncOptional(); });
+syncOptional(); syncRunVol();
+
+el('saveBtn').addEventListener('click', ()=>{
+  if(!program) return;
+  const blob = new Blob([stateJSON()], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = SKINS[activeSkin].fileBase + '_Program.json';
+  a.click(); URL.revokeObjectURL(a.href);
+});
+el('loadFile').addEventListener('change', e=>{
+  const file = e.target.files[0]; if(!file) return;
+  const fr = new FileReader();
+  fr.onload = ()=>{ try{ applyState(JSON.parse(fr.result)); persist(); }catch(err){ alert('That file could not be read as a saved program.'); } };
+  fr.readAsText(file);
+  e.target.value = '';
+});
+el('loadBtn').addEventListener('click', ()=>el('loadFile').click());
+
+/* Autosave restore: silently skipped where storage is unavailable */
+try{
+  const saved = localStorage.getItem('stp_program_state');
+  if(saved) applyState(JSON.parse(saved));
+}catch(e){}
+
+/* Builder show/hide: once a program exists the builder collapses by default so
+   returning users land straight on the program. Preference persists per device. */
+function setBuilder(open, save){
+  el('builder').style.display = open ? '' : 'none';
+  const b = el('builderSw');
+  b.textContent = open ? 'Hide builder' : 'Show builder';
+  b.setAttribute('aria-expanded', open ? 'true' : 'false');
+  if(save !== false){ try{ localStorage.setItem('stp_builder_open', open ? '1' : '0'); }catch(e){} }
+}
+function syncBuilderSw(){
+  const b = el('builderSw');
+  if(!b) return;
+  b.disabled = !program;
+  b.title = program ? '' : 'Build a program first';
+}
+(function initBuilder(){
+  let open = true;
+  if(program){
+    let pref = null;
+    try{ pref = localStorage.getItem('stp_builder_open'); }catch(e){}
+    open = pref === '1';
+  }
+  setBuilder(open, false);
+  syncBuilderSw();
+})();
+el('builderSw').addEventListener('click', ()=>{
+  const open = el('builder').style.display === 'none';
+  setBuilder(open);
+  if(open) el('builder').scrollIntoView({behavior:'smooth'});
+});
+el('pdfBtn').addEventListener('click', ()=>exportPdf(false));
+el('pdfRecBtn').addEventListener('click', ()=>exportPdf(true));
+el('libBtn').addEventListener('click', exportLibrary);
+el('pdfFillBtn').addEventListener('click', async ()=>{
+  if(!program) return;
+  const b = el('pdfFillBtn'), t = b.textContent;
+  b.textContent = 'Building...'; b.disabled = true;
+  try{
+    const bytes = await buildFillablePdf();
+    const blob = new Blob([bytes], {type:'application/pdf'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = SKINS[activeSkin].fileBase + '_Recording.pdf';
+    a.click(); URL.revokeObjectURL(a.href);
+  }catch(err){
+    alert('Could not build the fillable PDF. Check your connection and try again.');
+  }
+  b.textContent = t; b.disabled = false;
+});
+el('editBtn').addEventListener('click', ()=>{
+  setBuilder(true);
+  el('builder').scrollIntoView({behavior:'smooth'});
+});
+
+</script>
+</body>
+</html>
