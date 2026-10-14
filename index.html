@@ -315,6 +315,10 @@ tr.rec td{padding-top:2px; border-bottom:1px solid rgba(144,152,162,.12);}
 /* phones: 16px fields stop the browser zooming in on focus; no double-tap zoom */
 @media (hover:none) and (pointer:coarse){input,select,textarea{font-size:16px !important}}
 html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
+.viz-go{margin-left:auto; align-self:center; font-size:12px; font-weight:600; letter-spacing:.04em; color:var(--silver); text-decoration:none; border:1px solid var(--line); border-radius:3px; padding:6px 12px; white-space:nowrap;}
+.viz-go:hover{color:var(--white); border-color:var(--silver);}
+@media print{.viz-go{display:none !important;}}
+@media(max-width:520px){.sec-head{flex-wrap:wrap; row-gap:8px;} .viz-go{margin-left:0; order:3;} .sec-head span{flex:1 1 100%;}}
 </style>
 </head>
 <body>
@@ -528,19 +532,19 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
       <img class="pLogo" src="" alt="">
       <div><div class="t1">Conditioning Programme</div><div class="t2 pBrand"></div></div>
     </div>
-    <div class="sec-head"><h2>Indoor Conditioning</h2><span id="condSub"></span></div>
+    <div class="sec-head"><h2>Indoor Conditioning</h2><span id="condSub"></span><a class="viz-go" href="https://stperformanceglobal.github.io/rugby-running-demo/" target="_blank" rel="noopener">Go to Visualiser</a></div>
     <div class="meta-strip" id="condMeta"></div>
     <div id="condDaysWrap"></div>
   </div>
 
   <div id="spdPage" style="display:none">
-    <div class="sec-head"><h2>Speed</h2><span id="spdSub"></span></div>
+    <div class="sec-head"><h2>Speed</h2><span id="spdSub"></span><a class="viz-go" href="https://stperformanceglobal.github.io/rugby-running-demo/" target="_blank" rel="noopener">Go to Visualiser</a></div>
     <div class="meta-strip" id="spdMeta"></div>
     <div id="spdDaysWrap"></div>
   </div>
 
   <div id="runPage" style="display:none">
-    <div class="sec-head"><h2>Running Conditioning</h2><span id="runSub"></span></div>
+    <div class="sec-head"><h2>Running Conditioning</h2><span id="runSub"></span><a class="viz-go" href="https://stperformanceglobal.github.io/rugby-running-demo/" target="_blank" rel="noopener">Go to Visualiser</a></div>
     <div class="meta-strip" id="runMeta"></div>
     <div id="runDaysWrap"></div>
   </div>
