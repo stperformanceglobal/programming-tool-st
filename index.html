@@ -128,6 +128,12 @@ td.num{white-space:nowrap; color:#D5D5D5;}
 .tier-tag{flex:0 0 84px; text-align:center; font-family:'Oswald',sans-serif; font-size:10.5px; font-weight:500; letter-spacing:.16em; text-transform:uppercase; color:var(--silver); border:1px solid var(--line); border-radius:2px; padding:8px 0; margin-top:1px;}
 .focus-tier.adv .tier-tag{color:var(--primary-hi); border-color:var(--primary);}
 @media(max-width:640px){.focus-tier{flex-direction:column; gap:6px;} .tier-tag{flex:none; width:100%; padding:4px 0;}}
+/* Focus buttons: each tier sits on one row at desktop widths, wrapping only below 900px */
+@media(min-width:900px){
+  .focus-tier .chips{flex:1 1 0; min-width:0; flex-wrap:nowrap; gap:6px;}
+  .focus-tier .chip{flex:1 1 auto; padding:8px 6px; font-size:12.5px; white-space:nowrap; text-align:center;}
+  .focus-tier .chip .sm{font-size:10px;}
+}
 
 /* Optional section toggles + drill rows */
 .grp-label .incSw{order:2; background:none; border:1.5px solid var(--silver); color:var(--silver); font-family:'Oswald',sans-serif; font-size:11px; font-weight:500; letter-spacing:.1em; text-transform:uppercase; padding:4px 14px; border-radius:2px; cursor:pointer; transition:background .15s, color .15s, border-color .15s;}
