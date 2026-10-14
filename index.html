@@ -147,6 +147,13 @@ td.num{white-space:nowrap; color:#D5D5D5;}
 .rule-note{font-size:11.5px; color:var(--silver); margin-top:9px;}
 .vol-row{display:flex; align-items:center; gap:16px; max-width:440px;}
 .vol-row input[type=range]{flex:1; accent-color:var(--primary); cursor:pointer; height:28px;}
+.vol-row .vl{font-family:'Oswald',sans-serif; font-size:11px; font-weight:500; letter-spacing:.14em; text-transform:uppercase; color:var(--silver); width:74px;}
+.wk-boxes{display:flex; gap:16px; flex-wrap:wrap; align-items:flex-end; margin-top:10px;}
+.wk-box{display:flex; flex-direction:column; gap:4px;}
+.wk-box label{font-family:'Oswald',sans-serif; font-size:11px; font-weight:500; letter-spacing:.14em; text-transform:uppercase; color:var(--silver);}
+.wk-box input{width:140px; padding:9px 10px; background:transparent; border:1.5px solid var(--silver); color:var(--white); font-family:'Oswald',sans-serif; font-size:15px; letter-spacing:.06em; border-radius:2px;}
+.wk-box input:focus{border-color:var(--primary); outline:none;}
+.wk-u{font-family:'Oswald',sans-serif; font-size:14px; color:var(--primary-hi); padding-bottom:10px;}
 .vol-row span{font-family:'Oswald',sans-serif; font-size:14px; font-weight:500; letter-spacing:.08em; color:var(--primary-hi); min-width:74px; text-align:right;}
 .drill{display:flex; justify-content:space-between; align-items:baseline; gap:14px; padding:7px 0; border-bottom:1px solid var(--line); font-size:13px;}
 .drill:last-of-type{border-bottom:none;}
@@ -340,6 +347,13 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
 </header>
 
 <section class="builder" id="builder">
+  <div class="grp">
+    <div class="grp-label">Programme length</div>
+    <div class="chips" data-key="weeks">
+      <button class="chip" data-v="4">4 weeks</button><button class="chip on" data-v="6">6 weeks</button><button class="chip" data-v="8">8 weeks</button><button class="chip" data-v="10">10 weeks</button><button class="chip" data-v="12">12 weeks</button><button class="chip" data-v="16">16 weeks</button>
+    </div>
+  </div>
+
   <div class="grp opt-grp">
     <div class="grp-label">Lifting <button class="incSw" id="liftSw" type="button">On</button></div>
     <div class="opt-body" id="liftBody">
@@ -354,13 +368,6 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
     <div class="grp-label">CARE Finisher <button class="incSw" id="careSw" type="button">Off</button></div>
     <div class="opt-body" id="careBody">
       <p class="rule-note" style="margin-top:2px;">CARE (Core Accessory Robustness Exercises): a short two movement finisher added to the end of every lifting day. One core movement, loaded 3 x 5 or unloaded 3 x 15 alternating by day, plus one shoulder and scapular movement at 2 x 10. Both rotate and swap like any other exercise.</p>
-    </div>
-  </div>
-
-  <div class="grp">
-    <div class="grp-label">Programme length</div>
-    <div class="chips" data-key="weeks">
-      <button class="chip" data-v="4">4 weeks</button><button class="chip on" data-v="6">6 weeks</button><button class="chip" data-v="8">8 weeks</button><button class="chip" data-v="10">10 weeks</button><button class="chip" data-v="12">12 weeks</button><button class="chip" data-v="16">16 weeks</button>
     </div>
   </div>
 
@@ -469,11 +476,6 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
         <button class="chip" data-v="wrestle">Wrestle &amp; Run<span class="sm">Wrestle into running</span></button>
         <button class="chip" data-v="all">All Types<span class="sm">Every type</span></button>
       </div>
-      <div class="mini">Session volume target <span class="sm" style="font-weight:400;text-transform:none;letter-spacing:0">working distance: running, jogging and crawling, not walking</span></div>
-      <div class="vol-row">
-        <input type="range" id="runVol" min="2000" max="4000" step="500" value="3000" aria-label="Session volume target">
-        <span id="runVolLbl">3000 m</span>
-      </div>
       <div class="two-col">
         <div>
           <div class="mini">Days per week</div>
@@ -490,6 +492,19 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
         </div>
       </div>
       <p class="rule-note">Split runs one type per day, so it needs All Types and at least 3 days: day 1 straight line, day 2 curve, swerve and zig-zag, day 3 down-up and crawl, day 4 hit and run, day 5 wrestle and run. Day 6 becomes a hybrid mix day. Hit and run and wrestle and run days carry less running distance because of the contact work.</p>
+      <div class="mini">Session volume range <span class="sm" style="font-weight:400;text-transform:none;letter-spacing:0">working distance: running, jogging and crawling, not walking</span></div>
+      <div class="vol-row"><label class="vl" for="runMin">Minimum</label>
+        <input type="range" id="runMin" min="1500" max="5000" step="250" value="2000" aria-label="Minimum session volume">
+        <span id="runMinLbl">2000 m</span></div>
+      <div class="vol-row"><label class="vl" for="runMax">Maximum</label>
+        <input type="range" id="runMax" min="1500" max="5000" step="250" value="3000" aria-label="Maximum session volume">
+        <span id="runMaxLbl">3000 m</span></div>
+      <div class="wk-boxes">
+        <div class="wk-box"><label for="runWkMin">Weekly minimum</label><input type="number" id="runWkMin" step="50" min="0" aria-label="Weekly minimum volume"></div>
+        <div class="wk-box"><label for="runWkMax">Weekly maximum</label><input type="number" id="runWkMax" step="50" min="0" aria-label="Weekly maximum volume"></div>
+        <span class="wk-u" id="runWkU">m</span>
+      </div>
+      <p class="rule-note" id="runWkNote"></p>
     </div>
   </div>
 
@@ -1657,9 +1672,34 @@ function pickUnused(pool, startIdx, used, sel){
   }
   return pool[startIdx % pool.length];
 }
+let RUN_VOLS = [];
+const RUN_WAVE = [0.8, 0.3, 1.0, 0.5, 0.9, 0.15];
+/* Weekly limits follow the session range: the floor is every day at the minimum, the ceiling every day at the maximum */
+function runBounds(){
+  const n = cfg.runDays, lo = n*cfg.runMin, hi = n*cfg.runMax;
+  const cl = v => Math.min(Math.max(v, lo), hi);
+  let wl = cfg.runWkMin == null ? lo : cl(cfg.runWkMin);
+  let wh = cfg.runWkMax == null ? hi : cl(cfg.runWkMax);
+  if(wl > wh) wl = wh;
+  return {lo, hi, wl, wh};
+}
+/* Day volumes vary between the session minimum and maximum, then are shifted so the week total sits inside the weekly limits */
+function runDayVolumes(n){
+  const mn = cfg.runMin, mx = cfg.runMax, rg = mx - mn;
+  if(n < 1) return [];
+  let f = n === 1 ? [0.5] : RUN_WAVE.slice(0, n);
+  if(n > 1){ const a = Math.min(...f), b = Math.max(...f); f = f.map(v=>(v - a)/(b - a)); }
+  const vol = d => f.map(v=>Math.min(mx, Math.max(mn, mn + (v + d)*rg)));
+  const sum = a => a.reduce((x, y)=>x + y, 0);
+  const B = runBounds();
+  const want = Math.min(B.wh, Math.max(B.wl, sum(vol(0))));
+  let lo = -1, hi = 1;
+  for(let i=0; i<40; i++){ const m = (lo + hi)/2; if(sum(vol(m)) < want) lo = m; else hi = m; }
+  return vol((lo + hi)/2).map(v=>Math.round(v/50)*50);
+}
 /* Contact days (hit and run, wrestle and run) carry about half the running distance of other days */
-function dayTarget(cats){
-  const t = cfg.runVol || 3000;
+function dayTarget(cats, dayIdx){
+  const t = RUN_VOLS[dayIdx] != null ? RUN_VOLS[dayIdx] : (cfg.runMax || 3000);
   return cats.every(c=>c==="hit" || c==="wrestle") ? t/2 : t;
 }
 function runDayBlocks(cats, dayIdx, used){
@@ -1676,7 +1716,7 @@ function runDayBlocks(cats, dayIdx, used){
     cats.forEach((c, i)=>sel.push(pickUnused(pools[c], dayIdx + i, used, sel)));
   }
   /* Aim at the volume target using only drills not yet used this week */
-  const target = dayTarget(cats);
+  const target = dayTarget(cats, dayIdx);
   const total = () => sel.reduce((s, x)=>s + x.dist, 0);
   for(let g=0; g<12; g++){
     const cur = Math.abs(total() - target);
@@ -1718,12 +1758,13 @@ function rebalanceWeek(sels, targets){
 }
 function buildRunDays(){
   if(!cfg.runOn) return null;
+  RUN_VOLS = runDayVolumes(cfg.runDays);
   const used = new Set();
   const plan = [];
   /* Non-contact days that run short of target (10 rep cap, few unused blocks) are topped up with
      other running blocks for a blended day. Pure hit and wrestle days stay at their own volume. */
   const add = (title, cats, dayIdx)=>{
-    const blocks = runDayBlocks(cats, dayIdx, used), tgt = dayTarget(cats);
+    const blocks = runDayBlocks(cats, dayIdx, used), tgt = dayTarget(cats, dayIdx);
     let extra = 0;
     if(!cats.every(c=>c === "hit" || c === "wrestle")){
       const pools = runPools();
@@ -1784,6 +1825,7 @@ function reconcileOptional(key){
   if(key === "runType" && cfg.runType !== "all" && cfg.runApp === "split") cfg.runApp = "hyb";
   if(key === "runDays" && cfg.runDays < 3 && cfg.runApp === "split") cfg.runApp = "hyb";
   syncChips();
+  if((key === "runDays" || key === "runApp") && typeof syncRunVol === "function"){ const B = runBounds(); if(cfg.runWkMin != null && cfg.runWkMin <= B.lo) cfg.runWkMin = null; if(cfg.runWkMax != null && cfg.runWkMax >= B.hi) cfg.runWkMax = null; syncRunVol(); }
 }
 
 function syncOptional(){
@@ -1804,7 +1846,7 @@ function syncOptional(){
 const cfg = {liftOn:true, liftDays:3, careOn:false, condOn:true, condDays:2, weeks:6, emph:"equal", equip:"machine", focus:"hyp", struct:"hyb", condSys:"aer", condMins:15,
   units:"m",
   spdOn:false, spdQual:"all", spdDays:2, spdApp:"hyb",
-  runOn:false, runType:"straight", runDays:2, runApp:"hyb", runVol:3000};
+  runOn:false, runType:"straight", runDays:2, runApp:"hyb", runVol:3000, runMin:2000, runMax:3000, runWkMin:null, runWkMax:null};
 let program = null;
 
 document.querySelectorAll('.chips').forEach(g=>{
@@ -1944,6 +1986,7 @@ function syncChips(){
 
 function applyState(s){
   Object.assign(cfg, s.cfg);
+  if(s.cfg && s.cfg.runMin === undefined && s.cfg.runVol){ cfg.runMin = cfg.runMax = s.cfg.runVol; cfg.runWkMin = cfg.runWkMax = null; }
   if(cfg.condDays > 6) cfg.condDays = 6;
   if(cfg.runType === "shpat") cfg.runType = "curve";
   if(cfg.runType === "shdu") cfg.runType = "downup";
@@ -2149,11 +2192,12 @@ function renderRun(){
   el('runSub').textContent = `${RUN_TYPE_NAME[cfg.runType]} | ${program.run.length} day${program.run.length>1?"s":""} per week`;
   el('runMeta').innerHTML =
     `<div><b>Type</b>${RUN_TYPE_NAME[cfg.runType]}</div>
-     <div><b>Volume target</b>${distTxt(cfg.runVol)} per session</div>
+     <div><b>Session volume</b>${distTxt(cfg.runMin)} to ${distTxt(cfg.runMax)}</div>
+     <div><b>Week total</b>${distTxt(program.run.reduce((a, d)=>a + d.blocks.reduce((x, b)=>x + b.dist, 0), 0))}</div>
      <div><b>Approach</b>${appName}</div>
      <div><b>Effort</b>Hit the targets, hold the output</div>
      <div style="flex-basis:100%; color:#C9C9C9;">${U(FIELD_WARMUP)}</div>
-     <div style="flex-basis:100%; color:#C9C9C9;">Three drill blocks per session, built to land as close as possible to the volume target. No drill appears twice in the programme. Hold the same times across every rep: the last rep at the same speed as the first is the goal.</div>`;
+     <div style="flex-basis:100%; color:#C9C9C9;">Three drill blocks per session, built to land as close as possible to that day's volume. No drill appears twice in the programme. Hold the same times across every rep: the last rep at the same speed as the first is the goal.</div>`;
   el('runDaysWrap').innerHTML = fieldCards(program.run, "run", program.runRpe);
   wireRpe(el('runDaysWrap'));
 }
@@ -2913,14 +2957,50 @@ el('buildBtn').addEventListener('click', ()=>{
   buildProgram(); renderLift(); renderCond(); renderSpeed(); renderRun();
   showOut(true); persist();
 });
+function unitF(){ return cfg.units === "yd" ? YD : 1; }
+function toUnit(m){ return Math.round(m * unitF()/10)*10; }
 function syncRunVol(){
-  el('runVol').value = cfg.runVol;
-  el('runVolLbl').textContent = distTxt(cfg.runVol);
+  const B = runBounds();
+  el('runMin').value = cfg.runMin; el('runMax').value = cfg.runMax;
+  el('runMinLbl').textContent = distTxt(cfg.runMin);
+  el('runMaxLbl').textContent = distTxt(cfg.runMax);
+  if(document.activeElement !== el('runWkMin')) el('runWkMin').value = toUnit(B.wl);
+  if(document.activeElement !== el('runWkMax')) el('runWkMax').value = toUnit(B.wh);
+  el('runWkMin').min = toUnit(B.lo); el('runWkMin').max = toUnit(B.hi);
+  el('runWkMax').min = toUnit(B.lo); el('runWkMax').max = toUnit(B.hi);
+  el('runWkU').textContent = cfg.units === "yd" ? "yd" : "m";
+  el('runWkNote').textContent = `Weekly limits can sit between ${distTxt(B.lo)} (every day at the minimum) and ${distTxt(B.hi)} (every day at the maximum). Lower the weekly maximum or raise the weekly minimum and the days adjust within your session range. Contact-only days run at half volume.`;
 }
-el('runVol').addEventListener('input', ()=>{
-  cfg.runVol = +el('runVol').value;
+function runVolChanged(){
+  const B = runBounds();
+  if(cfg.runWkMin != null && cfg.runWkMin <= B.lo) cfg.runWkMin = null;
+  if(cfg.runWkMax != null && cfg.runWkMax >= B.hi) cfg.runWkMax = null;
   syncRunVol();
   if(program && program.run){ program.run = buildRunDays(); renderRun(); persist(); }
+}
+el('runMin').addEventListener('input', ()=>{
+  cfg.runMin = +el('runMin').value; if(cfg.runMin > cfg.runMax) cfg.runMax = cfg.runMin;
+  runVolChanged();
+});
+el('runMax').addEventListener('input', ()=>{
+  cfg.runMax = +el('runMax').value; if(cfg.runMax < cfg.runMin) cfg.runMin = cfg.runMax;
+  runVolChanged();
+});
+el('runWkMin').addEventListener('change', ()=>{
+  const v = Math.round(+el('runWkMin').value / unitF()); const B = runBounds();
+  if(!isFinite(v)){ syncRunVol(); return; }
+  cfg.runWkMin = Math.min(Math.max(v, B.lo), B.hi);
+  if(cfg.runWkMax != null && cfg.runWkMax < cfg.runWkMin) cfg.runWkMax = cfg.runWkMin;
+  else if(cfg.runWkMax == null && B.wh < cfg.runWkMin) cfg.runWkMax = cfg.runWkMin;
+  el('runWkMin').blur(); runVolChanged();
+});
+el('runWkMax').addEventListener('change', ()=>{
+  const v = Math.round(+el('runWkMax').value / unitF()); const B = runBounds();
+  if(!isFinite(v)){ syncRunVol(); return; }
+  cfg.runWkMax = Math.min(Math.max(v, B.lo), B.hi);
+  if(cfg.runWkMin != null && cfg.runWkMin > cfg.runWkMax) cfg.runWkMin = cfg.runWkMax;
+  else if(cfg.runWkMin == null && B.wl > cfg.runWkMax) cfg.runWkMin = cfg.runWkMax;
+  el('runWkMax').blur(); runVolChanged();
 });
 el('liftSw').addEventListener('click', ()=>{ cfg.liftOn = !cfg.liftOn; syncOptional(); });
 el('careSw').addEventListener('click', ()=>{ cfg.careOn = !cfg.careOn; syncOptional(); });
