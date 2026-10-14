@@ -403,6 +403,7 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
         <button class="chip" data-v="tri">Triphasic<span class="sm">Ecc / iso / con phase blocks</span></button>
         <button class="chip" data-v="nc">Neural Contrast<span class="sm">Sprint, lift, jump, sled</span></button>
         <button class="chip" data-v="emom">EMOM Density<span class="sm">3-lift rotation on the minute</span></button>
+        <button class="chip" data-v="cluster">Cluster Sets<span class="sm">Mini-sets with short rest inside</span></button>
       </div>
     </div>
   </div>
@@ -825,10 +826,45 @@ const FOCUS = {
     main:{sets:"4", reps:"2 to 6 by week", tempo:"X", rest:"2 to 3 min"},
     accy:{sets:"3 to 4", reps:"3 to 5", tempo:"X", rest:"full recovery"},
     note:"A pure speed and power session woven through the weight room: acceleration work, an explosive lift, a plyometric, a prowler effort, a second lighter and faster lift, and a final plyometric. Two loading waves run in parallel: strength-power at 70 to 90% and pure power at 40 to 60%. Everything moves at maximal intent with full recovery."},
+  cluster:{name:"Cluster Sets", adv:true, lifts:5,
+    main:{sets:"4 to 5", reps:"Clusters", tempo:"20X1", rest:"15 to 20 s inside, 3 min after"},
+    accy:{sets:"3", reps:"8", tempo:"2011", rest:"90 s"},
+    note:"Cluster sets split one set into short mini-sets with 15 to 20 s of rest inside the set. The rest restores energy so every rep stays fast and crisp at heavier loads than a straight set allows. The first two lifts each day run as clusters, the rest are straight sets. The week guide gives the clusters, load and rest for each week."},
   emom:{name:"EMOM Density", adv:true,
     main:{sets:"6 to 8", reps:"4", tempo:"X", rest:"on the minute"},
     accy:{sets:"3", reps:"10 to 15", tempo:"2010", rest:"60 s"},
     note:"Density strength: three lifts rotate every minute on the minute at 75% for 4 crisp reps each. Minute 1 squat pattern, minute 2 press, minute 3 hinge or pull, then back to the top. Rounds build weekly from 6 to 8. If a set slows, the load is too heavy."}
+};
+
+/* ---------------- Cluster Sets engine ----------------
+   One cluster set = a set split into clusters of reps with a short rest inside the set.
+   Three week wave: more load and fewer reps per cluster as the wave builds. */
+const CLUSTER_WAVE = [
+  {rpe:7, sets:4, cl:3, reps:2, pct:"80%", inside:"15 s"},
+  {rpe:8, sets:4, cl:3, reps:2, pct:"85%", inside:"20 s"},
+  {rpe:9, sets:5, cl:4, reps:1, pct:"90%", inside:"20 s"}
+];
+const clRepWord = c => c.reps + " rep" + (c.reps>1 ? "s" : "");
+const clText = c => `${c.sets} sets of ${c.cl} clusters of ${clRepWord(c)} at ${c.pct}, ${c.inside} rest inside the set, 3 min between sets`;
+const clShort = c => `${c.cl} x ${c.reps} @${c.pct}`;
+const CLUSTER_GUIDE = {
+  what: "A cluster set splits one set into short mini-sets called clusters. You rest 15 to 20 seconds between clusters, then carry on until the whole set is done.",
+  why: "The short rest restores enough energy for every rep to stay fast and crisp at a heavier load than a straight set allows. You collect more quality reps at high force without the grind. It suits rugby players who need strength that shows up at speed.",
+  steps: [
+    "Find the load in the week guide. It is a percentage of your best recent top set.",
+    "Lift the first cluster, for example 2 reps. Rack the bar or put the weight down.",
+    "Rest for the time shown. 15 to 20 seconds is enough to breathe and reset your position.",
+    "Lift the next cluster. Repeat until every cluster is done. That whole sequence is one set.",
+    "Rest 3 minutes before the next set."
+  ],
+  read: "How to read it: 4 sets of 3 clusters of 2 reps means 4 sets, each made of 3 clusters of 2 reps. That is 6 reps per set and 24 reps in total.",
+  rules: [
+    "Every rep stays crisp. If the bar slows or your form slips, end the set there and drop the load 5% for the next set.",
+    "Keep the clusters and rest times as written. Shorter rests turn it into a fatigue set.",
+    "Cluster sets run on the first two lifts of each day. The other lifts are straight sets.",
+    "Warm up with 2 or 3 lighter sets before the first cluster set.",
+    "In a deload week, drop one set from every lift and keep the loads easy."
+  ]
 };
 
 /* ---------------- Advanced tier databases ---------------- */
@@ -1175,7 +1211,10 @@ function buildProgram(){
       const opts = rotArr([...pool[cat]], shift);
       const isMain = usePow ? (i<2) : (i===0 || (i===1 && ["squat","hinge","hpush","hpull"].includes(cat)));
       const isPow = cat==="pow";
-      return {cat, options:opts, sel:0, rec:{}, role: isPow ? "pow" : (isMain ? "main" : "accy")};
+      const role = isPow ? "pow" : (isMain ? "main" : "accy");
+      const o = {cat, options:opts, sel:0, rec:{}, role};
+      if(cfg.focus === "cluster" && role === "main"){ o.rx = f.main; o.note = "Cluster set, see week guide"; }
+      return o;
     });
     if(cfg.careOn) ex.push(...careRows(di));
     return {title, ex, prep: pickPrep(ex.map(x=>x.cat), di), recOn:false, rpe:null};
@@ -1778,6 +1817,14 @@ function weekGuide(){
                  : step===1 ? "Add 2.5 to 5% on heavy lifts only if every rep stayed fast"
                  : "Heaviest quality loads of the wave, speed still rules";
       push(w, `Effort ${rpe} of 10. ${load}. Plyos progress by height and distance, never by load.`);
+    } else if(cfg.focus==="cluster"){
+      const c = CLUSTER_WAVE[step];
+      const load = step===0
+        ? (wave===1 ? "Establish working weights, 2 reps in reserve"
+          : (e===effTotal() ? "Push week: take the top sets 2.5 to 5% above your best week so far"
+          : "Restart the wave 2.5 to 5% above wave "+(wave-1)+" week 1"))
+        : "Add 2.5 to 5% on all lifts completed in full last week";
+      push(w, `Effort ${c.rpe} of 10. First two lifts: ${clText(c)}. ${load}.`);
     } else if(cfg.focus==="met"){
       const lift = ["4 x 6 at 70%", "4 x 8 at 72.5%", "5 x 6 at 75%"][step];
       const circ = ["circuits as written", "circuits as written plus 1 round", "circuits as written plus 2 rounds"][step];
@@ -1913,7 +1960,7 @@ function renderLift(){
      <div><b>Equipment</b>${EQUIP_NAME[cfg.equip]}</div>
      <div><b>Structure</b>${{split:"Lower/Upper split", full:"Full body only", hyb:"Hybrid"}[cfg.struct]}</div>
      <div><b>Emphasis</b>${{lower:"Lower body 2:1", upper:"Upper body 2:1", equal:"Equal 1:1"}[cfg.emph]}</div>
-     <div><b>Progression</b>${cfg.focus==="tri" ? "Block: eccentric, isometric, concentric" : "Linear, 3 week waves"}${deloadWeeks().length ? " | Deload wk " + deloadWeeks().join(" and ") : ""}</div>
+     <div><b>Progression</b>${cfg.focus==="tri" ? "Block: eccentric, isometric, concentric" : cfg.focus==="cluster" ? "Cluster waves, 3 weeks" : "Linear, 3 week waves"}${deloadWeeks().length ? " | Deload wk " + deloadWeeks().join(" and ") : ""}</div>
      <div style="flex-basis:100%; color:#C9C9C9;">${f.note}</div>`;
   el('wkGuide').innerHTML = weekGuide();
 
@@ -2084,6 +2131,31 @@ function renderRun(){
   wireRpe(el('runDaysWrap'));
 }
 
+/* Cluster Sets explanation page for the printed programme */
+function clusterPrintPage(logo, SK, f, withRec){
+  const waveRows = CLUSTER_WAVE.map((c, i)=>`<tr><td><b>Week ${i+1} of each wave</b></td><td>${c.sets}</td><td>${c.cl} clusters of ${clRepWord(c)}</td><td>${c.cl*c.reps}</td><td>${c.pct}</td><td>${c.inside}</td><td>3 min</td><td>${c.rpe} of 10</td></tr>`).join("");
+  const li = a => a.map(x=>`<div class="dl">${x}</div>`).join("");
+  return `<div class="page">
+  <div class="hd"><img class="${SK.wideLogo ? "wide" : ""}" src="${logo}" alt="${SK.brand}">
+    <div><div class="t1">How Cluster Sets Work</div><div class="t2">${SK.brand}</div></div>
+    <div class="meta"><b>${f.name}</b><br>The first two lifts each day run as cluster sets<br>Applies to the strength programme on the previous page</div>
+  </div>
+  <div class="ogrid" style="grid-template-columns:1fr 1fr; margin-bottom:9px;">
+    <div class="card"><div class="ch">What it is</div><div class="cb"><div class="dl">${CLUSTER_GUIDE.what}</div><div class="dl">${CLUSTER_GUIDE.read}</div></div></div>
+    <div class="card"><div class="ch">Why it works</div><div class="cb"><div class="dl">${CLUSTER_GUIDE.why}</div></div></div>
+  </div>
+  <div class="ogrid" style="grid-template-columns:1fr 1fr; margin-bottom:9px;">
+    <div class="card"><div class="ch">How to run one set</div><div class="cb">${CLUSTER_GUIDE.steps.map((x, i)=>`<div class="dl">${i+1}. ${x}</div>`).join("")}</div></div>
+    <div class="card"><div class="ch">Rules</div><div class="cb">${li(CLUSTER_GUIDE.rules)}</div></div>
+  </div>
+  <div class="card"><div class="ch">The three week wave on the first two lifts</div>
+    <table><thead><tr><th>Week</th><th>Sets</th><th>Clusters</th><th>Reps per set</th><th>Load</th><th>Rest inside the set</th><th>Rest between sets</th><th>Effort</th></tr></thead><tbody>${waveRows}</tbody></table>
+  </div>
+  <div class="foot" style="margin-top:8px;"><b>Example.</b> Week 1 at 80%: lift 2 reps, rest 15 s, lift 2 reps, rest 15 s, lift 2 reps. That is one set of 6 reps. Rest 3 minutes. Do 4 sets. The next wave restarts 2.5 to 5% higher. The week guide on the first page shows which week you are in.</div>
+  ${withRec ? '<div class="foot"><b>Recording.</b> Write the load for each set in the boxes. Each box is one full cluster set.</div>' : ""}
+</div>`;
+}
+
 /* ---------------- PDF export: landscape popup ---------------- */
 function printDoc(withRec){
   const f = FOCUS[cfg.focus], c = COND[cfg.condSys];
@@ -2105,6 +2177,10 @@ function printDoc(withRec){
       } else if(cfg.focus==="pap" || cfg.focus==="fc"){
         mid = "Effort " + [7,8,9][step] + "/10";
         txt = step===0 ? "Set loads, 2 in reserve" : step===1 ? "+2.5 to 5% if reps fast" : "Top quality loads";
+      } else if(cfg.focus==="cluster"){
+        const c = CLUSTER_WAVE[step];
+        mid = clShort(c);
+        txt = c.sets + " sets, " + c.inside + " inside";
       } else if(cfg.focus==="met"){
         mid = ["4x6 @70%","4x8 @72.5%","5x6 @75%"][step];
         txt = ["Circuits as written","Circuits +1 round","Circuits +2 rounds"][step];
@@ -2202,6 +2278,7 @@ body{font-family:'Inter',sans-serif; color:${S.pi}; background:#fff; font-size:1
 .wkc b{font-family:'Oswald',sans-serif; font-weight:600; font-size:9px; letter-spacing:.08em; display:block;}
 .wkc i{font-style:normal; color:${S.pi}; font-weight:600; font-size:8.5px; display:block;}
 .wkc span{color:#666; font-size:7.8px; display:block;}
+${cfg.weeks>12 ? ".wkc{padding:3px 3px; border-radius:1px;} .wkc b{font-size:7.5px;} .wkc i{font-size:6.6px;} .wkc span{font-size:6px;}" : ""}
 .grid{display:grid; grid-template-columns:repeat(${liftCols},1fr); gap:9px; align-items:start;}
 .cgrid{display:grid; grid-template-columns:repeat(${condCols},1fr); gap:9px; align-items:start;}
 .card{border:1px solid #bbb; border-radius:2px; overflow:hidden; break-inside:avoid;}
@@ -2245,8 +2322,9 @@ td.recc{white-space:nowrap;}
   </div>
   <div class="wks">${wkCells}</div>
   <div class="grid">${liftCards}</div>
-  <div class="foot"><b>Coaching note.</b> ${f.note}</div>
+  ${cfg.focus==="cluster" ? "" : `<div class="foot"><b>Coaching note.</b> ${f.note}</div>`}
 </div>
+${cfg.focus==="cluster" ? clusterPrintPage(logo, SK, f, withRec) : ""}
 
 ${(cfg.condOn || extraCards) ? `<div class="page">
   <div class="hd"><img class="${SK.wideLogo ? "wide" : ""}" src="${logo}" alt="${SK.brand}">
@@ -2349,6 +2427,11 @@ function libraryDoc(){
     const step = (effOf(w, W)-1)%3;
     return ["4x6 @70% / 6x3 @40% / plyo 3x3","4x4 @80% / 8x3 @50% / plyo 3x5","4x2 @90% / 6x2 @60% / plyo 4x4"][step];
   };
+  const clusterCell = (w, W) => {
+    if(dlOf(W).includes(w)) return DLCELL;
+    const c = CLUSTER_WAVE[(effOf(w, W)-1)%3];
+    return clShort(c) + ", " + c.sets + " sets";
+  };
   const emomCell = (w, W) => {
     if(dlOf(W).includes(w)) return DLCELL;
     return [6,7,8][(effOf(w, W)-1)%3] + " rounds of 4 @75%";
@@ -2367,7 +2450,7 @@ function libraryDoc(){
     }).join("")}</tbody></table>`;
   const page3 = `
   <h2>3. Weekly Progression by Programme Length</h2>
-  <p class="intro">E7/E8/E9 = target effort of 10. Standard focuses run 3 week waves; Contrast methods progress load only when bar speed holds; Metabolic waves the main lift and circuit rounds together; Neural Contrast runs two loading waves in parallel; Triphasic splits the programme into eccentric, isometric and concentric phases. Deload weeks are shaded into each grid at their fixed positions.</p>
+  <p class="intro">E7/E8/E9 = target effort of 10. Standard focuses run 3 week waves; Cluster Sets run a 3 week cluster wave (clusters of 2 at 80%, clusters of 2 at 85%, singles at 90%); Contrast methods progress load only when bar speed holds; Metabolic waves the main lift and circuit rounds together; Neural Contrast runs two loading waves in parallel; Triphasic splits the programme into eccentric, isometric and concentric phases. Deload weeks are shaded into each grid at their fixed positions.</p>
   <h3>Standard focuses (Max Strength, Hypertrophy, Strength/Size, Explosive Power, Strength/Power)</h3>
   ${grid(stdCell)}
   <h3>Contrast Pairs and French Contrast <span class="dim">(plyos progress by height and distance, never load)</span></h3>
@@ -2378,6 +2461,8 @@ function libraryDoc(){
   ${grid(ncCell)}
   <h3>EMOM Density <span class="dim">(3 lift rotation on the minute)</span></h3>
   ${grid(emomCell)}
+  <h3>Cluster Sets <span class="dim">(clusters x reps at % of best, first two lifts each day)</span></h3>
+  ${grid(clusterCell)}
   <h3>Triphasic phase map</h3>
   ${grid(triCell)}
   <p class="foot"><b>Deloads are fixed and named.</b> 4 week plan: none. 6 weeks: week 5. 8 weeks: week 7. 10 weeks: weeks 5 and 9. 12 weeks: weeks 6 and 11. 16 weeks: weeks 5, 9 and 13. A deload drops one set from every lift and pulls loads back 10 to 15%; the wave resumes the following week where it left off.</p>`;
@@ -2614,7 +2699,26 @@ async function buildFillablePdf(){
   /* ---------- Lifting pages ---------- */
   const equipName = EQUIP_NAME[cfg.equip];
   const liftMeta = `${f.name}  |  ${equipName}  |  ${cfg.liftDays} day${cfg.liftDays>1?"s":""}/wk  |  ${cfg.weeks} weeks`;
-  newPage('Strength Programme', liftMeta);
+  if(cfg.focus === "cluster"){
+    newPage('How Cluster Sets Work', liftMeta);
+    const para = (head, lines, size)=>{
+      ensure(30, 'How Cluster Sets Work', liftMeta);
+      txt(head.toUpperCase(), M, y-8, 8, bold, ACC); y -= 18;
+      lines.forEach(t=>wrap(t, helv, size||8.5, W-2*M-10).forEach(ln=>{
+        ensure(12, 'How Cluster Sets Work', liftMeta);
+        txt(ln, M+4, y, size||8.5, helv); y -= 11.5;
+      }));
+      y -= 8;
+    };
+    para('What it is', [CLUSTER_GUIDE.what, CLUSTER_GUIDE.read]);
+    para('Why it works', [CLUSTER_GUIDE.why]);
+    para('How to run one set', CLUSTER_GUIDE.steps.map((x, i)=>(i+1) + '. ' + x));
+    para('Rules', CLUSTER_GUIDE.rules.map(x=>'• ' + x));
+    para('The three week wave on the first two lifts', CLUSTER_WAVE.map((c, i)=>`Week ${i+1} of each wave: ${clText(c)}. Effort ${c.rpe} of 10.`));
+    newPage('Strength Programme', liftMeta);
+  } else {
+    newPage('Strength Programme', liftMeta);
+  }
 
   /* week guide */
   const wl = weekLines();
@@ -2649,7 +2753,7 @@ async function buildFillablePdf(){
       const nx = exNote(x);
       if(nx) nm += '  (' + nx + ')';
       txt(trunc(nm, helv, 8, 250), M+30, y, 8, helv);
-      txt(trunc(`${p.sets} x ${p.reps}  |  ${p.tempo}  |  ${p.rest}`, helv, 7, 148), 316, y, 7, helv, GREY);
+      txt(trunc(`${p.sets} x ${p.reps}  |  ${p.tempo}  |  ${p.rest}`, helv, 7, Math.max(148, xF-322)), 316, y, 7, helv, GREY);
       for(let s=1; s<=n; s++)
         field(`d${di}x${xi}s${s}`, xF + (s-1)*(fw+fg), y-4, fw, 14, x.rec[s], 8);
       y -= 5;
