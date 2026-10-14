@@ -1,7 +1,7 @@
 {
-  "name": "ST Performance Program Builder",
-  "short_name": "ST Perform",
-  "description": "Strength and conditioning program builder by ST Performance.",
+  "name": "ST Performance Programme Builder",
+  "short_name": "Programme Builder",
+  "description": "Strength and conditioning programme builder by ST Performance.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
