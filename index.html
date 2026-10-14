@@ -486,9 +486,10 @@ tr.rec td{padding-top:2px; border-bottom:1px solid rgba(144,152,162,.12);}
         <div>
           <div class="mini">System</div>
           <div class="chips" data-key="condSys">
-            <button class="chip on" data-v="aer">Aerobic<span class="sm">Longer work, short rest</span></button>
-            <button class="chip" data-v="ana">Anaerobic<span class="sm">Short work, long rest</span></button>
-            <button class="chip" data-v="hyb">Hybrid<span class="sm">Even work to rest</span></button>
+            <button class="chip on" data-v="aer">Aerobic power<span class="sm">Longer work, shorter rest</span></button>
+            <button class="chip" data-v="rec">Aerobic recovery<span class="sm">Easy work, longer rest</span></button>
+            <button class="chip" data-v="ana">Anaerobic<span class="sm">Short hard work, long rest</span></button>
+            <button class="chip" data-v="hyb">Mixed<span class="sm">Even work to rest</span></button>
           </div>
         </div>
         <div>
@@ -1131,13 +1132,16 @@ function buildProgram(){
 
 /* ---------------- Conditioning ---------------- */
 const COND = {
-  aer:{name:"Aerobic", rpe:"6 to 7 of 10",
+  aer:{name:"Aerobic power", rpe:"6 to 8 of 10",
     schemes:[["3 min work : 1 min easy","3:1"],["4 min work : 2 min easy","2:1"],["2 min work : 1 min easy","2:1"]],
     note:"Strong but repeatable pace. You should finish the last round at the same output as the first."},
+  rec:{name:"Aerobic recovery", rpe:"3 to 5 of 10",
+    schemes:[["30 s easy : 60 s rest","1:2"],["20 s easy : 60 s rest","1:3"],["40 s easy : 80 s rest","1:2"]],
+    note:"Smooth and controlled, never a struggle. Keep moving through the work, stay at RPE 3 or above, and use the rest to bring breathing right down. Aim for at least 12 minutes of total work time."},
   ana:{name:"Anaerobic", rpe:"9 of 10",
     schemes:[["30 s hard : 90 s easy","1:3"],["20 s hard : 80 s easy","1:4"],["15 s hard : 75 s easy","1:5"]],
     note:"Near maximal efforts. The rest is long on purpose, use all of it so quality holds."},
-  hyb:{name:"Hybrid", rpe:"8 of 10",
+  hyb:{name:"Mixed", rpe:"7 to 8 of 10",
     schemes:[["60 s work : 60 s easy","1:1"],["40 s work : 80 s easy","1:2"],["90 s work : 90 s easy","1:1"]],
     note:"Uncomfortable but sustainable. Hold the same wattage, pace or level across every round."}
 };
@@ -2654,7 +2658,7 @@ function stpHandoff(){
     const p = condPlan(d), [w, r] = parseScheme(p.label);
     sessions.push({name: "Conditioning Day " + (d+1), kind: "cond", blocks: [{
       name: COND[cfg.condSys].name + " intervals", kind: "cond",
-      fx: {aer:"aer", ana:"ana", hyb:"mix"}[cfg.condSys],
+      fx: {aer:"aer", rec:"rec", ana:"ana", hyb:"mix"}[cfg.condSys],
       work_s: w, rest_s: r, rounds: p.rounds, mins: cfg.condMins,
       lines: [p.label + " x " + p.rounds]
     }]});
