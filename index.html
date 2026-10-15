@@ -1237,7 +1237,7 @@ function buildProgram(){
 }
 function fillField(){
   program.speedRot = buildSpeedAll(); program.speed = program.speedRot ? program.speedRot[0] : null;
-  program.runRot = buildRunAll(); program.run = program.runRot ? program.runRot[0] : null;
+  program.runRot = buildRunAll(); program.run = program.runRot ? runFor(1) : null;
 }
 function buildProgramCore(){
   const f = FOCUS[cfg.focus];
@@ -1755,6 +1755,10 @@ function pickUnused(pool, startIdx, used, sel){
   return pool[startIdx % pool.length];
 }
 let RUN_VOLS = [];
+/* Week 1 runs at RUN_H of full reps so every drill has room to add reps (cap 10) before a new drill is added */
+const RUN_H = 0.7;
+const RUN_CAP = 5000; /* hard ceiling for any one session; the week can never exceed RUN_CAP x run days */
+const w1d = s => { const r = Math.min(10, s.reps); return Math.round(s.dist / r * Math.max(1, Math.round(r * RUN_H))); };
 const RUN_WAVE = [0.8, 0.3, 1.0, 0.5, 0.9, 0.15];
 /* Weekly limits follow the session range: the floor is every day at the minimum, the ceiling every day at the maximum */
 function runBounds(){
@@ -1782,7 +1786,7 @@ function runDayVolumes(n){
 /* Contact days (hit and run, wrestle and run) carry about half the running distance of other days */
 function dayTarget(cats, dayIdx){
   const t = RUN_VOLS[dayIdx] != null ? RUN_VOLS[dayIdx] : (cfg.runMax || 3000);
-  return cats.every(c=>c==="hit" || c==="wrestle") ? t/2 : t;
+  return (cats.every(c=>c==="hit" || c==="wrestle") ? t/2 : t);
 }
 function runDayBlocks(cats, dayIdx, used){
   const pools = runPools();
@@ -1799,14 +1803,14 @@ function runDayBlocks(cats, dayIdx, used){
   }
   /* Aim at the volume target using only drills not yet used this week */
   const target = dayTarget(cats, dayIdx);
-  const total = () => sel.reduce((s, x)=>s + x.dist, 0);
+  const total = () => sel.reduce((s, x)=>s + w1d(x), 0);
   for(let g=0; g<12; g++){
     const cur = Math.abs(total() - target);
     let best = null;
     sel.forEach((s, i)=>{
       pools[s.cat].forEach(alt=>{
         if(sel.includes(alt) || used.has(alt.n)) return;
-        const diff = Math.abs(total() - s.dist + alt.dist - target);
+        const diff = Math.abs(total() - w1d(s) + w1d(alt) - target);
         if(diff < cur - 1 && (!best || diff < best.diff)) best = {i, alt, diff};
       });
     });
@@ -1817,7 +1821,7 @@ function runDayBlocks(cats, dayIdx, used){
   return sel;
 }
 function rebalanceWeek(sels, targets){
-  const dayTotal = s => s.reduce((a, x)=>a + x.dist, 0);
+  const dayTotal = s => s.reduce((a, x)=>a + w1d(x), 0);
   for(let guard=0; guard<80; guard++){
     const totals = sels.map(dayTotal);
     let best = null;
@@ -1827,7 +1831,7 @@ function rebalanceWeek(sels, targets){
         if(A.cat !== B.cat || A.n === B.n) continue;
         const sq = x => x * x;
         const before = sq(totals[i] - targets[i]) + sq(totals[j] - targets[j]);
-        const after = sq(totals[i] - A.dist + B.dist - targets[i]) + sq(totals[j] - B.dist + A.dist - targets[j]);
+        const after = sq(totals[i] - w1d(A) + w1d(B) - targets[i]) + sq(totals[j] - w1d(B) + w1d(A) - targets[j]);
         if(after < before - 100 && (!best || (before - after) > best.gain))
           best = {i, j, a, b, gain: before - after};
       }
@@ -1850,19 +1854,19 @@ function buildRunDays(seed){
     let extra = 0;
     if(!cats.every(c=>c === "hit" || c === "wrestle")){
       const pools = runPools();
-      const total = () => blocks.reduce((s, x)=>s + x.dist, 0);
+      const total = () => blocks.reduce((s, x)=>s + w1d(x), 0);
       while(blocks.length < 5 && total() < tgt*0.9){
         let best = null;
         ["line","shuttle","pattern","curve"].forEach(c=>(pools[c] || []).forEach(alt=>{
           if(blocks.includes(alt) || used.has(alt.n)) return;
-          const e = Math.abs(total() + alt.dist - tgt);
-          if(total() + alt.dist <= tgt*1.1 && (!best || e < best.e)) best = {alt, e};
+          const e = Math.abs(total() + w1d(alt) - tgt);
+          if(total() + w1d(alt) <= tgt*1.1 && (!best || e < best.e)) best = {alt, e};
         }));
         if(!best) break;
         blocks.push(best.alt); used.add(best.alt.n); extra++;
       }
     }
-    plan.push({title: extra && !/Mix$/.test(title) ? title + " Mix" : title, tgt, blocks});
+    plan.push({title: extra && !/Mix$/.test(title) ? title + " Mix" : title, tgt, blocks, cats});
   };
   if(cfg.runApp === "split"){
     add("Straight Line", ["line","shuttle"], 0);
@@ -1888,6 +1892,7 @@ function buildRunDays(seed){
     const total = p.blocks.reduce((s, x)=>s + x.dist, 0);
     return {
       title: p.title,
+      cats: p.cats,
       tag: "{" + total + "} total",
       blocks: p.blocks.map((s, i)=>({n:(i+1) + ". " + s.n, cat:CAT_NAME[s.cat], dist:s.dist, reps:Math.min(10, s.reps), viz:s.viz, script:STP_SCRIPT[s.viz] || "", lines:s.d})),
       lines: p.blocks.reduce((arr, s, i)=>arr.concat(
@@ -1900,7 +1905,7 @@ function buildRunDays(seed){
 /* ---- Drill blocks and weekly volume build ----
    Drills change every 4 weeks; inside a block the drills stay and the reps carry the build.
    Volume: +10% of week 1 each build week; a deload week steps back 10% from the week before. */
-const DRILL_BLOCK = 4, BUILD_STEP = 0.10, REPS_MAX = 20;
+const DRILL_BLOCK = 4, BUILD_STEP = 0.10, REPS_MAX = 10;
 function rotOf(w){ return Math.floor((w - 1) / DRILL_BLOCK); }
 function rotCount(){ return Math.max(1, Math.ceil(cfg.weeks / DRILL_BLOCK)); }
 function volFactor(w){
@@ -1913,6 +1918,19 @@ function buildRunAll(){
   for(let r=0; r<rotCount(); r++){
     const days = buildRunDays(seed);
     days.forEach(d=>d.blocks.forEach(b=>seed.add(b.n.replace(/^\d+\.\s*/, ""))));
+    /* Reserve up to 3 spare drills per day, same categories, to carry the build once reps reach the cap */
+    const pools = runPools();
+    days.forEach(d=>{
+      d.extras = [];
+      const cats = [...new Set(d.cats)];
+      for(let k=0; k<8 && d.extras.length < 3; k++){
+        const c = cats[k % cats.length], pool = pools[c] || [];
+        const alt = pool.find(a=>!seed.has(a.n));
+        if(!alt) { if(k >= cats.length * 2) break; continue; }
+        seed.add(alt.n);
+        d.extras.push({n:alt.n, cat:CAT_NAME[alt.cat], dist:alt.dist, reps:Math.min(10, alt.reps), viz:alt.viz, script:STP_SCRIPT[alt.viz] || "", lines:alt.d});
+      }
+    });
     out.push(days);
   }
   return out;
@@ -1922,20 +1940,38 @@ function buildSpeedAll(){
   return Array.from({length:rotCount()}, (_, r)=>buildSpeedDays(r));
 }
 function speedFor(w){ const a = program.speedRot; return a ? a[Math.min(rotOf(w), a.length - 1)] : program.speed; }
-function scaleBlock(b, f){
+function scaleBlock(b, f, minReps){
   const per = b.dist / b.reps;
-  const reps = Math.max(1, Math.min(REPS_MAX, Math.round(b.reps * f)));
+  const reps = Math.max(minReps || 1, Math.min(REPS_MAX, Math.round(b.reps * f)));
   const lines = b.lines.map(l=>l.replace(/^\d+ reps/, reps + " reps").replace(/swaps at rep \d+/, "swaps at rep " + Math.ceil(reps / 2)));
   return Object.assign({}, b, {reps, dist: Math.round(per * reps), lines});
 }
+/* Week w sessions: week 1 at RUN_H of full reps; reps grow with the build until the cap, then spare drills carry the rest */
 function runFor(w){
   const a = program.runRot; if(!a) return program.run;
   const f = volFactor(w);
   return a[Math.min(rotOf(w), a.length - 1)].map(d=>{
-    const blocks = d.blocks.map(b=>scaleBlock(b, f));
-    const total = blocks.reduce((x, b)=>x + b.dist, 0);
+    const base1 = d.blocks.reduce((x, b)=>x + scaleBlock(b, RUN_H).dist, 0);
+    const want = Math.min(base1 * f, RUN_CAP);
+    const blocks = d.blocks.map(b=>scaleBlock(b, RUN_H * f));
+    let have = blocks.reduce((x, b)=>x + b.dist, 0);
+    (d.extras || []).forEach((e, k)=>{
+      const left = want - have, per = e.dist / e.reps;
+      if(left < per * 3 * 0.8) return;
+      const x = scaleBlock(e, Math.min(1, Math.max(3, left / per) / e.reps), 3);
+      blocks.push(Object.assign(x, {n: (blocks.length + 1) + ". " + e.n}));
+      have += x.dist;
+    });
+    /* Trim back under the ceiling a rep at a time from the drill with the shortest rep, so the day lands just under it */
+    for(let g=0; g<300 && have > RUN_CAP; g++){
+      let bi = -1;
+      blocks.forEach((b, i)=>{ if(b.reps > 1 && (bi < 0 || b.dist / b.reps < blocks[bi].dist / blocks[bi].reps)) bi = i; });
+      if(bi < 0){ if(blocks.length < 2) break; let si = 0; blocks.forEach((b, i)=>{ if(b.dist < blocks[si].dist) si = i; }); have -= blocks[si].dist; blocks.splice(si, 1); continue; }
+      const b = blocks[bi], nb = scaleBlock(b, (b.reps - 1) / b.reps);
+      have += nb.dist - b.dist; blocks[bi] = Object.assign(nb, {n: b.n});
+    }
     const lines = blocks.reduce((arr, b)=>arr.concat([b.n + "  |  " + b.cat + "  |  {" + b.dist + "}"], b.script ? ["Route: " + b.script] : [], b.lines), []);
-    return Object.assign({}, d, {tag: "{" + total + "} total", blocks, lines});
+    return Object.assign({}, d, {tag: "{" + have + "} total", blocks, lines});
   });
 }
 function blockTag(w, lastKey){
@@ -3184,7 +3220,7 @@ function runVolChanged(){
   if(cfg.runWkMin != null && cfg.runWkMin <= B.lo) cfg.runWkMin = null;
   if(cfg.runWkMax != null && cfg.runWkMax >= B.hi) cfg.runWkMax = null;
   syncRunVol();
-  if(program && program.run){ program.runRot = buildRunAll(); program.run = program.runRot[0]; renderRun(); persist(); }
+  if(program && program.run){ program.runRot = buildRunAll(); program.run = runFor(1); renderRun(); persist(); }
 }
 el('runMin').addEventListener('input', ()=>{
   cfg.runMin = +el('runMin').value; if(cfg.runMin > cfg.runMax) cfg.runMax = cfg.runMin;
