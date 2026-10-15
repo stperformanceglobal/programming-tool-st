@@ -2209,7 +2209,7 @@ function applyState(s){
 }
 
 /* Backup reminder. Set BK.on to false to remove it, or BK.mode to "weekly" to ask less often. */
-const BK = { on:true, mode:"session", days:7 };
+const BK = { on:true, mode:"weekly", days:7 };
 function bkLast(){ try{ return +localStorage.getItem('stp_backup')||0; }catch(e){ return 0; } }
 function bkAge(){ const t = bkLast(); return t ? (Date.now()-t)/864e5 : Infinity; }
 function bkLine(){
