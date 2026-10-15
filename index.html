@@ -211,7 +211,7 @@ table.recmode .exn .note{margin-top:3px;}
   .srpe{gap:4px; padding:11px 12px;}
   .export-bar{padding:10px 10px calc(10px + env(safe-area-inset-bottom)); gap:7px;}
   .export-bar button{font-size:12px; padding:9px 12px; flex:1 1 auto;}
-  .boxes input{width:62px; font-size:14px;}
+  .boxes input{width:70px; font-size:14px;}
 }
 /* Session RPE */
 .srpe{display:flex; align-items:center; gap:6px; flex-wrap:wrap; padding:11px 16px; border-top:1px solid var(--line);}
@@ -239,7 +239,7 @@ table.recmode .exn .note{margin-top:3px;}
 tr.rec td{padding-top:2px; border-bottom:1px solid rgba(144,152,162,.12);}
 .boxes{display:flex; flex-wrap:wrap; gap:6px; padding:2px 0 6px;}
 .boxes label{display:flex; flex-direction:column; font-size:10px; color:var(--silver); font-family:'Oswald',sans-serif; letter-spacing:.08em;}
-.boxes input{width:58px; background:var(--ink); border:1px solid var(--line); border-bottom:2px solid var(--primary); color:var(--white); font-family:'Inter',sans-serif; font-size:12.5px; padding:4px 6px; border-radius:2px; margin-top:2px;}
+.boxes input{width:66px; background:var(--ink); border:1px solid var(--line); border-bottom:2px solid var(--primary); color:var(--white); font-family:'Inter',sans-serif; font-size:12.5px; padding:4px 6px; border-radius:2px; margin-top:2px;}
 .boxes input:focus{outline:none; border-color:var(--primary);}
 .boxes input::placeholder{color:#6f7680; opacity:1;}
 .vtabs{position:sticky; top:env(safe-area-inset-top,0px); z-index:30; display:grid; grid-template-columns:1fr 1fr; background:var(--ink); border-bottom:1px solid var(--line);}
@@ -2160,12 +2160,14 @@ function renderLift(){
       const label = x.label || ((cfg.focus==="sp" && d.ex[0].cat==="pow" && xi<2) ? ["A1","A2"][xi] : (xi+1));
       const note = exNote(x, W);
       const cur = recOf(x, W), prv = W > 1 ? recOf(x, W-1) : {};
+      const pr = W > 1 ? weekRx(x, f, W-1).reps : "", prReps = /^\d+$/.test(String(pr)) ? pr : "";
+      const shadow = v => !v ? "" : (prReps && !/x/i.test(v) ? v + "x" + prReps : v);
       let rec = "";
       if(d.recOn){
         const n = setsOf(p);
         let boxes = "";
         for(let s=1; s<=n; s++){
-          boxes += `<label>Set ${s}<input inputmode="decimal" data-d="${di}" data-x="${xi}" data-s="${s}" value="${cur[s]||""}" placeholder="${prv[s]||""}"></label>`;
+          boxes += `<label>Set ${s}<input inputmode="decimal" data-d="${di}" data-x="${xi}" data-s="${s}" value="${cur[s]||""}" placeholder="${shadow(prv[s])}"></label>`;
         }
         rec = `<tr class="rec"><td></td><td colspan="5"><div class="boxes">${boxes}</div></td></tr>`;
       }
