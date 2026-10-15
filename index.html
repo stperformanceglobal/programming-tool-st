@@ -1904,13 +1904,13 @@ function buildRunDays(seed){
 
 /* ---- Drill blocks and weekly volume build ----
    Drills change every 4 weeks; inside a block the drills stay and the reps carry the build.
-   Volume: +10% of week 1 each build week; a deload week steps back 10% from the week before. */
-const DRILL_BLOCK = 4, BUILD_STEP = 0.10, REPS_MAX = 10;
+   Volume: +10% of week 1 every second build week (run it twice, then step up); a deload week steps back 10% from the week before. */
+const DRILL_BLOCK = 4, BUILD_EVERY = 2, BUILD_STEP = 0.10, REPS_MAX = 10;
 function rotOf(w){ return Math.floor((w - 1) / DRILL_BLOCK); }
 function rotCount(){ return Math.max(1, Math.ceil(cfg.weeks / DRILL_BLOCK)); }
 function volFactor(w){
-  if(isDeload(w)){ const pw = w > 1 ? effWeek(w - 1) : 1; return Math.max(0.7, 1 + BUILD_STEP * (pw - 1) - BUILD_STEP); }
-  return 1 + BUILD_STEP * (effWeek(w) - 1);
+  if(isDeload(w)){ const pw = w > 1 ? effWeek(w - 1) : 1; return Math.max(0.7, 1 + BUILD_STEP * Math.floor((pw - 1) / BUILD_EVERY) - BUILD_STEP); }
+  return 1 + BUILD_STEP * Math.floor((effWeek(w) - 1) / BUILD_EVERY);
 }
 function buildRunAll(){
   if(!cfg.runOn) return null;
@@ -2637,7 +2637,7 @@ td.recc{white-space:nowrap;}
   ${cfg.liftOn ? `<div class="wks">${wkCells}</div>` : ""}
   <div class="foot"><b>How to use this PDF.</b> One page per week, in order: that week's lifting, conditioning, speed and running together.${withRec ? " Write each set's load in the boxes. The small grey line shows last week's loads for the same lift." : ""} A busy week may run onto a second page.</div>
   ${cfg.liftOn && cfg.focus!=="cluster" ? `<div class="foot"><b>Coaching note.</b> ${f.note}</div>` : ""}
-  ${program.run ? `<div class="foot"><b>Running.</b> Volume builds 10% of week 1 each build week through extra reps of the same drills and steps back in deload weeks. Drills change every 4 weeks.</div>` : ""}
+  ${program.run ? `<div class="foot"><b>Running.</b> Volume steps up 10% of week 1 every second week (run it twice before it jumps), through extra reps then spare drills, and steps back in deload weeks. Drills change every 4 weeks.</div>` : ""}
   ${program.speed ? `<div class="foot"><b>Speed.</b> Volume stays the same through the programme. Drills change every 4 weeks.</div>` : ""}
 </div>
 ${cfg.liftOn && cfg.focus==="cluster" ? clusterPrintPage(logo, SK, f, withRec) : ""}
@@ -3038,7 +3038,7 @@ async function buildFillablePdf(){
   }
   const ov = ['One page per week, in order: that week\'s lifting, conditioning, speed and running together. Type in the boxes on any device, or print and write. A busy week may run onto a second page.'];
   if(cfg.liftOn) ov.push(`Strength: ${f.name}, ${equipName}, ${cfg.liftDays} day${cfg.liftDays>1?"s":""} per week. ${f.note}`);
-  if(program.run) ov.push('Running: volume builds 10% of week 1 each build week through extra reps of the same drills, and steps back in deload weeks. Drills change every 4 weeks.');
+  if(program.run) ov.push('Running: volume steps up 10% of week 1 every second week (run it twice before it jumps), through extra reps then spare drills, and steps back in deload weeks. Drills change every 4 weeks.');
   if(program.speed) ov.push('Speed: volume stays the same through the programme. Drills change every 4 weeks.');
   paraAt('How to use this PDF', ov, 8.5, 'Training Programme', topMeta);
   if(cfg.liftOn){
