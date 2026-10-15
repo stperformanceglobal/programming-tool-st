@@ -271,7 +271,7 @@ details.wk-all summary{cursor:pointer; font-size:12px; color:var(--silver); lett
 /* ---------- PRINT: light theme, 2 pages ---------- */
 .print-only{display:none;}
 @media print{
-  @page{size:letter landscape; margin:0.4in;}
+  @page{size:letter landscape; margin:0.4in 0.4in 0.55in;}
   body{background:#fff; color:var(--p-ink); font-size:11px;}
   .wrap{max-width:none; padding:0;}
   header, .vtabs, .builder, .export-bar, .tip, .screen-only{display:none !important;}
@@ -1071,6 +1071,19 @@ function recOf(x, w){ if(!x.recW) x.recW = {}; return x.recW[w] || (x.recW[w] = 
 /* Swap scope: x.sel is the full-programme choice, x.selW holds this-week-only overrides */
 function selOf(x, w){ return (w && x.selW && x.selW[w] !== undefined) ? x.selW[w] : x.sel; }
 function nameOf(x, w){ return x.options[selOf(x, w)]; }
+function lastWeekText(x, f, w){
+  if(w < 2) return "";
+  const prv = (x.recW && x.recW[w-1]) || {};
+  const pr = weekRx(x, f, w-1).reps, reps = /^\d+$/.test(String(pr)) ? pr : "";
+  return Object.keys(prv).map(Number).sort((a, b)=>a - b).map(k=>String(prv[k] || "").trim()).filter(Boolean)
+    .map(v=>reps && !/x/i.test(v) ? v + "x" + reps : v).join(", ");
+}
+function fieldWeekNote(w){
+  const bits = [];
+  if(program.run) bits.push("Running " + Math.round(volFactor(w) * 100) + "% of week 1" + (isDeload(w) ? " (deload)" : ""));
+  if(program.run || program.speed) bits.push(blockTag(w));
+  return bits.join(" | ");
+}
 function loadsText(x, w){
   const r = (x.recW && x.recW[w]) || {};
   return Object.keys(r).map(Number).sort((a, b)=>a - b).map(k=>String(r[k] || "").trim()).filter(Boolean).join("/");
@@ -1921,7 +1934,8 @@ function runFor(w){
   return a[Math.min(rotOf(w), a.length - 1)].map(d=>{
     const blocks = d.blocks.map(b=>scaleBlock(b, f));
     const total = blocks.reduce((x, b)=>x + b.dist, 0);
-    return Object.assign({}, d, {tag: "{" + total + "} total", blocks});
+    const lines = blocks.reduce((arr, b)=>arr.concat([b.n + "  |  " + b.cat + "  |  {" + b.dist + "}"], b.script ? ["Route: " + b.script] : [], b.lines), []);
+    return Object.assign({}, d, {tag: "{" + total + "} total", blocks, lines});
   });
 }
 function blockTag(w, lastKey){
@@ -2416,78 +2430,103 @@ function printDoc(withRec){
     wkCells += `<div class="wkc"><b>WK ${w}</b><i>${mid}</i><span>${txt}</span></div>`;
   }
 
-  const liftCols = withRec ? 1 : (cfg.liftDays<=3 ? cfg.liftDays : (cfg.liftDays===4 ? 2 : 3));
+  const liftCols = (cfg.liftDays<=3 ? cfg.liftDays : (cfg.liftDays===4 ? 2 : 3));
   const bx = (n, rec) => Array.from({length:n}, (_,i)=>`<span class="bx"><i>S${i+1}</i>${rec && rec[i+1] ? `<b>${rec[i+1]}</b>` : ""}</span>`).join("");
   const rpeStrip = v => `<div class="prpe"><b>Session RPE</b>` +
     Array.from({length:10}, (_,i)=>`<span class="rc${v===i+1?" sel":""}">${i+1}</span>`).join("") + `</div>`;
   const prepLine = prep =>
     `<div class="pprep"><b>Mobility</b> ${prep.mob.map(m=>m[0]+" ("+m[1]+")").join(", ")}<br><b>Activation</b> ${prep.act.map(a=>a[0]+" ("+a[1]+")").join(", ")}</div>`;
 
-  const WN = cfg.weeks;
-  const logHead = Array.from({length:WN}, (_, i)=>`<th class="wkh${isDeload(i+1) ? " dl" : ""}">W${i+1}</th>`).join("");
-  const logCols = `<colgroup><col style="width:4%"><col style="width:${WN > 10 ? 22 : 26}%">${Array.from({length:WN}, ()=>`<col>`).join("")}</colgroup>`;
-  const liftCards = program.days.map((d, di)=>{
-    if(withRec){
-      const rows = d.ex.map((x, xi)=>{
-        const label = x.label || ((cfg.focus==="sp" && d.ex[0].cat==="pow" && xi<2) ? ["A1","A2"][xi] : (xi+1));
-        const cells = Array.from({length:WN}, (_, i)=>`<td class="wc${WN > 10 ? " sm" : ""}">${loadsText(x, i+1)}</td>`).join("");
-        return `<tr><td class="o">${label}</td><td class="e">${x.options[x.sel]}</td>${cells}</tr>`;
-      }).join("");
-      return `<div class="card"><div class="ch">Day ${di+1} | ${d.title} <i>Loads by week, sets split with a slash</i></div>
-        ${prepLine(d.prep)}
-        <table class="logt">${logCols}<thead><tr><th></th><th>Exercise</th>${logHead}</tr></thead><tbody>${rows}</tbody></table></div>`;
-    }
+  const lineRows = lines => lines.map(l=>`<div class="dl${/^\d+\. .*\|/.test(l) ? " bh" : ""}">${U(l)}</div>`).join("");
+  const stripTags = h => h.replace(/<[^>]+>/g, "");
+  const weekLiftCards = w => program.days.map((d, di)=>{
     const rows = d.ex.map((x, xi)=>{
-      const p = exRx(x, f);
+      const p = weekRx(x, f, w);
       const label = x.label || ((cfg.focus==="sp" && d.ex[0].cat==="pow" && xi<2) ? ["A1","A2"][xi] : (xi+1));
-      const dynNote = x.dyn ? `<br><span style="font-size:7px; color:#555; font-weight:400;">${exNote(x)}</span>` : "";
-      return `<tr><td class="o">${label}</td><td class="e">${x.options[x.sel]}${dynNote}</td><td>${p.sets}</td><td>${p.reps}</td><td>${p.tempo}</td><td>${p.rest}</td></tr>`;
+      const dynNote = x.dyn ? `<br><span style="font-size:7px; color:#555; font-weight:400;">${exNote(x, w)}</span>` : "";
+      const lw = withRec ? lastWeekText(x, f, w) : "";
+      const lwHtml = lw ? `<br><span class="lw">last wk ${lw}</span>` : "";
+      const recTd = withRec ? `<td class="recc">${bx(setsOf(p), recOf(x, w))}</td>` : "";
+      if(withRec) return `<tr><td class="o">${label}</td><td class="e">${nameOf(x, w)}${dynNote}<br><span class="rx2">${p.sets} x ${p.reps} | ${p.tempo} | ${p.rest}</span>${lwHtml}</td>${recTd}</tr>`;
+      return `<tr><td class="o">${label}</td><td class="e">${nameOf(x, w)}${dynNote}</td><td>${p.sets}</td><td>${p.reps}</td><td>${p.tempo}</td><td>${p.rest}</td></tr>`;
     }).join("");
+    const recTh = withRec ? `<th>Load per set</th>` : "";
     return `<div class="card"><div class="ch">Day ${di+1} | ${d.title}</div>
       ${prepLine(d.prep)}
-      <table><thead><tr><th></th><th>Exercise</th><th>Sets</th><th>Reps</th><th>Tempo</th><th>Rest</th></tr></thead>
+      <table><thead>${withRec ? `<tr><th></th><th>Exercise and prescription</th>${recTh}</tr>` : `<tr><th></th><th>Exercise</th><th>Sets</th><th>Reps</th><th>Tempo</th><th>Rest</th></tr>`}</thead>
       <tbody>${rows}</tbody></table></div>`;
   }).join("");
 
-  /* Optional Speed + Running sections */
-  const lineRows = lines => lines.map(l=>`<div class="dl${/^\d+\. .*\|/.test(l) ? " bh" : ""}">${U(l)}</div>`).join("");
-  const optSection = (title, sub, days, note) => {
+  const optSection = (title, sub, days, note, warm) => {
     const cards = days.map((d, di)=>`<div class="card"><div class="ch">Day ${di+1} | ${d.title} &nbsp;<i>${U(d.tag)}</i></div><div class="cb">${lineRows(d.lines)}</div></div>`).join("");
     const cols = Math.min(days.length, 3);
     return `<div class="sect"><b>${title}</b><span>${sub}</span></div>
-      <div class="foot" style="margin:6px 0 9px;"><b>Warm-up first.</b> <span class="note">${U(FIELD_WARMUP)}</span></div>
+      ${warm ? `<div class="foot" style="margin:6px 0 9px;"><b>Warm-up first.</b> <span class="note">${U(FIELD_WARMUP)}</span></div>` : ""}
       <div class="ogrid" style="grid-template-columns:repeat(${cols},1fr)">${cards}</div>
       <div class="foot"><span class="note">${note}</span></div>`;
   };
-  let extraCards = "";
-  if(program.speed){
-    const qualName = cfg.spdQual === "all" ? "All qualities" : SPEED[cfg.spdQual].name;
-    extraCards += optSection("Speed", `${qualName} | ${cfg.spdApp==="split" ? "Split" : "Hybrid"} | ${program.speed.length} day${program.speed.length>1?"s":""} per week`,
-      program.speed, "Maximal intent, full recovery between reps. Cut the session the moment quality drops.");
-  }
-  if(program.run){
-    extraCards += optSection("Running Conditioning", `${RUN_TYPE_NAME[cfg.runType]} | ${cfg.runApp==="split" ? "Split" : "Hybrid"} | ${program.run.length} day${program.run.length>1?"s":""} per week`,
-      program.run, "Hold the same times across every rep. The last rep at the same speed as the first is the goal.");
-  }
+  const fieldSections = w => {
+    let out = "", warm = true;
+    if(program.speed){
+      const SD = speedFor(w);
+      const qualName = cfg.spdQual === "all" ? "All qualities" : SPEED[cfg.spdQual].name;
+      out += optSection("Speed", `${qualName} | ${cfg.spdApp==="split" ? "Split" : "Hybrid"} | ${SD.length} day${SD.length>1?"s":""} per week`,
+        SD, "Maximal intent, full recovery between reps. Cut the session the moment quality drops.", warm);
+      warm = false;
+    }
+    if(program.run){
+      const RD = runFor(w);
+      out += optSection("Running Conditioning", `${RUN_TYPE_NAME[cfg.runType]} | ${cfg.runApp==="split" ? "Split" : "Hybrid"} | ${RD.length} day${RD.length>1?"s":""} per week | ${Math.round(volFactor(w) * 100)}% of week 1`,
+        RD, "Hold the same times across every rep. The last rep at the same speed as the first is the goal.", warm);
+    }
+    return out;
+  };
 
   const condCols = Math.min(Math.max(cfg.condDays,1), withRec ? 2 : 3);
-  let condCards = "";
-  for(let d=0; cfg.condOn && d<cfg.condDays; d++){
-    const {label, ratio, rounds, used} = condPlan(d);
-    const rec = withRec
-      ? `<div class="rbxwrap"><b>Record pace, watts or level per round</b><div class="rbx">${Array.from({length:rounds},(_,i)=>`<span class="bx"><i>R${i+1}</i></span>`).join("")}</div></div>`
-      : "";
-    condCards += `<div class="card"><div class="ch">Day ${d+1} | ${c.name} Intervals</div>
-      <div class="cb"><div class="pill"><b>${label}</b> (W:R ${ratio})</div>
-      <div class="pill"><b>${rounds} rounds</b>, ${used} min total</div>
-      <div class="pill">Effort <b>${c.rpe}</b></div>
-      <p>Warm up 3 to 5 min easy before round 1, outside the session total.</p>${rec}${withRec ? rpeStrip(program.condRpe[d] ?? null) : ""}</div></div>`;
-  }
+  const condHtml = () => {
+    let condCards = "";
+    for(let d=0; d<cfg.condDays; d++){
+      const {label, ratio, rounds, used} = condPlan(d);
+      const rec = withRec
+        ? `<div class="rbxwrap"><b>Record pace, watts or level per round</b><div class="rbx">${Array.from({length:rounds},(_,i)=>`<span class="bx"><i>R${i+1}</i></span>`).join("")}</div></div>`
+        : "";
+      condCards += `<div class="card"><div class="ch">Day ${d+1} | ${c.name} Intervals</div>
+        <div class="cb"><div class="pill"><b>${label}</b> (W:R ${ratio})</div>
+        <div class="pill"><b>${rounds} rounds</b>, ${used} min total</div>
+        <div class="pill">Effort <b>${c.rpe}</b></div>
+        <p>Warm up 3 to 5 min easy before round 1, outside the session total.</p>${rec}</div></div>`;
+    }
+    return `<div class="sect"><b>Indoor Conditioning</b><span>${c.name} | Effort ${c.rpe} | ${cfg.condDays} day${cfg.condDays>1?"s":""} per week | ${cfg.condMins} min per session</span></div>
+      <div class="cgrid">${condCards}</div>
+      <div class="foot"><b>Pick your poison.</b> ${MACHINES}<br><span class="note">${c.note}</span></div>`;
+  };
+
+  const metaBits = [];
+  if(cfg.liftOn) metaBits.push(`<b>${f.name}</b> | ${equipName} | ${{split:"Lower/Upper split", full:"Full body only", hyb:"Hybrid"}[cfg.struct]} | ${cfg.liftDays} day${cfg.liftDays>1?"s":""} per week`);
+  if(cfg.condOn) metaBits.push(`<b>${c.name}</b> | ${cfg.condDays} day${cfg.condDays>1?"s":""} per week | ${cfg.condMins} min`);
+  if(program.speed) metaBits.push(`<b>Speed</b> | ${program.speed.length} day${program.speed.length>1?"s":""} per week`);
+  if(program.run) metaBits.push(`<b>Running</b> | ${RUN_TYPE_NAME[cfg.runType]} | ${program.run.length} day${program.run.length>1?"s":""} per week`);
+  const logoTag = link => `${link ? stpLinkOpen() : ""}<img class="${SK.wideLogo ? "wide" : ""}" src="${logo}" alt="${SK.brand}">${link ? stpLinkClose() : ""}`;
+  const weekPages = Array.from({length:cfg.weeks}, (_, i)=>{
+    const w = i + 1, dl = isDeload(w);
+    const fnote = fieldWeekNote(w);
+    return `<div class="page wkpage">
+  <div class="hd">${logoTag(false)}
+    <div><div class="t1">Week ${w} of ${cfg.weeks}${dl ? " | Deload" : ""}</div><div class="t2">${SK.brand}${withRec ? " | Recording sheet" : ""}</div></div>
+    <div class="meta">${metaBits.join("<br>")}</div>
+  </div>
+  ${cfg.liftOn ? `<div class="wnote"><b>Week ${w}</b> ${stripTags(weekNote(w))}</div>` : ""}
+  ${fnote ? `<div class="wnote"><b>Field work</b> ${fnote}</div>` : ""}
+  ${cfg.liftOn ? `<div class="sect"><b>Strength</b><span>${f.name} | ${cfg.liftDays} day${cfg.liftDays>1?"s":""} per week</span></div><div class="grid">${weekLiftCards(w)}</div>` : ""}
+  ${cfg.condOn ? condHtml() : ""}
+  ${fieldSections(w)}
+</div>`;
+  }).join("");
 
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${SK.brand} Programme</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Inter:wght@400;500;600&display=swap');
-@page{size:letter landscape; margin:0.4in;}
+@page{size:letter landscape; margin:0.4in 0.4in 0.55in;}
 *{box-sizing:border-box; margin:0; padding:0;}
 body{font-family:'Inter',sans-serif; color:${S.pi}; background:#fff; font-size:10px;}
 .stpf{position:fixed; left:0; right:0; bottom:0; display:flex; align-items:center; justify-content:flex-end; gap:7px;}
@@ -2521,11 +2560,6 @@ tr:last-child td{border-bottom:none;}
 td.o{font-family:'Oswald',sans-serif; font-weight:600; color:${S.pad}; width:20px;}
 td.e{font-weight:600;}
 td.recc{white-space:nowrap;}
-table.logt{table-layout:fixed; width:100%;}
-table.logt th.wkh{text-align:center; font-size:7.5px;}
-table.logt th.wkh.dl{opacity:.6;}
-table.logt td.wc{height:19px; border:1px solid #aaa; border-bottom:1.5px solid ${S.pa}; text-align:center; font-size:7.5px; font-weight:600; color:${S.pi}; padding:1px;}
-table.logt td.wc.sm{font-size:6px;}
 .bx{display:inline-block; width:34px; height:16px; border:1px solid #999; border-bottom:1.5px solid ${S.pa}; border-radius:1px; margin:0 2px 2px 0; position:relative; vertical-align:middle;}
 .bx i{position:absolute; top:-1px; left:1.5px; font-style:normal; font-size:5.5px; color:#999; font-family:'Oswald',sans-serif; letter-spacing:.05em;}\n.bx b{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:8px; font-weight:600; color:${S.pi};}
 .cb{padding:6px 10px;}
@@ -2537,6 +2571,14 @@ table.logt td.wc.sm{font-size:6px;}
 .prpe b{font-family:'Oswald',sans-serif; font-weight:600; font-size:7.5px; letter-spacing:.12em; text-transform:uppercase; margin-right:5px;}
 .prpe .rc{display:inline-block; width:14px; height:12px; border:1px solid #999; border-radius:1px; margin-right:2px; text-align:center; font-size:7px; line-height:12px; color:#666;}
 .prpe .rc.sel{background:${S.pa}; border-color:${S.pa}; color:${S.poa}; font-weight:600;}
+.rx2{font-weight:400; font-size:7.2px; color:#555;}
+.wkpage .bx{width:27px; height:15px; margin:0 1px 1px 0;}
+.wkpage td{padding:3px 5px;}
+.lw{display:inline-block; margin-top:1px; font-size:6.8px; font-weight:400; color:#888;}
+.wnote{margin:0 0 7px; border:1px solid #d9d9d9; border-left:3px solid ${S.pa}; border-radius:2px; padding:5px 9px; font-size:8.6px; color:#333;}
+.wnote b{font-family:'Oswald',sans-serif; font-weight:600; font-size:8px; letter-spacing:.12em; text-transform:uppercase; margin-right:5px; color:${S.pi};}
+.wkpage .sect{margin-top:8px; break-after:avoid;}
+.sect + .foot{break-after:avoid;}
 .foot{margin-top:9px; border:1px solid #bbb; border-left:3px solid ${S.pa}; border-radius:2px; padding:7px 10px; font-size:9px;}
 .sect{display:flex; align-items:baseline; gap:10px; margin:12px 0 6px; border-bottom:2px solid ${S.pa}; padding-bottom:3px;}
 .sect b{font-family:'Oswald',sans-serif; font-weight:600; font-size:13px; letter-spacing:.1em; text-transform:uppercase;}
@@ -2551,27 +2593,19 @@ table.logt td.wc.sm{font-size:6px;}
 </style></head><body>
 <div class="stpf"><img src="${LOGO_ST_MARK_NAVY}" alt=""><span>ST Performance | stperformanceglobal.com</span></div>
 
-${cfg.liftOn ? `<div class="page">
-  <div class="hd">${stpLinkOpen()}<img class="${SK.wideLogo ? "wide" : ""}" src="${logo}" alt="${SK.brand}">${stpLinkClose()}
-    <div><div class="t1">Strength Programme</div><div class="t2">${SK.brand}</div></div>
-    <div class="meta"><b>${f.name}</b> | ${equipName} | ${{split:"Lower/Upper split", full:"Full body only", hyb:"Hybrid"}[cfg.struct]} | ${{lower:"Lower body 2:1", upper:"Upper body 2:1", equal:"Equal 1:1"}[cfg.emph]}${withRec ? " | Recording sheet" : ""}<br>${cfg.liftDays} day${cfg.liftDays>1?"s":""} per week | ${cfg.weeks} weeks | ${cfg.focus==="tri" ? "Triphasic blocks: ecc / iso / con" : "Linear, 3 week waves"}${deloadWeeks().length ? " | Deload wk " + deloadWeeks().join(" and ") : ""}</div>
+<div class="page">
+  <div class="hd">${logoTag(true)}
+    <div><div class="t1">Training Programme</div><div class="t2">${SK.brand}${withRec ? " | Recording sheet" : ""}</div></div>
+    <div class="meta">${metaBits.join("<br>")}<br>${cfg.weeks} weeks${deloadWeeks().length ? " | Deload wk " + deloadWeeks().join(" and ") : ""}</div>
   </div>
-  <div class="wks">${wkCells}</div>
-  <div class="grid">${liftCards}</div>
-  ${cfg.focus==="cluster" ? "" : `<div class="foot"><b>Coaching note.</b> ${f.note}</div>`}
+  ${cfg.liftOn ? `<div class="wks">${wkCells}</div>` : ""}
+  <div class="foot"><b>How to use this PDF.</b> One page per week, in order: that week's lifting, conditioning, speed and running together.${withRec ? " Write each set's load in the boxes. The small grey line shows last week's loads for the same lift." : ""} A busy week may run onto a second page.</div>
+  ${cfg.liftOn && cfg.focus!=="cluster" ? `<div class="foot"><b>Coaching note.</b> ${f.note}</div>` : ""}
+  ${program.run ? `<div class="foot"><b>Running.</b> Volume builds 10% of week 1 each build week through extra reps of the same drills and steps back in deload weeks. Drills change every 4 weeks.</div>` : ""}
+  ${program.speed ? `<div class="foot"><b>Speed.</b> Volume stays the same through the programme. Drills change every 4 weeks.</div>` : ""}
 </div>
-${cfg.focus==="cluster" ? clusterPrintPage(logo, SK, f, withRec) : ""}` : ""}
-
-${(cfg.condOn || extraCards) ? `<div class="page">
-  <div class="hd">${cfg.liftOn ? "" : stpLinkOpen()}<img class="${SK.wideLogo ? "wide" : ""}" src="${logo}" alt="${SK.brand}">${cfg.liftOn ? "" : stpLinkClose()}
-    <div><div class="t1">${cfg.condOn ? "Conditioning Programme" : "Speed and Running"}</div><div class="t2">${SK.brand}</div></div>
-    <div class="meta">${cfg.condOn ? `<b>${c.name}</b> | Effort ${c.rpe}${withRec ? " | Recording sheet" : ""}<br>${cfg.condDays} day${cfg.condDays>1?"s":""} per week | ${cfg.condMins} min per session` : `<b>Field work</b>${withRec ? " | Recording sheet" : ""}`}</div>
-  </div>
-  ${cfg.condOn ? `<div class="cgrid">${condCards}</div>
-  <div class="foot"><b>Pick your poison.</b> ${MACHINES}<br>
-  <span class="note">${c.note} ${cfg.liftOn ? "Progression follows the same 3 week wave as the lifting: hold the structure and lift the output." : "Progression follows a 3 week wave: hold the structure and lift the output."}</span></div>` : ""}
-  ${extraCards}
-</div>` : ""}
+${cfg.liftOn && cfg.focus==="cluster" ? clusterPrintPage(logo, SK, f, withRec) : ""}
+${weekPages}
 
 <scr` + `ipt>window.onload = () => setTimeout(() => { window.focus(); window.print(); }, 350);</scr` + `ipt>
 </body></html>`;
@@ -2947,151 +2981,172 @@ async function buildFillablePdf(){
     tf.setFontSize(size || 8);
   }
 
-  /* ---------- Lifting pages ---------- */
+  /* ---------- Overview, then one block of pages per week ---------- */
   const equipName = EQUIP_NAME[cfg.equip];
-  const liftMeta = `${f.name}  |  ${equipName}  |  ${cfg.liftDays} day${cfg.liftDays>1?"s":""}/wk  |  ${cfg.weeks} weeks`;
+  const topMeta = `${cfg.weeks} weeks` + (deloadWeeks().length ? `  |  Deload wk ${deloadWeeks().join(" and ")}` : "");
+  const paraAt = (head, lines, size, title, meta)=>{
+    ensure(30, title, meta);
+    txt(head.toUpperCase(), M, y-8, 8, bold, ACC); y -= 18;
+    lines.forEach(t=>wrap(t, helv, size||8.5, W-2*M-10).forEach(ln=>{
+      ensure(12, title, meta);
+      txt(ln, M+4, y, size||8.5, helv); y -= 11.5;
+    }));
+    y -= 8;
+  };
+  newPage('Training Programme', topMeta);
+  if(cfg.liftOn && cfg.focus === "cluster"){
+    paraAt('What cluster sets are', [CLUSTER_GUIDE.what, CLUSTER_GUIDE.read], 8.5, 'Training Programme', topMeta);
+    paraAt('Why it works', [CLUSTER_GUIDE.why], 8.5, 'Training Programme', topMeta);
+    paraAt('How to run one set', CLUSTER_GUIDE.steps.map((x, i)=>(i+1) + '. ' + x), 8.5, 'Training Programme', topMeta);
+    paraAt('Rules', CLUSTER_GUIDE.rules.map(x=>'• ' + x), 8.5, 'Training Programme', topMeta);
+  }
+  const ov = ['One page per week, in order: that week\'s lifting, conditioning, speed and running together. Type in the boxes on any device, or print and write. A busy week may run onto a second page.'];
+  if(cfg.liftOn) ov.push(`Strength: ${f.name}, ${equipName}, ${cfg.liftDays} day${cfg.liftDays>1?"s":""} per week. ${f.note}`);
+  if(program.run) ov.push('Running: volume builds 10% of week 1 each build week through extra reps of the same drills, and steps back in deload weeks. Drills change every 4 weeks.');
+  if(program.speed) ov.push('Speed: volume stays the same through the programme. Drills change every 4 weeks.');
+  paraAt('How to use this PDF', ov, 8.5, 'Training Programme', topMeta);
   if(cfg.liftOn){
-  if(cfg.focus === "cluster"){
-    newPage('How Cluster Sets Work', liftMeta);
-    const para = (head, lines, size)=>{
-      ensure(30, 'How Cluster Sets Work', liftMeta);
-      txt(head.toUpperCase(), M, y-8, 8, bold, ACC); y -= 18;
-      lines.forEach(t=>wrap(t, helv, size||8.5, W-2*M-10).forEach(ln=>{
-        ensure(12, 'How Cluster Sets Work', liftMeta);
-        txt(ln, M+4, y, size||8.5, helv); y -= 11.5;
-      }));
-      y -= 8;
-    };
-    para('What it is', [CLUSTER_GUIDE.what, CLUSTER_GUIDE.read]);
-    para('Why it works', [CLUSTER_GUIDE.why]);
-    para('How to run one set', CLUSTER_GUIDE.steps.map((x, i)=>(i+1) + '. ' + x));
-    para('Rules', CLUSTER_GUIDE.rules.map(x=>'• ' + x));
-    para('The three week wave on the first two lifts', CLUSTER_WAVE.map((c, i)=>`Week ${i+1} of each wave: ${clText(c)}. Effort ${c.rpe} of 10.`));
-    newPage('Strength Programme', liftMeta);
-  } else {
-    newPage('Strength Programme', liftMeta);
+    const wl = weekLines();
+    ensure(14 + wl.length*10 + 8, 'Training Programme', topMeta);
+    txt('WEEK GUIDE', M, y-8, 8, bold, ACC); y -= 18;
+    wl.forEach(l=>{ txt(trunc(l, helv, 7.5, W-2*M), M, y, 7.5, helv, GREY); y -= 10; });
+    y -= 8;
   }
 
-  /* week guide */
-  const wl = weekLines();
-  const wgH = 14 + wl.length*10 + 8;
-  ensure(wgH, 'Strength Programme', liftMeta);
-  txt('WEEK GUIDE', M, y-8, 8, bold, ACC); y -= 18;
-  wl.forEach(l=>{ txt(trunc(l, helv, 7.5, W-2*M), M, y, 7.5, helv, GREY); y -= 10; });
-  y -= 8;
-
-  program.days.forEach((d, di)=>{
-    const WN = cfg.weeks, nameW = 200;
-    const fgap = 2, fw = Math.floor((W - 2*M - nameW - 4 - (WN-1)*fgap) / WN), xF = M + nameW + 4;
-    const blockH = 22 + 12 + d.ex.length*20 + 10;
-    ensure(blockH, 'Strength Programme', liftMeta);
-
-    page.drawRectangle({x:M, y:y-16, width:W-2*M, height:16, color:HEAD});
-    page.drawRectangle({x:M, y:y-18, width:W-2*M, height:2, color:ACC});
-    txt(`DAY ${di+1}  |  ${d.title.toUpperCase()}`, M+7, y-11.5, 9, bold, rgb(1,1,1));
-    txt('LOADS BY WEEK, SETS SPLIT WITH A SLASH', RIGHT-170, y-11.5, 6.5, helv, rgb(1,1,1));
-    y -= 28;
-    txt('EXERCISE', M+30, y, 6.5, bold, GREY);
-    for(let w=1; w<=WN; w++) txt((isDeload(w) ? 'D' : 'W') + w, xF + (w-1)*(fw+fgap) + Math.max(2, fw/2 - 6), y, 6.5, bold, GREY);
-    y -= 6;
-
-    d.ex.forEach((x, xi)=>{
-      const label = x.label || ((cfg.focus==="sp" && d.ex[0].cat==="pow" && xi<2) ? ["A1","A2"][xi] : (xi+1));
-      y -= 15;
-      txt(label, M+4, y, 8.5, bold, ACC);
-      txt(trunc(x.options[x.sel], helv, 8, nameW - 34), M+30, y, 8, helv);
-      for(let w=1; w<=WN; w++)
-        field(`d${di}x${xi}w${w}`, xF + (w-1)*(fw+fgap), y-4, fw, 14, loadsText(x, w), WN > 10 ? 6 : 7.5);
-      y -= 5;
-    });
-    y -= 12;
-  });
-
-  }
-
-  /* ---------- Conditioning page ---------- */
-  const condMeta = `${co.name}  |  Effort ${co.rpe}  |  ${cfg.condDays} day${cfg.condDays>1?"s":""}/wk  |  ${cfg.condMins} min per session`;
-  if(cfg.condOn){
-  newPage('Conditioning Programme', condMeta);
-  txt(trunc('Pick your poison: ' + MACHINES, helv, 7.5, W-2*M), M, y-4, 7.5, helv, GREY);
-  y -= 20;
-
-  for(let dd=0; dd<cfg.condDays; dd++){
-    const {label, ratio, rounds, used} = condPlan(dd);
-    const perRow = 8, lines = Math.ceil(rounds/perRow);
-    const blockH = 22 + 14 + lines*20 + 22;
-    ensure(blockH, 'Conditioning Programme', condMeta);
-
-    page.drawRectangle({x:M, y:y-16, width:W-2*M, height:16, color:HEAD});
-    page.drawRectangle({x:M, y:y-18, width:W-2*M, height:2, color:ACC});
-    txt(`DAY ${dd+1}  |  ${co.name.toUpperCase()} INTERVALS`, M+7, y-11.5, 9, bold, rgb(1,1,1));
-    y -= 30;
-    txt(`${label}  (W:R ${ratio})   |   ${rounds} rounds, ${used} min total   |   Effort ${co.rpe}   |   Warm up 3-5 min easy first`, M+4, y, 8, helv);
-    y -= 14;
-    txt('PACE, WATTS OR LEVEL PER ROUND', M+4, y, 6.5, bold, GREY);
-    y -= 4;
-    for(let r=1; r<=rounds; r++){
-      const col = (r-1) % perRow, row = Math.floor((r-1)/perRow);
-      const fx = M + 4 + col*88, fy = y - 16 - row*20;
-      txt('R'+r, fx, fy+4, 6.5, helv, GREY);
-      field(`c${dd}r${r}`, fx+14, fy, 60, 14, undefined, 8);
+  const co2 = co;
+  for(let wk=1; wk<=cfg.weeks; wk++){
+    const wTitle = `Week ${wk} of ${cfg.weeks}${isDeload(wk) ? ' | Deload' : ''}`;
+    const wMeta = [cfg.liftOn ? f.name : null, cfg.condOn ? co.name : null, program.speed ? 'Speed' : null, program.run ? 'Running' : null].filter(Boolean).join('  |  ');
+    newPage(wTitle, wMeta);
+    const ens = need => ensure(need, wTitle + ' (continued)', wMeta);
+    if(cfg.liftOn){
+      wrap('Week ' + wk + ': ' + weekNote(wk).replace(/<[^>]+>/g, ''), helv, 7.5, W-2*M).forEach(l=>{ txt(l, M, y, 7.5, helv, GREY); y -= 10; });
+      y -= 6;
     }
-    y -= 16 + lines*20;
-    txt('SESSION RPE (1-10)', M+4, y, 7, bold, GREY);
-    field(`rpeC${dd}`, M+100, y-4, 34, 14, program.condRpe[dd], 8);
-    y -= 20;
-  }
-  } else if(program.speed || program.run){
-    newPage('Speed and Running', 'Field work');
-  }
+    const fn = fieldWeekNote(wk);
+    if(fn){ txt(fn, M, y, 7.5, helv, GREY); y -= 14; }
 
-  /* ---------- Optional Speed / Running blocks ---------- */
-  function optBlock(secTitle, days, rpeMap, prefix, metaLine){
-    days.forEach((d, di)=>{
-      const wl = [];
-      d.lines.forEach(l=>wrap(U(l), helv, 8, W-2*M-12).forEach(x=>wl.push(x)));
-      const blockH = 22 + wl.length*13 + 44;
-      ensure(blockH, secTitle, metaLine);
-      page.drawRectangle({x:M, y:y-16, width:W-2*M, height:16, color:HEAD});
-      page.drawRectangle({x:M, y:y-18, width:W-2*M, height:2, color:ACC});
-      txt(`${secTitle.toUpperCase()}  DAY ${di+1}  |  ${d.title.toUpperCase()}  (${U(d.tag).toUpperCase()})`, M+7, y-11.5, 9, bold, rgb(1,1,1));
-      y -= 26;
-      wl.forEach(l=>{
-        txt(l, M+4, y, 8, helv);
-        y -= 13;
-      });
+    /* Lifting: day cards side by side */
+    if(cfg.liftOn){
+      const cols = cfg.liftDays <= 3 ? cfg.liftDays : (cfg.liftDays === 4 ? 2 : 3), gapC = 10;
+      const colW = (W - 2*M - (cols-1)*gapC) / cols;
+      for(let r0=0; r0<program.days.length; r0+=cols){
+        const chunk = program.days.slice(r0, r0+cols);
+        const hMax = Math.max(...chunk.map(d=>34 + d.ex.length*24 + 6));
+        ens(hMax + 4);
+        chunk.forEach((d, ci)=>{
+          const di = r0 + ci, x0 = M + ci*(colW + gapC);
+          const nMax = Math.max(...d.ex.map(x=>setsOf(weekRx(x, f, wk))));
+          const fg = 2, fw = Math.min(40, Math.floor((colW*0.52)/nMax) - fg), bw = nMax*(fw+fg) - fg;
+          const xF = x0 + colW - bw - 2, nameW = xF - x0 - 20;
+          let yy = y;
+          page.drawRectangle({x:x0, y:yy-15, width:colW, height:15, color:HEAD});
+          page.drawRectangle({x:x0, y:yy-17, width:colW, height:2, color:ACC});
+          txt(trunc(`DAY ${di+1}  |  ${d.title.toUpperCase()}`, bold, 8, colW-10), x0+5, yy-10.5, 8, bold, rgb(1,1,1));
+          yy -= 28;
+          for(let s=1; s<=nMax; s++) txt('S'+s, xF + (s-1)*(fw+fg) + fw/2 - 3, yy+4, 6, bold, GREY);
+          d.ex.forEach((x, xi)=>{
+            const p = weekRx(x, f, wk);
+            const label = x.label || ((cfg.focus==="sp" && d.ex[0].cat==="pow" && xi<2) ? ["A1","A2"][xi] : (xi+1));
+            const n = setsOf(p);
+            yy -= 16;
+            txt(label, x0+3, yy, 7.5, bold, ACC);
+            txt(trunc(nameOf(x, wk), helv, 7, nameW), x0+18, yy, 7, helv);
+            const lw = lastWeekText(x, f, wk);
+            const rxl = `${p.sets} x ${p.reps} | ${p.tempo} | ${p.rest}` + (lw ? `  |  last wk ${lw}` : "");
+            txt(trunc(rxl, helv, 5.6, nameW), x0+18, yy-7.5, 5.6, helv, GREY);
+            for(let s=1; s<=n; s++)
+              field(`d${di}x${xi}w${wk}s${s}`, xF + (s-1)*(fw+fg), yy-4, fw, 14, recOf(x, wk)[s], 7.5);
+            yy -= 8;
+          });
+        });
+        y -= hMax + 6;
+      }
       y -= 4;
-      txt('TIMES / NOTES', M+4, y, 7, bold, GREY);
-      field(`${prefix}n${di}`, M+78, y-4, 560, 14, undefined, 8);
-      txt('RPE', 690, y, 7, bold, GREY);
-      field(`${prefix}rpe${di}`, 712, y-4, 34, 14, rpeMap[di], 8);
-      y -= 22;
-    });
-  }
-  if(program.speed){
-    const qualName = cfg.spdQual === "all" ? "All qualities" : SPEED[cfg.spdQual].name;
-    const spdMeta = `${qualName}  |  ${cfg.spdApp==="split" ? "Split" : "Hybrid"}  |  ${program.speed.length} day${program.speed.length>1?"s":""}/wk`;
-    ensure(96, 'Speed', spdMeta);
-    y -= 4;
-    txt('SPEED  -  maximal intent, full recovery between reps', M, y, 8, bold, ACC);
-    y -= 11;
-    txt('WARM-UP FIRST', M, y, 7, bold, GREY);
-    y -= 10;
-    wrap(U(FIELD_WARMUP), helv, 7.5, W - 2*M).forEach(l=>{ txt(l, M, y, 7.5, helv, GREY); y -= 10; });
-    y -= 4;
-    optBlock('Speed', program.speed, program.spdRpe, 'spd', spdMeta);
-  }
-  if(program.run){
-    const runMeta = `${RUN_TYPE_NAME[cfg.runType]}  |  ${cfg.runApp==="split" ? "Split" : "Hybrid"}  |  ${program.run.length} day${program.run.length>1?"s":""}/wk`;
-    ensure(96, 'Running Conditioning', runMeta);
-    y -= 4;
-    txt('RUNNING CONDITIONING  -  hold the same times on every rep', M, y, 8, bold, ACC);
-    y -= 11;
-    txt('WARM-UP FIRST', M, y, 7, bold, GREY);
-    y -= 10;
-    wrap(U(FIELD_WARMUP), helv, 7.5, W - 2*M).forEach(l=>{ txt(l, M, y, 7.5, helv, GREY); y -= 10; });
-    y -= 4;
-    optBlock('Running', program.run, program.runRpe, 'run', runMeta);
+    }
+
+    /* Indoor conditioning: day cards side by side */
+    if(cfg.condOn){
+      const cols = Math.min(Math.max(cfg.condDays, 1), 3), gapC = 10, colW = (W - 2*M - (cols-1)*gapC) / cols;
+      const perRow = Math.max(2, Math.floor((colW - 8) / 62));
+      const plans = Array.from({length:cfg.condDays}, (_, dd)=>condPlan(dd));
+      for(let r0=0; r0<plans.length; r0+=cols){
+        const chunk = plans.slice(r0, r0+cols);
+        const hMax = Math.max(...chunk.map(pl=>52 + Math.ceil(pl.rounds/perRow)*19 + 4));
+        ens(hMax + 30);
+        if(r0 === 0){
+          txt('INDOOR CONDITIONING', M, y-8, 8, bold, ACC);
+          txt(trunc('Pick your poison: ' + MACHINES, helv, 7, W-2*M-110), M+108, y-8, 7, helv, GREY);
+          y -= 20;
+        }
+        chunk.forEach((pl, ci)=>{
+          const dd = r0 + ci, x0 = M + ci*(colW + gapC);
+          let yy = y;
+          page.drawRectangle({x:x0, y:yy-15, width:colW, height:15, color:HEAD});
+          page.drawRectangle({x:x0, y:yy-17, width:colW, height:2, color:ACC});
+          txt(trunc(`DAY ${dd+1}  |  ${co.name.toUpperCase()} INTERVALS`, bold, 8, colW-10), x0+5, yy-10.5, 8, bold, rgb(1,1,1));
+          yy -= 28;
+          txt(trunc(`${pl.label} (W:R ${pl.ratio})  |  ${pl.rounds} rounds, ${pl.used} min  |  Effort ${co.rpe}`, helv, 6.8, colW-6), x0+3, yy, 6.8, helv);
+          yy -= 12;
+          for(let r=1; r<=pl.rounds; r++){
+            const col = (r-1) % perRow, row = Math.floor((r-1)/perRow);
+            const fx = x0 + 3 + col*62, fy = yy - 14 - row*19;
+            txt('R'+r, fx, fy+4, 6, helv, GREY);
+            field(`w${wk}c${dd}r${r}`, fx+12, fy, 44, 13, undefined, 7.5);
+          }
+        });
+        y -= hMax + 4;
+      }
+    }
+
+    /* Speed and running */
+    const optBlock = (secTitle, days, rpeMap, prefix)=>{
+      const cols = Math.min(days.length, 3), gapC = 10, colW = (W - 2*M - (cols-1)*gapC) / cols, LS = 6.8, LH = 8.6;
+      for(let r0=0; r0<days.length; r0+=cols){
+        const chunk = days.slice(r0, r0+cols).map(d=>{
+          const wl = [];
+          d.lines.forEach(l=>wrap(U(l), helv, LS, colW-10).forEach(x=>wl.push(x)));
+          return {d, wl};
+        });
+        const hMax = Math.max(...chunk.map(c=>34 + c.wl.length*LH + 26));
+        ens(hMax + 4);
+        chunk.forEach((c, ci)=>{
+          const di = r0 + ci, x0 = M + ci*(colW + gapC);
+          let yy = y;
+          page.drawRectangle({x:x0, y:yy-15, width:colW, height:15, color:HEAD});
+          page.drawRectangle({x:x0, y:yy-17, width:colW, height:2, color:ACC});
+          txt(trunc(`DAY ${di+1}  |  ${c.d.title.toUpperCase()}  (${U(c.d.tag).toUpperCase()})`, bold, 7.5, colW-10), x0+5, yy-10.5, 7.5, bold, rgb(1,1,1));
+          yy -= 28;
+          c.wl.forEach(l=>{ txt(l, x0+4, yy, LS, helv); yy -= LH; });
+          yy -= 6;
+          txt('NOTES', x0+4, yy, 6, bold, GREY);
+          field(`w${wk}${prefix}n${di}`, x0+30, yy-4, colW-34-40, 13, undefined, 7.5);
+          txt('RPE', x0+colW-34, yy, 6, bold, GREY);
+          field(`w${wk}${prefix}rpe${di}`, x0+colW-20, yy-4, 18, 13, rpeMap[di], 7.5);
+        });
+        y -= hMax + 4;
+      }
+    };
+    let warmDone = false;
+    const warmLine = ()=>{
+      if(warmDone) return;
+      warmDone = true;
+      txt('WARM-UP FIRST', M, y, 7, bold, GREY); y -= 10;
+      wrap(U(FIELD_WARMUP), helv, 7.5, W - 2*M).forEach(l=>{ txt(l, M, y, 7.5, helv, GREY); y -= 10; });
+      y -= 4;
+    };
+    if(program.speed){
+      ens(96); y -= 4;
+      txt('SPEED  -  maximal intent, full recovery between reps', M, y, 8, bold, ACC); y -= 11;
+      warmLine();
+      optBlock('Speed', speedFor(wk), program.spdRpe, 'spd');
+    }
+    if(program.run){
+      ens(96); y -= 4;
+      txt('RUNNING CONDITIONING  -  hold the same times on every rep', M, y, 8, bold, ACC); y -= 11;
+      warmLine();
+      optBlock('Running', runFor(wk), program.runRpe, 'run');
+    }
   }
 
   form.updateFieldAppearances(helv);
