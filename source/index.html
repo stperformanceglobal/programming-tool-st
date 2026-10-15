@@ -2477,6 +2477,76 @@ function clusterPrintPage(logo, SK, f, withRec){
 }
 
 /* ---------------- PDF export: landscape popup ---------------- */
+
+/* Week pages: split a week over as many letter landscape pages as it needs, at card and row boundaries,
+   with a "(continued)" header on every extra page so no page is ever unlabelled. Runs in the print window. */
+const PAGINATE_JS = `function stpPaginate(){
+  var PH = 7.55 * 96 - 12;
+  var pages = Array.prototype.slice.call(document.querySelectorAll('.wkpage'));
+  if(!pages.length || !pages[0].getBoundingClientRect().width) return;
+  var meas = document.createElement('div');
+  meas.className = 'wkpage';
+  meas.style.cssText = 'position:absolute;left:0;top:0;visibility:hidden;display:flow-root;width:' + pages[0].getBoundingClientRect().width + 'px';
+  document.body.appendChild(meas);
+  function hOf(els){ meas.innerHTML = ''; els.forEach(function(e){ meas.appendChild(e); }); return meas.offsetHeight; }
+  function cols(g){ return Math.max(1, getComputedStyle(g).gridTemplateColumns.split(' ').length); }
+  pages.forEach(function(pg){
+    var tot = pg.getBoundingClientRect().height;
+    if(tot > PH && tot <= PH / 0.9){
+      pg.style.zoom = Math.max(0.9, PH / tot - 0.01);
+      if(pg.getBoundingClientRect().height <= PH) return;
+      pg.style.zoom = '';
+    }
+    var hd = pg.querySelector('.hd'), kids = Array.prototype.slice.call(pg.children).filter(function(e){ return e !== hd; });
+    var title = hd.querySelector('.t1').textContent;
+    var units = [], cur = null;
+    kids.forEach(function(e){
+      if(e.classList.contains('sect')){ cur = {els:[e]}; units.push(cur); }
+      else if(cur){ cur.els.push(e); }
+      else { units.push({els:[e]}); }
+    });
+    var pieces = [];
+    units.forEach(function(u){
+      var gi = -1;
+      u.els.forEach(function(e, i){ if(gi < 0 && /(^| )(grid|cgrid|ogrid)( |$)/.test(e.className)) gi = i; });
+      if(gi < 0 || u.els[gi].children.length < 2){ pieces.push({els:u.els, sect:null}); return; }
+      var g = u.els[gi], lead = u.els.slice(0, gi), tail = u.els.slice(gi + 1), items = Array.prototype.slice.call(g.children), n = cols(g);
+      var sect = lead.length ? lead[lead.length - 1] : null, rows = [];
+      for(var i = 0; i < items.length; i += n) rows.push(items.slice(i, i + n));
+      rows.forEach(function(r, ri){
+        var ng = g.cloneNode(false); r.forEach(function(it){ ng.appendChild(it); });
+        if(ri) ng.style.marginTop = '9px';
+        var els = (ri === 0 ? lead.slice() : []).concat([ng]).concat(ri === rows.length - 1 ? tail : []);
+        pieces.push({els:els, sect: ri ? sect : null, contOf: sect});
+      });
+    });
+    pieces.forEach(function(pc){ pc.h = hOf(pc.els.slice()); });
+    var hdH = hOf([hd.cloneNode(true)]);
+    var contHd = hd.cloneNode(true); contHd.classList.add('cont');
+    var m = contHd.querySelector('.meta'); if(m) m.remove();
+    contHd.querySelector('.t1').textContent = title + ' (continued)';
+    var contH = hOf([contHd.cloneNode(true)]);
+    var out = [[]], used = hdH, first = true;
+    pieces.forEach(function(pc){
+      var els = pc.els, h = pc.h;
+      if(used + h > PH && out[out.length - 1].length){
+        out.push([]); first = false; used = contH;
+        if(pc.contOf){ var c = pc.contOf.cloneNode(true); var b = c.querySelector('b'); if(b) b.textContent += ' (continued)'; out[out.length - 1].push(c); used += hOf([c.cloneNode(true)]); }
+      }
+      out[out.length - 1].push.apply(out[out.length - 1], els); used += h;
+    });
+    pg.innerHTML = ''; pg.appendChild(hd);
+    out[0].forEach(function(e){ pg.appendChild(e); });
+    var after = pg;
+    out.slice(1).forEach(function(list){
+      var np = document.createElement('div'); np.className = pg.className;
+      np.appendChild(contHd.cloneNode(true)); list.forEach(function(e){ np.appendChild(e); });
+      after.parentNode.insertBefore(np, after.nextSibling); after = np;
+    });
+  });
+  meas.remove();
+}`;
+
 function printDoc(withRec){
   const f = FOCUS[cfg.focus], c = COND[cfg.condSys];
   const SK = SKINS[activeSkin];
@@ -2617,6 +2687,10 @@ function printDoc(withRec){
 @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Inter:wght@400;500;600&display=swap');
 @page{size:letter landscape; margin:0.4in 0.4in 0.55in;}
 *{box-sizing:border-box; margin:0; padding:0;}
+@media screen{body{width:10.2in; margin:0 auto;}}
+.hd.cont img{width:30px; height:30px;}
+.hd.cont{padding-bottom:5px; margin-bottom:7px;}
+.hd.cont .t1{font-size:14px;}
 body{font-family:'Inter',sans-serif; color:${S.pi}; background:#fff; font-size:10px;}
 .stpf{position:fixed; left:0; right:0; bottom:0; display:flex; align-items:center; justify-content:flex-end; gap:7px;}
 .stpf img{width:38px; height:24px; object-fit:contain;}
@@ -2696,7 +2770,8 @@ td.recc{white-space:nowrap;}
 ${cfg.liftOn && cfg.focus==="cluster" ? clusterPrintPage(logo, SK, f, withRec) : ""}
 ${weekPages}
 
-<scr` + `ipt>window.onload = () => setTimeout(() => { window.focus(); window.print(); }, 350);</scr` + `ipt>
+<scr` + `ipt>${PAGINATE_JS}
+window.onload = () => { const go = () => { try{ stpPaginate(); }catch(e){} setTimeout(() => { window.focus(); window.print(); }, 350); }; (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(go, go); };</scr` + `ipt>
 </body></html>`;
 }
 
