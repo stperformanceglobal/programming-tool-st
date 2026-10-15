@@ -1207,6 +1207,14 @@ function fcDay(type, variant){
 
 /* ---------------- Build lifting programme ---------------- */
 function buildProgram(){
+  buildProgramCore();
+  fillField();
+}
+function fillField(){
+  program.speedRot = buildSpeedAll(); program.speed = program.speedRot ? program.speedRot[0] : null;
+  program.runRot = buildRunAll(); program.run = program.runRot ? program.runRot[0] : null;
+}
+function buildProgramCore(){
   const f = FOCUS[cfg.focus];
 
   /* Metabolic, Neural Contrast and EMOM Density build their own day structures */
@@ -1232,7 +1240,7 @@ function buildProgram(){
       const cats = ex.map(x=>x.cat);
       return {title, ex, prep: pickPrep(cats, di), recOn:false, rpe:null};
     });
-    program = {days, done:{}, condRpe:{}, spdRpe:{}, runRpe:{}, speed:buildSpeedDays(), run:buildRunDays()};
+    program = {days, done:{}, condRpe:{}, spdRpe:{}, runRpe:{}, speed:null, run:null};
     return;
   }
 
@@ -1252,7 +1260,7 @@ function buildProgram(){
       const cats = ex.map(x=>x.cat);
       return {title, ex, prep: pickPrep(cats, di), recOn:false, rpe:null};
     });
-    program = {days, done:{}, condRpe:{}, spdRpe:{}, runRpe:{}, speed:buildSpeedDays(), run:buildRunDays()};
+    program = {days, done:{}, condRpe:{}, spdRpe:{}, runRpe:{}, speed:null, run:null};
     return;
   }
 
@@ -1283,7 +1291,7 @@ function buildProgram(){
     if(cfg.careOn) ex.push(...careRows(di));
     return {title, ex, prep: pickPrep(ex.map(x=>x.cat), di), recOn:false, rpe:null};
   });
-  program = {days, done:{}, condRpe:{}, spdRpe:{}, runRpe:{}, speed:buildSpeedDays(), run:buildRunDays()};
+  program = {days, done:{}, condRpe:{}, spdRpe:{}, runRpe:{}, speed:null, run:null};
 }
 
 /* ---------------- Conditioning ---------------- */
@@ -1667,10 +1675,13 @@ function interleaveRuns(cats){
   return out;
 }
 
-function buildSpeedDays(){
+function buildSpeedDays(rot){
   if(!cfg.spdOn) return null;
+  rot = rot || 0;
+  const off = rot * (cfg.spdApp === "split" ? 1 : Math.max(1, cfg.spdDays));
   const days = [];
   const focused = (q, v) => {
+    v += off;
     const S = SPEED[q];
     const o = S.opts[v % S.opts.length], p = S.plyo[v % S.plyo.length];
     return {title:o.n, tag:S.name, lines:o.d.concat(["Plyo pairing: " + p[0] + ", " + p[1]])};
@@ -1685,9 +1696,9 @@ function buildSpeedDays(){
   }
   for(let d=0; d<cfg.spdDays; d++){
     days.push({title:"All Qualities Blend", tag:"Blend", lines:[
-      "Acceleration: " + SPEED.acc.mini[d % SPEED.acc.mini.length],
-      "Max Velocity: " + SPEED.mv.mini[d % SPEED.mv.mini.length],
-      "Change of Direction: " + SPEED.cod.mini[d % SPEED.cod.mini.length]
+      "Acceleration: " + SPEED.acc.mini[(d + off) % SPEED.acc.mini.length],
+      "Max Velocity: " + SPEED.mv.mini[(d + off) % SPEED.mv.mini.length],
+      "Change of Direction: " + SPEED.cod.mini[(d + off) % SPEED.cod.mini.length]
     ]});
   }
   return days;
@@ -1802,10 +1813,10 @@ function rebalanceWeek(sels, targets){
     sels[best.j][best.b] = t;
   }
 }
-function buildRunDays(){
+function buildRunDays(seed){
   if(!cfg.runOn) return null;
   RUN_VOLS = runDayVolumes(cfg.runDays);
-  const used = new Set();
+  const used = new Set(seed || []);
   const plan = [];
   /* Non-contact days that run short of target (10 rep cap, few unused blocks) are topped up with
      other running blocks for a blended day. Pure hit and wrestle days stay at their own volume. */
@@ -1861,6 +1872,50 @@ function buildRunDays(){
   });
 }
 
+/* ---- Drill blocks and weekly volume build ----
+   Drills change every 4 weeks; inside a block the drills stay and the reps carry the build.
+   Volume: +10% of week 1 each build week; a deload week steps back 10% from the week before. */
+const DRILL_BLOCK = 4, BUILD_STEP = 0.10, REPS_MAX = 20;
+function rotOf(w){ return Math.floor((w - 1) / DRILL_BLOCK); }
+function rotCount(){ return Math.max(1, Math.ceil(cfg.weeks / DRILL_BLOCK)); }
+function volFactor(w){
+  if(isDeload(w)){ const pw = w > 1 ? effWeek(w - 1) : 1; return Math.max(0.7, 1 + BUILD_STEP * (pw - 1) - BUILD_STEP); }
+  return 1 + BUILD_STEP * (effWeek(w) - 1);
+}
+function buildRunAll(){
+  if(!cfg.runOn) return null;
+  const seed = new Set(), out = [];
+  for(let r=0; r<rotCount(); r++){
+    const days = buildRunDays(seed);
+    days.forEach(d=>d.blocks.forEach(b=>seed.add(b.n.replace(/^\d+\.\s*/, ""))));
+    out.push(days);
+  }
+  return out;
+}
+function buildSpeedAll(){
+  if(!cfg.spdOn) return null;
+  return Array.from({length:rotCount()}, (_, r)=>buildSpeedDays(r));
+}
+function speedFor(w){ const a = program.speedRot; return a ? a[Math.min(rotOf(w), a.length - 1)] : program.speed; }
+function scaleBlock(b, f){
+  const per = b.dist / b.reps;
+  const reps = Math.max(1, Math.min(REPS_MAX, Math.round(b.reps * f)));
+  const lines = b.lines.map(l=>l.replace(/^\d+ reps/, reps + " reps").replace(/swaps at rep \d+/, "swaps at rep " + Math.ceil(reps / 2)));
+  return Object.assign({}, b, {reps, dist: Math.round(per * reps), lines});
+}
+function runFor(w){
+  const a = program.runRot; if(!a) return program.run;
+  const f = volFactor(w);
+  return a[Math.min(rotOf(w), a.length - 1)].map(d=>{
+    const blocks = d.blocks.map(b=>scaleBlock(b, f));
+    const total = blocks.reduce((x, b)=>x + b.dist, 0);
+    return Object.assign({}, d, {tag: "{" + total + "} total", blocks});
+  });
+}
+function blockTag(w, lastKey){
+  const r = rotOf(w), a = r * DRILL_BLOCK + 1, b = Math.min(cfg.weeks, (r + 1) * DRILL_BLOCK);
+  return "Drill block " + (r + 1) + " of " + rotCount() + " (weeks " + a + " to " + b + ")";
+}
 
 /* Option rules: keep selections legal after every click */
 function reconcileOptional(key){
@@ -2244,14 +2299,16 @@ function renderSpeed(){
   if(!show) return;
   const appName = cfg.spdApp === "split" ? "Split, one quality per day" : "Hybrid, blended sessions";
   const qualName = cfg.spdQual === "all" ? "All qualities" : SPEED[cfg.spdQual].name;
-  el('spdSub').textContent = `${qualName} | ${program.speed.length} day${program.speed.length>1?"s":""} per week | ${weekTag()}`;
+  const SD = speedFor(cfg.curWeek);
+  el('spdSub').textContent = `${qualName} | ${SD.length} day${SD.length>1?"s":""} per week | ${weekTag()}`;
   el('spdMeta').innerHTML =
     `<div><b>Quality</b>${qualName}</div>
      <div><b>Approach</b>${appName}</div>
      <div><b>Effort</b>Maximal intent, full recovery</div>
+     <div><b>Drills</b>${blockTag(cfg.curWeek)}</div>
      <div style="flex-basis:100%; color:#C9C9C9;">${U(FIELD_WARMUP)}</div>
      <div style="flex-basis:100%; color:#C9C9C9;">Speed is a skill, not conditioning. No session repeats within the week. Every rep at full intent and full recovery. Cut the session the moment quality drops.</div>`;
-  el('spdDaysWrap').innerHTML = fieldCards(program.speed, "spd");
+  el('spdDaysWrap').innerHTML = fieldCards(SD, "spd");
   wireDone(el('spdDaysWrap'));
 }
 function renderRun(){
@@ -2259,16 +2316,19 @@ function renderRun(){
   el('runPage').style.display = show ? "" : "none";
   if(!show) return;
   const appName = cfg.runApp === "split" ? "Split, one type per day" : "Hybrid, rotating sessions";
-  el('runSub').textContent = `${RUN_TYPE_NAME[cfg.runType]} | ${program.run.length} day${program.run.length>1?"s":""} per week | ${weekTag()}`;
+  const RD = runFor(cfg.curWeek), vf = volFactor(cfg.curWeek);
+  el('runSub').textContent = `${RUN_TYPE_NAME[cfg.runType]} | ${RD.length} day${RD.length>1?"s":""} per week | ${weekTag()}`;
   el('runMeta').innerHTML =
     `<div><b>Type</b>${RUN_TYPE_NAME[cfg.runType]}</div>
-     <div><b>Session volume</b>${distTxt(cfg.runMin)} to ${distTxt(cfg.runMax)}</div>
-     <div><b>Week total</b>${distTxt(program.run.reduce((a, d)=>a + d.blocks.reduce((x, b)=>x + b.dist, 0), 0))}</div>
+     <div><b>Session volume</b>${distTxt(Math.min(...RD.map(d=>d.blocks.reduce((x, b)=>x + b.dist, 0))))} to ${distTxt(Math.max(...RD.map(d=>d.blocks.reduce((x, b)=>x + b.dist, 0))))}</div>
+     <div><b>Week total</b>${distTxt(RD.reduce((a, d)=>a + d.blocks.reduce((x, b)=>x + b.dist, 0), 0))}</div>
+     <div><b>Build</b>${Math.round(vf * 100)}% of week 1${isDeload(cfg.curWeek) ? " (deload)" : ""}</div>
+     <div><b>Drills</b>${blockTag(cfg.curWeek)}</div>
      <div><b>Approach</b>${appName}</div>
      <div><b>Effort</b>Hit the targets, hold the output</div>
      <div style="flex-basis:100%; color:#C9C9C9;">${U(FIELD_WARMUP)}</div>
      <div style="flex-basis:100%; color:#C9C9C9;">Three drill blocks per session, built to land as close as possible to that day's volume. No drill appears twice in the programme. Hold the same times across every rep: the last rep at the same speed as the first is the goal.</div>`;
-  el('runDaysWrap').innerHTML = fieldCards(program.run, "run");
+  el('runDaysWrap').innerHTML = fieldCards(RD, "run");
   wireDone(el('runDaysWrap'));
 }
 
@@ -3046,7 +3106,7 @@ function runVolChanged(){
   if(cfg.runWkMin != null && cfg.runWkMin <= B.lo) cfg.runWkMin = null;
   if(cfg.runWkMax != null && cfg.runWkMax >= B.hi) cfg.runWkMax = null;
   syncRunVol();
-  if(program && program.run){ program.run = buildRunDays(); renderRun(); persist(); }
+  if(program && program.run){ program.runRot = buildRunAll(); program.run = program.runRot[0]; renderRun(); persist(); }
 }
 el('runMin').addEventListener('input', ()=>{
   cfg.runMin = +el('runMin').value; if(cfg.runMin > cfg.runMax) cfg.runMax = cfg.runMin;
