@@ -1071,15 +1071,18 @@ function mkEx(opts, variant, cat, role, label, rx, note){
   return {cat, options:rotArr([...opts], variant % opts.length), sel:0, recW:{}, role, label, rx, note};
 }
 function recOf(x, w){ if(!x.recW) x.recW = {}; return x.recW[w] || (x.recW[w] = {}); }
-function circOf(x){ return CIRCUITS.find(c=>c.n === x.options[x.sel]) || CIRCUITS[0]; }
-function exRx(x, f){
-  if(x.dyn === "circ") return circOf(x).rx;
+/* Swap scope: x.sel is the full-programme choice, x.selW holds this-week-only overrides */
+function selOf(x, w){ return (w && x.selW && x.selW[w] !== undefined) ? x.selW[w] : x.sel; }
+function nameOf(x, w){ return x.options[selOf(x, w)]; }
+function circOf(x, w){ return CIRCUITS.find(c=>c.n === nameOf(x, w)) || CIRCUITS[0]; }
+function exRx(x, f, w){
+  if(x.dyn === "circ") return circOf(x, w).rx;
   return x.rx || (x.role === "accy" ? f.accy : f.main);
 }
 /* Per-week prescription: the same lift, evolved for week w */
 function dlSets(v){ return String(v).replace(/\d+/g, n=>Math.max(1, +n - 1)); }
 function weekRx(x, f, w){
-  const base = exRx(x, f);
+  const base = exRx(x, f, w);
   if(x.dyn === "circ") return isDeload(w) ? Object.assign({}, base, {sets:dlSets(base.sets)}) : base;
   const p = Object.assign({}, base);
   const dl = isDeload(w);
@@ -1103,8 +1106,8 @@ function weekRx(x, f, w){
   if(dl) p.sets = dlSets(p.sets);
   return p;
 }
-function exNote(x){
-  if(x.dyn === "circ") return circOf(x).note;
+function exNote(x, w){
+  if(x.dyn === "circ") return circOf(x, w).note;
   return x.note || (x.role === "pow" ? "Move it fast" : "");
 }
 function careRows(di){
@@ -2013,7 +2016,7 @@ function prepHTML(prep){
 function stateJSON(){
   return JSON.stringify({
     cfg,
-    days: program.days.map(d=>({recOn:d.recOn, rpe:d.rpe, ex:d.ex.map(x=>({sel:x.sel, recW:x.recW}))})),
+    days: program.days.map(d=>({recOn:d.recOn, rpe:d.rpe, ex:d.ex.map(x=>({sel:x.sel, selW:x.selW, recW:x.recW}))})),
     done: program.done || {},
     condRpe: program.condRpe,
     spdRpe: program.spdRpe,
@@ -2044,7 +2047,7 @@ function applyState(s){
     const d = program.days[i]; if(!d) return;
     d.recOn = !!sd.recOn; d.rpe = sd.rpe ?? null;
     (sd.ex||[]).forEach((sx,k)=>{
-      if(d.ex[k]){ d.ex[k].sel = Math.min(sx.sel||0, d.ex[k].options.length-1); d.ex[k].recW = sx.recW || (sx.rec ? {1: sx.rec} : {}); }
+      if(d.ex[k]){ d.ex[k].sel = Math.min(sx.sel||0, d.ex[k].options.length-1); d.ex[k].selW = sx.selW || {}; Object.keys(d.ex[k].selW).forEach(w=>{ if(!(d.ex[k].selW[w] < d.ex[k].options.length)) delete d.ex[k].selW[w]; }); d.ex[k].recW = sx.recW || (sx.rec ? {1: sx.rec} : {}); }
     });
   });
   program.done = s.done || {};
@@ -2090,7 +2093,7 @@ function renderLift(){
     const rows = d.ex.map((x, xi)=>{
       const p = weekRx(x, f, W);
       const label = x.label || ((cfg.focus==="sp" && d.ex[0].cat==="pow" && xi<2) ? ["A1","A2"][xi] : (xi+1));
-      const note = exNote(x);
+      const note = exNote(x, W);
       const cur = recOf(x, W), prv = W > 1 ? recOf(x, W-1) : {};
       let rec = "";
       if(d.recOn){
@@ -2103,7 +2106,7 @@ function renderLift(){
       }
       return `<tr>
         <td class="ord">${label}</td>
-        <td class="exn"><button data-d="${di}" data-x="${xi}" class="swapBtn" title="Swap this lift">${x.options[x.sel]}</button>${note?`<span class="note">${note}</span>`:""}<span class="rx">${p.sets} x ${p.reps} &nbsp;|&nbsp; ${p.tempo} &nbsp;|&nbsp; ${p.rest}</span><div class="swapHost"></div></td>
+        <td class="exn"><button data-d="${di}" data-x="${xi}" class="swapBtn" title="Swap this lift">${nameOf(x, W)}</button>${note?`<span class="note">${note}</span>`:""}<span class="rx">${p.sets} x ${p.reps} &nbsp;|&nbsp; ${p.tempo} &nbsp;|&nbsp; ${p.rest}</span><div class="swapHost"></div></td>
         <td class="num">${p.sets}</td>
         <td class="num">${p.reps}</td>
         <td class="num">${p.tempo}</td>
@@ -2147,19 +2150,32 @@ function renderLift(){
 
 function openSwap(di, xi, btn){
   document.querySelectorAll('.swap').forEach(s=>s.remove());
-  const x = program.days[di].ex[xi];
-  const alts = x.options.map((o,i)=>({o,i})).filter(a=>a.i!==x.sel);
+  const x = program.days[di].ex[xi], W = cfg.curWeek, cur = selOf(x, W);
+  const alts = x.options.map((o,i)=>({o,i})).filter(a=>a.i!==cur);
   const host = btn.parentElement.querySelector('.swapHost');
   const box = document.createElement('div');
   box.className = 'swap';
-  box.innerHTML = `<p>Swap for progression, regression or substitution</p>` +
-    alts.map(a=>`<button class="opt" data-i="${a.i}">${a.o}</button>`).join("") +
-    `<button class="cancel">Keep ${x.options[x.sel]}</button>`;
+  const pick = (idx)=>{
+    box.innerHTML = `<p>Use ${x.options[idx]} for:</p>` +
+      `<button class="opt" data-sc="wk">This week</button>` +
+      `<button class="opt" data-sc="all">All weeks</button>` +
+      `<button class="cancel">Back</button>`;
+    box.querySelectorAll('.opt').forEach(o=>o.addEventListener('click', ()=>{
+      if(o.dataset.sc === "all"){ x.sel = idx; x.selW = {}; }
+      else { if(!x.selW) x.selW = {}; if(idx === x.sel) delete x.selW[W]; else x.selW[W] = idx; }
+      renderLift(); persist();
+    }));
+    box.querySelector('.cancel').addEventListener('click', ()=>list());
+  };
+  const list = ()=>{
+    box.innerHTML = `<p>Swap for progression, regression or substitution</p>` +
+      alts.map(a=>`<button class="opt" data-i="${a.i}">${a.o}</button>`).join("") +
+      `<button class="cancel">Keep ${x.options[cur]}</button>`;
+    box.querySelectorAll('.opt').forEach(o=>o.addEventListener('click', ()=>pick(+o.dataset.i)));
+    box.querySelector('.cancel').addEventListener('click', ()=>box.remove());
+  };
+  list();
   host.appendChild(box);
-  box.querySelectorAll('.opt').forEach(o=>o.addEventListener('click', ()=>{
-    x.sel = +o.dataset.i; renderLift(); persist();
-  }));
-  box.querySelector('.cancel').addEventListener('click', ()=>box.remove());
 }
 
 function condPlan(d){
