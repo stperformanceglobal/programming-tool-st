@@ -1071,6 +1071,10 @@ function recOf(x, w){ if(!x.recW) x.recW = {}; return x.recW[w] || (x.recW[w] = 
 /* Swap scope: x.sel is the full-programme choice, x.selW holds this-week-only overrides */
 function selOf(x, w){ return (w && x.selW && x.selW[w] !== undefined) ? x.selW[w] : x.sel; }
 function nameOf(x, w){ return x.options[selOf(x, w)]; }
+function loadsText(x, w){
+  const r = (x.recW && x.recW[w]) || {};
+  return Object.keys(r).map(Number).sort((a, b)=>a - b).map(k=>String(r[k] || "").trim()).filter(Boolean).join("/");
+}
 function circOf(x, w){ return CIRCUITS.find(c=>c.n === nameOf(x, w)) || CIRCUITS[0]; }
 function exRx(x, f, w){
   if(x.dyn === "circ") return circOf(x, w).rx;
@@ -2412,26 +2416,37 @@ function printDoc(withRec){
     wkCells += `<div class="wkc"><b>WK ${w}</b><i>${mid}</i><span>${txt}</span></div>`;
   }
 
-  const liftCols = withRec ? Math.min(cfg.liftDays, 2) : (cfg.liftDays<=3 ? cfg.liftDays : (cfg.liftDays===4 ? 2 : 3));
+  const liftCols = withRec ? 1 : (cfg.liftDays<=3 ? cfg.liftDays : (cfg.liftDays===4 ? 2 : 3));
   const bx = (n, rec) => Array.from({length:n}, (_,i)=>`<span class="bx"><i>S${i+1}</i>${rec && rec[i+1] ? `<b>${rec[i+1]}</b>` : ""}</span>`).join("");
   const rpeStrip = v => `<div class="prpe"><b>Session RPE</b>` +
     Array.from({length:10}, (_,i)=>`<span class="rc${v===i+1?" sel":""}">${i+1}</span>`).join("") + `</div>`;
   const prepLine = prep =>
     `<div class="pprep"><b>Mobility</b> ${prep.mob.map(m=>m[0]+" ("+m[1]+")").join(", ")}<br><b>Activation</b> ${prep.act.map(a=>a[0]+" ("+a[1]+")").join(", ")}</div>`;
 
+  const WN = cfg.weeks;
+  const logHead = Array.from({length:WN}, (_, i)=>`<th class="wkh${isDeload(i+1) ? " dl" : ""}">W${i+1}</th>`).join("");
+  const logCols = `<colgroup><col style="width:4%"><col style="width:${WN > 10 ? 22 : 26}%">${Array.from({length:WN}, ()=>`<col>`).join("")}</colgroup>`;
   const liftCards = program.days.map((d, di)=>{
+    if(withRec){
+      const rows = d.ex.map((x, xi)=>{
+        const label = x.label || ((cfg.focus==="sp" && d.ex[0].cat==="pow" && xi<2) ? ["A1","A2"][xi] : (xi+1));
+        const cells = Array.from({length:WN}, (_, i)=>`<td class="wc${WN > 10 ? " sm" : ""}">${loadsText(x, i+1)}</td>`).join("");
+        return `<tr><td class="o">${label}</td><td class="e">${x.options[x.sel]}</td>${cells}</tr>`;
+      }).join("");
+      return `<div class="card"><div class="ch">Day ${di+1} | ${d.title} <i>Loads by week, sets split with a slash</i></div>
+        ${prepLine(d.prep)}
+        <table class="logt">${logCols}<thead><tr><th></th><th>Exercise</th>${logHead}</tr></thead><tbody>${rows}</tbody></table></div>`;
+    }
     const rows = d.ex.map((x, xi)=>{
       const p = exRx(x, f);
       const label = x.label || ((cfg.focus==="sp" && d.ex[0].cat==="pow" && xi<2) ? ["A1","A2"][xi] : (xi+1));
-      const recTd = withRec ? `<td class="recc">${bx(setsOf(p), recOf(x, cfg.curWeek))}</td>` : "";
       const dynNote = x.dyn ? `<br><span style="font-size:7px; color:#555; font-weight:400;">${exNote(x)}</span>` : "";
-      return `<tr><td class="o">${label}</td><td class="e">${x.options[x.sel]}${dynNote}</td><td>${p.sets}</td><td>${p.reps}</td><td>${p.tempo}</td><td>${p.rest}</td>${recTd}</tr>`;
+      return `<tr><td class="o">${label}</td><td class="e">${x.options[x.sel]}${dynNote}</td><td>${p.sets}</td><td>${p.reps}</td><td>${p.tempo}</td><td>${p.rest}</td></tr>`;
     }).join("");
-    const recTh = withRec ? `<th>Load per set</th>` : "";
     return `<div class="card"><div class="ch">Day ${di+1} | ${d.title}</div>
       ${prepLine(d.prep)}
-      <table><thead><tr><th></th><th>Exercise</th><th>Sets</th><th>Reps</th><th>Tempo</th><th>Rest</th>${recTh}</tr></thead>
-      <tbody>${rows}</tbody></table>${withRec ? rpeStrip(d.rpe) : ""}</div>`;
+      <table><thead><tr><th></th><th>Exercise</th><th>Sets</th><th>Reps</th><th>Tempo</th><th>Rest</th></tr></thead>
+      <tbody>${rows}</tbody></table></div>`;
   }).join("");
 
   /* Optional Speed + Running sections */
@@ -2506,6 +2521,11 @@ tr:last-child td{border-bottom:none;}
 td.o{font-family:'Oswald',sans-serif; font-weight:600; color:${S.pad}; width:20px;}
 td.e{font-weight:600;}
 td.recc{white-space:nowrap;}
+table.logt{table-layout:fixed; width:100%;}
+table.logt th.wkh{text-align:center; font-size:7.5px;}
+table.logt th.wkh.dl{opacity:.6;}
+table.logt td.wc{height:19px; border:1px solid #aaa; border-bottom:1.5px solid ${S.pa}; text-align:center; font-size:7.5px; font-weight:600; color:${S.pi}; padding:1px;}
+table.logt td.wc.sm{font-size:6px;}
 .bx{display:inline-block; width:34px; height:16px; border:1px solid #999; border-bottom:1.5px solid ${S.pa}; border-radius:1px; margin:0 2px 2px 0; position:relative; vertical-align:middle;}
 .bx i{position:absolute; top:-1px; left:1.5px; font-style:normal; font-size:5.5px; color:#999; font-family:'Oswald',sans-serif; letter-spacing:.05em;}\n.bx b{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:8px; font-weight:600; color:${S.pi};}
 .cb{padding:6px 10px;}
@@ -2961,40 +2981,30 @@ async function buildFillablePdf(){
   y -= 8;
 
   program.days.forEach((d, di)=>{
-    const nMax = Math.max(...d.ex.map(x=>setsOf(x.rx || (x.role==="accy" ? f.accy : f.main))));
-    const fw = 46, fg = 3, xF = RIGHT - nMax*(fw+fg) + fg;
-    const blockH = 22 + 12 + d.ex.length*20 + 20;
+    const WN = cfg.weeks, nameW = 200;
+    const fgap = 2, fw = Math.floor((W - 2*M - nameW - 4 - (WN-1)*fgap) / WN), xF = M + nameW + 4;
+    const blockH = 22 + 12 + d.ex.length*20 + 10;
     ensure(blockH, 'Strength Programme', liftMeta);
 
     page.drawRectangle({x:M, y:y-16, width:W-2*M, height:16, color:HEAD});
     page.drawRectangle({x:M, y:y-18, width:W-2*M, height:2, color:ACC});
     txt(`DAY ${di+1}  |  ${d.title.toUpperCase()}`, M+7, y-11.5, 9, bold, rgb(1,1,1));
+    txt('LOADS BY WEEK, SETS SPLIT WITH A SLASH', RIGHT-170, y-11.5, 6.5, helv, rgb(1,1,1));
     y -= 28;
     txt('EXERCISE', M+30, y, 6.5, bold, GREY);
-    txt('PRESCRIPTION', 316, y, 6.5, bold, GREY);
-    for(let s=1; s<=nMax; s++) txt('SET '+s, xF + (s-1)*(fw+fg) + 13, y, 6.5, bold, GREY);
+    for(let w=1; w<=WN; w++) txt((isDeload(w) ? 'D' : 'W') + w, xF + (w-1)*(fw+fgap) + Math.max(2, fw/2 - 6), y, 6.5, bold, GREY);
     y -= 6;
 
     d.ex.forEach((x, xi)=>{
-      const p = exRx(x, f);
       const label = x.label || ((cfg.focus==="sp" && d.ex[0].cat==="pow" && xi<2) ? ["A1","A2"][xi] : (xi+1));
-      const n = setsOf(p);
       y -= 15;
       txt(label, M+4, y, 8.5, bold, ACC);
-      let nm = x.options[x.sel];
-      const nx = exNote(x);
-      if(nx) nm += '  (' + nx + ')';
-      txt(trunc(nm, helv, 8, 250), M+30, y, 8, helv);
-      txt(trunc(`${p.sets} x ${p.reps}  |  ${p.tempo}  |  ${p.rest}`, helv, 7, Math.max(148, xF-322)), 316, y, 7, helv, GREY);
-      for(let s=1; s<=n; s++)
-        field(`d${di}x${xi}s${s}`, xF + (s-1)*(fw+fg), y-4, fw, 14, recOf(x, cfg.curWeek)[s], 8);
+      txt(trunc(x.options[x.sel], helv, 8, nameW - 34), M+30, y, 8, helv);
+      for(let w=1; w<=WN; w++)
+        field(`d${di}x${xi}w${w}`, xF + (w-1)*(fw+fgap), y-4, fw, 14, loadsText(x, w), WN > 10 ? 6 : 7.5);
       y -= 5;
     });
-
-    y -= 16;
-    txt('SESSION RPE (1-10)', M+4, y, 7, bold, GREY);
-    field(`rpeL${di}`, M+100, y-4, 34, 14, d.rpe, 8);
-    y -= 16;
+    y -= 12;
   });
 
   }
