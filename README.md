@@ -49,3 +49,12 @@ Programs live in browser storage on the device. That storage can be
 cleared by the browser after long periods of inactivity, so the Save
 button is the real backup. It writes a small file that the Load button
 restores exactly.
+
+
+## Password protection
+
+The page GitHub Pages serves is `index.html` in the repository root. It is an encrypted copy of `source/index.html`, opened with an access password (ask Simon Thomas).
+
+To change the app, edit `source/index.html` and then run `./build.sh "the password"` to rebuild the root `index.html`. Commit both. The password is not stored in the repository.
+
+This is a basic gate: it keeps casual visitors out of the link, but the repository is public, so the source in `source/index.html` can still be read there.
