@@ -3432,21 +3432,29 @@ const stpReps = lines => { const m = (lines && lines[0] || '').match(/^(\d+)\s*x
 
 function stpHandoff(){
   const sessions = [];
-  /* Running Conditioning: program.run = [{title, blocks:[{n:"1. Name", cat, dist, lines}]}] */
-  (program.run || []).forEach((d, i)=>sessions.push({
-    name: "Run Day " + (i+1) + " " + d.title, kind: "run",
-    blocks: d.blocks.map(b=>{
-      const o = {name: b.viz || stpName(b.n.replace(/^\d+\.\s*/, "")), kind: "run", cat: b.cat, dist: b.dist};
-      const r = b.reps || stpReps(b.lines); if(r) o.reps = r;
-      o.script = b.script || ""; o.lines = b.lines; return o;
-    })
-  }));
-  /* Speed: program.speed = [{title, tag, lines}] (text sessions) */
-  (program.speed || []).forEach((d, i)=>sessions.push({
-    name: "Speed Day " + (i+1) + " " + d.title, kind: "speed",
-    blocks: [{name: stpName(d.title), kind: "speed", tag: d.tag, lines: d.lines}]
-  }));
-  return {format: "stp-handoff", version: 1, title: "Programme", units: "m", sessions};
+  const have = new Set(STP_DRILLS.map(stpNrm));
+  const N = cfg.weeks;
+  for(let w=1; w<=N; w++){
+    const tag = (isDeload(w) ? " (deload)" : "");
+    /* Running Conditioning: [{title, blocks:[{n:"1. Name", cat, dist, reps, lines}]}] for this week */
+    (program.run ? runFor(w) : []).forEach((d, i)=>sessions.push({
+      name: "W" + w + " Run Day " + (i+1) + " " + d.title + tag, kind: "run", wk: w,
+      blocks: d.blocks.map(b=>{
+        const nm = b.viz || stpName(b.n.replace(/^\d+\.\s*/, ""));
+        const o = {name: nm, kind: "run", cat: b.cat, dist: b.dist};
+        const r = b.reps || stpReps(b.lines); if(r) o.reps = r;
+        /* The visualiser already holds the drill, so only unknown drills carry their text */
+        if(!have.has(stpNrm(nm))){ o.script = b.script || ""; o.lines = b.lines; }
+        return o;
+      })
+    }));
+    /* Speed: [{title, tag, lines}] (text sessions) */
+    (program.speed ? speedFor(w) : []).forEach((d, i)=>sessions.push({
+      name: "W" + w + " Speed Day " + (i+1) + " " + d.title + tag, kind: "speed", wk: w,
+      blocks: [{name: stpName(d.title), kind: "speed", tag: d.tag, lines: d.lines}]
+    }));
+  }
+  return {format: "stp-handoff", version: 2, title: "Programme", units: "m", weeks: N, sessions};
 }
 
 /* Mismatch report: run blocks with no visualiser drill */
