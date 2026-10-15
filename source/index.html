@@ -225,6 +225,8 @@ table.recmode .exn .note{margin-top:3px;}
 /* Per-day record switch */
 .dh-right{display:flex; align-items:center; gap:12px;}
 .recSw{background:none; border:1.5px solid var(--primary); color:var(--primary); font-family:'Oswald',sans-serif; font-size:11px; font-weight:500; letter-spacing:.1em; text-transform:uppercase; padding:4px 12px; border-radius:2px; cursor:pointer; transition:background .15s, color .15s;}
+.rec-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0 4px;font-size:12px;color:var(--silver)}
+@media print{.rec-top{display:none !important}}
 .recSw:hover{background:color-mix(in srgb, var(--primary) 18%, transparent);}
 .recSw.on{background:var(--primary); border-color:var(--primary); color:var(--on-primary); font-weight:600;}
 /* Prep block */
@@ -578,6 +580,7 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
     </div>
     <div class="sec-head"><h2>Lifting</h2><span id="liftSub"></span></div>
     <div class="meta-strip" id="liftMeta"></div>
+    <div class="rec-top"><button class="recSw" id="recAll" aria-pressed="false">Record Off</button><span>Weights and reps for every lifting day. Off only hides the boxes, so anything entered is kept.</span></div>
     <div class="wknote" id="wkNote"></div>
     <details class="wk-all"><summary>All weeks</summary><div class="wk-guide" id="wkGuide"></div></details>
     <div id="liftDaysWrap"></div>
@@ -2038,7 +2041,7 @@ function syncOptional(){
 const cfg = {curWeek:1, liftOn:true, liftDays:3, careOn:false, condOn:true, condDays:2, weeks:6, emph:"equal", equip:"machine", focus:"hyp", struct:"hyb", condSys:"aer", condMins:15,
   units:"m",
   spdOn:false, spdQual:"all", spdDays:2, spdApp:"hyb",
-  runOn:false, runType:"straight", runDays:2, runApp:"hyb", runVol:3000, runMin:2000, runMax:3000, runWkMin:null, runWkMax:null, runProg:"build", runCap:5000};
+  runOn:false, runType:"straight", runDays:2, runApp:"hyb", runVol:3000, runMin:2000, runMax:3000, runWkMin:null, runWkMax:null, runProg:"build", runCap:5000, recAll:false};
 let program = null;
 
 document.querySelectorAll('.chips').forEach(g=>{
@@ -2185,6 +2188,7 @@ function syncChips(){
 
 function applyState(s){
   Object.assign(cfg, s.cfg);
+  if(s.cfg && s.cfg.recAll === undefined) cfg.recAll = (s.days||[]).some(x=>x && x.recOn);
   if(s.cfg && s.cfg.runMin === undefined && s.cfg.runVol){ cfg.runMin = cfg.runMax = s.cfg.runVol; cfg.runWkMin = cfg.runWkMax = null; }
   if(cfg.condDays > 6) cfg.condDays = 6;
   if(cfg.runType === "shpat") cfg.runType = "curve";
@@ -2271,7 +2275,7 @@ function renderLift(){
       const pr = W > 1 ? weekRx(x, f, W-1).reps : "", prReps = /^\d+$/.test(String(pr)) ? pr : "";
       const shadow = v => !v ? "" : (prReps && !/x/i.test(v) ? v + "x" + prReps : v);
       let rec = "";
-      if(d.recOn){
+      if(cfg.recAll){
         const n = setsOf(p);
         let boxes = "";
         for(let s=1; s<=n; s++){
@@ -2292,7 +2296,6 @@ function renderLift(){
       <div class="day-head"><h3>Day ${di+1} | ${d.title}</h3>
         <div class="dh-right">
           <span class="screen-only">Tap a lift to swap</span>
-          <button class="recSw${d.recOn?" on":""}" data-di="${di}">Record ${d.recOn?"On":"Off"}</button>
         </div>
       </div>
       ${prepHTML(d.prep)}
@@ -2307,13 +2310,9 @@ function renderLift(){
   document.querySelectorAll('.swapBtn').forEach(b=>{
     b.addEventListener('click', ()=>openSwap(+b.dataset.d, +b.dataset.x, b));
   });
-  document.querySelectorAll('.recSw').forEach(b=>{
-    b.addEventListener('click', ()=>{
-      const d = program.days[+b.dataset.di];
-      d.recOn = !d.recOn;
-      renderLift(); persist();
-    });
-  });
+  const ra = el('recAll');
+  ra.classList.toggle('on', !!cfg.recAll); ra.textContent = 'Record ' + (cfg.recAll ? 'On' : 'Off'); ra.setAttribute('aria-pressed', !!cfg.recAll);
+  ra.onclick = ()=>{ cfg.recAll = !cfg.recAll; renderLift(); persist(); };
   document.querySelectorAll('.boxes input[data-x]').forEach(inp=>{
     inp.addEventListener('input', ()=>{
       recOf(program.days[+inp.dataset.d].ex[+inp.dataset.x], cfg.curWeek)[+inp.dataset.s] = inp.value;
