@@ -1683,9 +1683,6 @@ const RUNS = [
   {n:"Press-Up Bear Crawl", cat:"downup", dist:200, reps:10, viz:"Press-Up Bear Crawl", d:[
     "10 reps",
     "Go every 60 s"]},
-  {n:"Hit Shield to Shuttle", cat:"hit", dist:440, reps:10, viz:"Hit Shield to Shuttle", d:[
-    "10 reps",
-    "Go every 75 s. The partner holds the shield and swaps at rep 5"]},
   {n:"Hit, Down-Up, Sprint", cat:"hit", dist:440, reps:10, viz:"Hit, Down-Up, Sprint", d:[
     "10 reps",
     "Go every 75 s. The partner holds the shield and swaps at rep 5"]},
@@ -1695,15 +1692,9 @@ const RUNS = [
   {n:"Kneeling Wrestle to Run 40", cat:"wrestle", dist:800, reps:10, viz:"Kneeling Wrestle to Run 40", d:[
     "10 reps",
     "Go every 90 s. Swap partners or roles each rep"]},
-  {n:"Kneeling Wrestle to Run 80", cat:"wrestle", dist:1600, reps:10, viz:"Kneeling Wrestle to Run 80", d:[
-    "10 reps",
-    "Go every 120 s. Swap partners or roles each rep"]},
   {n:"Double Wrestle Run 60", cat:"wrestle", dist:2400, reps:10, viz:"Double Wrestle Run 60", d:[
     "10 reps",
     "Go every 150 s. Swap partners or roles each rep"]},
-  {n:"Standing Wrestle to Sprint", cat:"wrestle", dist:440, reps:10, viz:"Standing Wrestle to Sprint", d:[
-    "10 reps",
-    "Go every 75 s. Swap partners or roles each rep"]},
   {n:"Wrestle, Down-Up, Sprint", cat:"wrestle", dist:440, reps:10, viz:"Wrestle, Down-Up, Sprint", d:[
     "10 reps",
     "Go every 75 s. Swap partners or roles each rep"]}
@@ -3410,7 +3401,7 @@ el('loadBtn').addEventListener('click', ()=>el('loadFile').click());
 
 /* ===== Export for visualiser (ST Performance Rugby Drills) ===== */
 const STP_ALIAS = {};
-const STP_DRILLS = ["Bronco","22 Bronco","Broken Bronco","Lion Heart","Sixty2","200s and 100s","Coathanger","Far 40 and 22 Shuttle","3-2-1","80-60-40","The Gill","Mini Gill","Warrior","Malcolms","Titanium","Franko","Scuttler","Dagger","Accelerators","150s","44s","88s","Repeat 50s","Repeat 100s","Ladder Sprints","Chest-Start 22","45 Degree Cut","Slalom Run 22m","22m Down-Ups","Goodwins Rectangle","MAS 15:15","Touchline Tempo Lap","Broken Pony","Burpee Sprint 22","Squat Jump Sprint 22","Press-Up Sprint 22","Drop-and-Roll Alternating","Double Roll Out and Back","Sprint and Roll 22","Flying 30s","Flying 40s","Sprint Float Sprint","80s","Full Length 100","Repeat 30s","Triple 11s","10m Acceleration","30m Acceleration","Jog-in Acceleration 20","90 Degree Cut","Pro Agility 5-10-5","Down-Up Cut","MAS 10:10","MAS 15:15 Full Length","MAS 30:30","Tempo 200s","Width Tempo 60s","Diagonal Tempo","Bear Crawl 5-10 Pyramid","Backpedal 22 and Sprint","Down-Up Bear Crawl","Press-Up Bear Crawl","Burpee Shuttle 10","Kneeling Wrestle to Sprint","Standing Wrestle to Shuttle","Hit, Run, Down-Up, Hit","Hit Shield to Sprint","Sprint to Hit Shield Finish","Wrestle Start and Finish","Run and Hit Shield 40","Hit Shield to Standing Wrestle","Hit Shield to Shuttle","Hit, Down-Up, Sprint","Backpedal to Hit Shield","Kneeling Wrestle to Run 40","Standing Wrestle to Sprint","Wrestle, Down-Up, Sprint","Single Curve In","Single Curve Across","Banana Run","S-Curve","Double S","Swerve Around 50","Double Swerve","Swerve and Accelerate","Zig-Zag 22s","Zig-Zag Wide Sprint","Sled Push 10m","Sled Push Contrast 10m","Sled Sprint 22m","Sled Sprint 30m","Sled Sprint 40m","Sled Sprint 60m","Sled Sprint Contrast 22m","Sled Sprint Contrast 40m","Pyramid Repeats","100/60/20","Build-Ups","Repeat Sprints: Short","Repeat Sprints: Medium","100/200 Drill","50s Jog-Through","Descending Ladder","1 km Repeat","Bucking Bronco","22m Repeats","Yo-Yo Shuttle","150 Shuttles","300 Shuttle","Weave and Go","Box Pattern","Anaerobic Builder","10-20-30s","150 Down-Ups","10/20/30 Block","Malcolms with Sprint","Hit Shield to Sprint 60","Run and Hit Shield 80","Kneeling Wrestle to Run 80","Double Wrestle Run 60"];;
+const STP_DRILLS = ["Bronco","22 Bronco","Broken Bronco","Lion Heart","Sixty2","200s and 100s","Coathanger","Far 40 and 22 Shuttle","3-2-1","80-60-40","The Gill","Mini Gill","Warrior","Malcolms","Titanium","Franko","Scuttler","Dagger","Accelerators","150s","44s","88s","Repeat 50s","Repeat 100s","Ladder Sprints","Chest-Start 22","45 Degree Cut","Slalom Run 22m","22m Down-Ups","Goodwins Rectangle","MAS 15:15","Touchline Tempo Lap","Broken Pony","Burpee Sprint 22","Squat Jump Sprint 22","Press-Up Sprint 22","Drop-and-Roll Alternating","Double Roll Out and Back","Sprint and Roll 22","Flying 30s","Flying 40s","Sprint Float Sprint","80s","Full Length 100","Repeat 30s","Triple 11s","10m Acceleration","30m Acceleration","Jog-in Acceleration 20","90 Degree Cut","Pro Agility 5-10-5","Down-Up Cut","MAS 10:10","MAS 15:15 Full Length","MAS 30:30","Tempo 200s","Width Tempo 60s","Diagonal Tempo","Bear Crawl 5-10 Pyramid","Backpedal 22 and Sprint","Down-Up Bear Crawl","Press-Up Bear Crawl","Burpee Shuttle 10","Kneeling Wrestle to Sprint","Standing Wrestle to Shuttle","Hit, Run, Down-Up, Hit","Hit Shield to Sprint","Sprint to Hit Shield Finish","Wrestle Start and Finish","Run and Hit Shield 40","Hit Shield to Standing Wrestle","Hit, Down-Up, Sprint","Backpedal to Hit Shield","Kneeling Wrestle to Run 40","Wrestle, Down-Up, Sprint","Single Curve In","Single Curve Across","Banana Run","S-Curve","Double S","Swerve Around 50","Double Swerve","Swerve and Accelerate","Zig-Zag 22s","Zig-Zag Wide Sprint","Sled Push 10m","Sled Push Contrast 10m","Sled Sprint 22m","Sled Sprint 30m","Sled Sprint 40m","Sled Sprint 60m","Sled Sprint Contrast 22m","Sled Sprint Contrast 40m","Pyramid Repeats","100/60/20","Build-Ups","Repeat Sprints: Short","Repeat Sprints: Medium","100/200 Drill","50s Jog-Through","Descending Ladder","1 km Repeat","Bucking Bronco","22m Repeats","Yo-Yo Shuttle","150 Shuttles","300 Shuttle","Weave and Go","Box Pattern","Anaerobic Builder","10-20-30s","150 Down-Ups","10/20/30 Block","Malcolms with Sprint","Hit Shield to Sprint 60","Run and Hit Shield 80","Double Wrestle Run 60"];;
 const STP_SCRIPT = {
 "Bronco": "Run hard {20} and back, {40} and back, then {60} and back without stopping, using cones at {20}, {40} and {60} and returning to the start tryline each time.",
 "22 Bronco": "Run hard to the 22 m line and back, {40} and back, then {60} and back without stopping, using the 22 m line in place of a cone at {20} and returning to the start tryline each time.",
@@ -3483,15 +3474,12 @@ const STP_SCRIPT = {
 "Wrestle Start and Finish": "Wrestle a partner kneeling for 6 s. Get up, sprint {22} and back, then wrestle standing for 6 s.",
 "Run and Hit Shield 40": "Run hard {40} and back to a partner holding a shield. Hit the shield three times, driving about 2.5 m on each hit.",
 "Hit Shield to Standing Wrestle": "Hit a shield held by a partner twice, driving about 2.5 m on each hit. Run hard {22} and back, then wrestle standing for 5 s.",
-"Hit Shield to Shuttle": "Hit a shield held by a partner twice, driving about 2.5 m on each hit. Get up and sprint {22} and back.",
 "Hit, Down-Up, Sprint": "Hit a shield held by a partner once, driving about 2.5 m. Do a down-up, then get up and sprint {22}. Jog back.",
 "Backpedal to Hit Shield": "Start at the 22 m line. Backpedal to the tryline, hit a shield held by a partner twice, driving about 2.5 m on each hit, then sprint back out to the 22 m line.",
 "Kneeling Wrestle to Run 40": "Start kneeling facing a partner. Wrestle for 8 s, then get up and run hard {40} and back.",
 "Hit Shield to Sprint 60": "Hit a shield held by a partner twice, driving about 2.5 m on each hit. Get up and sprint {60}, then jog back.",
 "Run and Hit Shield 80": "Run hard {80} and back to a partner holding a shield. Hit the shield three times, driving about 2.5 m on each hit.",
-"Kneeling Wrestle to Run 80": "Start kneeling facing a partner. Wrestle for 8 s, then get up and run hard {80} and back.",
 "Double Wrestle Run 60": "Wrestle a partner kneeling for 6 s, then get up and run hard {60} and back. Wrestle standing for 6 s, then run hard {60} and back.",
-"Standing Wrestle to Sprint": "Wrestle a partner standing for 6 s, then sprint {22} and jog back.",
 "Wrestle, Down-Up, Sprint": "Wrestle a partner kneeling for 6 s, do a down-up, then sprint {22} and jog back.",
 "Single Curve In": "Sprint {22} along the 5 m line, then run hard through one gentle curve in to the 15 m line, finishing at the far tryline. Walk back.",
 "Single Curve Across": "Run hard {22} along the 5 m line, then run hard through one long curve across the centre spot to the far side. Walk back.",
