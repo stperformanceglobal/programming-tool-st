@@ -172,15 +172,6 @@ td.num{white-space:nowrap; color:#D5D5D5;}
 #skinPick:focus-visible{outline:2px solid var(--primary-hi); outline-offset:2px;}
 @media(max-width:640px){#skinPick{font-size:10px; padding:6px 6px;}}
 
-.hdr-actions{margin-left:8px; display:flex; flex-direction:column; align-items:stretch; gap:6px;}
-#builderSw{background:var(--panel); color:var(--silver); border:1px solid var(--line); font-family:'Oswald',sans-serif; font-size:11.5px; font-weight:500; letter-spacing:.1em; text-transform:uppercase; padding:8px 12px; border-radius:3px; cursor:pointer; white-space:nowrap; text-align:center; text-decoration:none; display:block; transition:border-color .15s, color .15s;}
-#builderSw:hover:not(:disabled){color:var(--white); border-color:var(--silver);}
-#builderSw:disabled{opacity:.4; cursor:default;}
-#builderSw:focus-visible{outline:2px solid var(--primary-hi); outline-offset:2px;}
-@media(max-width:640px){
-  .hdr-actions{margin-left:6px; gap:5px;}
-  #builderSw{font-size:10px; padding:6px 8px;}
-}
 
 /* Locked skin: picker retained in DOM for applySkin, never shown */
 #skinPick{display:none !important;}
@@ -251,7 +242,12 @@ tr.rec td{padding-top:2px; border-bottom:1px solid rgba(144,152,162,.12);}
 .boxes input{width:58px; background:var(--ink); border:1px solid var(--line); border-bottom:2px solid var(--primary); color:var(--white); font-family:'Inter',sans-serif; font-size:12.5px; padding:4px 6px; border-radius:2px; margin-top:2px;}
 .boxes input:focus{outline:none; border-color:var(--primary);}
 .boxes input::placeholder{color:#6f7680; opacity:1;}
-.wtabs{position:sticky; top:0; z-index:20; display:flex; gap:6px; overflow-x:auto; padding:9px 2px; margin:0 0 4px; background:var(--ink); border-bottom:1px solid var(--line); -webkit-overflow-scrolling:touch;}
+.vtabs{position:sticky; top:env(safe-area-inset-top,0px); z-index:30; display:grid; grid-template-columns:1fr 1fr; background:var(--ink); border-bottom:1px solid var(--line);}
+.vtab{height:44px; background:var(--panel); border:0; border-bottom:3px solid transparent; color:var(--silver); cursor:pointer; font-family:'Oswald',sans-serif; font-size:14px; font-weight:500; letter-spacing:.14em; text-transform:uppercase;}
+.vtab:first-child{border-right:1px solid var(--line);}
+.vtab.on{color:var(--white); border-bottom-color:var(--primary);}
+.vtab:disabled{opacity:.4; cursor:default;}
+.wtabs{position:sticky; top:calc(44px + env(safe-area-inset-top,0px)); z-index:20; display:flex; gap:6px; overflow-x:auto; padding:5px 2px; margin:0 0 4px; background:var(--ink); border-bottom:1px solid var(--line); -webkit-overflow-scrolling:touch;}
 .wtab{flex:0 0 auto; min-width:44px; height:36px; padding:0 11px; background:var(--panel); border:1px solid var(--line); color:#D5D5D5; border-radius:2px; cursor:pointer; font-family:'Oswald',sans-serif; font-size:13px; letter-spacing:.08em; text-transform:uppercase;}
 .wtab.dl{border-style:dashed;}
 .wtab.on{background:var(--primary); border-color:var(--primary); color:var(--on-primary); font-weight:600;}
@@ -278,7 +274,7 @@ details.wk-all summary{cursor:pointer; font-size:12px; color:var(--silver); lett
   @page{size:letter landscape; margin:0.4in;}
   body{background:#fff; color:var(--p-ink); font-size:11px;}
   .wrap{max-width:none; padding:0;}
-  header, .builder, .export-bar, .tip, .screen-only{display:none !important;}
+  header, .vtabs, .builder, .export-bar, .tip, .screen-only{display:none !important;}
   #out{display:block !important; margin-top:0;}
   .print-only{display:block;}
   .p-head{display:flex; align-items:center; gap:12px; border-bottom:2px solid var(--p-accent); padding-bottom:8px; margin-bottom:10px;}
@@ -354,10 +350,11 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
   </div>
   <select id="skinPick" aria-label="Choose skin"></select>
   <a id="siteLink" href="https://stperformanceglobal.com" target="_blank" rel="noopener">stperformanceglobal.com</a>
-  <div class="hdr-actions">
-    <button id="builderSw" type="button" aria-expanded="true" aria-controls="builder">Hide builder</button>
-  </div>
 </header>
+<nav class="vtabs" id="vTabs" aria-label="Builder or programme">
+  <button type="button" class="vtab" data-v="builder">Builder</button>
+  <button type="button" class="vtab" data-v="programme" disabled>Programme</button>
+</nav>
 
 <section class="builder" id="builder">
   <div class="grp">
@@ -1079,6 +1076,15 @@ function exRx(x, f, w){
   if(x.dyn === "circ") return circOf(x, w).rx;
   return x.rx || (x.role === "accy" ? f.accy : f.main);
 }
+/* Simple focuses: sets x reps move through the 3 week wave (main lifts and accessories) */
+const GEN_WAVE = {
+  maxs:{main:[["4","5"],["5","4"],["5","3"]],  accy:[["3","8"],["3","7"],["4","6"]]},
+  hyp: {main:[["4","10"],["4","9"],["5","8"]], accy:[["3","12"],["3","11"],["4","10"]]},
+  ss:  {main:[["4","6"],["4","5"],["5","5"]],  accy:[["3","10"],["3","9"],["4","8"]]},
+  pow: {main:[["5","3"],["6","3"],["5","2"]],  accy:[["3","5"],["3","5"],["4","4"]]},
+  sp:  {main:[["4","3"],["5","3"],["4","2"]],  accy:[["3","8"],["3","7"],["4","6"]]}
+};
+const xy = t => t[0] + " x " + t[1];
 /* Per-week prescription: the same lift, evolved for week w */
 function dlSets(v){ return String(v).replace(/\d+/g, n=>Math.max(1, +n - 1)); }
 function weekRx(x, f, w){
@@ -1100,6 +1106,8 @@ function weekRx(x, f, w){
     if(x.role === "main") p.sets = String([6,7,8][step]);
   } else if(cfg.focus === "cluster"){
     if(x.role === "main" && x.rx){ const c = CLUSTER_WAVE[step]; p.sets = String(c.sets); p.reps = c.cl + " clusters of " + c.reps + " @" + c.pct; p.rest = c.inside + " inside, 3 min after"; }
+  } else if(GEN_WAVE[cfg.focus]){
+    if(!x.rx){ const t = GEN_WAVE[cfg.focus][x.role === "accy" ? "accy" : "main"][step]; p.sets = t[0]; p.reps = t[1]; }
   } else if(cfg.focus === "tri"){
     if(x.role === "main") p.tempo = TRI_PHASE[triPhaseOf(e)].tempo;
   }
@@ -2010,7 +2018,9 @@ function weekNote(w){
       : (e===effTotal() ? "Push week: take top sets 2.5 to 5% above your best week so far"
       : "Restart the wave 2.5 to 5% above wave "+(wave-1)+" week 1"))
     : "Add 2.5 to 5% on all lifts completed in full last week";
-  return `Effort ${rpe} of 10. ${load}.`;
+  const G = GEN_WAVE[cfg.focus];
+  const scheme = G ? ` Main lifts ${xy(G.main[step])}. Accessories ${xy(G.accy[step])}.` : "";
+  return `Effort ${rpe} of 10. ${load}.${scheme}`;
 }
 function weekGuide(){
   const rows = [];
@@ -2121,10 +2131,10 @@ function persist(){
 
 function showOut(scroll){
   renderTabs();
-  el('out').style.display = 'block';
   el('exportBar').style.display = 'flex';
   syncBuilderSw();
-  if(scroll) el('out').scrollIntoView({behavior:'smooth'});
+  setView('programme', viewSet);
+  if(scroll) window.scrollTo({top:0, behavior:'smooth'});
 }
 
 function renderLift(){
@@ -2394,6 +2404,7 @@ function printDoc(withRec){
       } else {
         mid = "Effort " + [7,8,9][step] + "/10";
         txt = step===0 ? (wave===1 ? "Set weights, 2 in reserve" : (e===effTotal() ? "Push week, best +2.5 to 5%" : "Restart 2.5 to 5% up")) : "Add 2.5 to 5%";
+        if(GEN_WAVE[cfg.focus]) txt = "Main " + xy(GEN_WAVE[cfg.focus].main[step]) + ", accy " + xy(GEN_WAVE[cfg.focus].accy[step]) + ". " + txt;
       }
     }
     wkCells += `<div class="wkc"><b>WK ${w}</b><i>${mid}</i><span>${txt}</span></div>`;
@@ -3332,36 +3343,35 @@ try{
   if(saved) applyState(JSON.parse(saved));
 }catch(e){}
 
-/* Builder show/hide: once a programme exists the builder collapses by default so
-   returning users land straight on the programme. Preference persists per device. */
-function setBuilder(open, save){
-  el('builder').style.display = open ? '' : 'none';
-  const b = el('builderSw');
-  b.textContent = open ? 'Hide builder' : 'Show builder';
-  b.setAttribute('aria-expanded', open ? 'true' : 'false');
-  if(save !== false){ try{ localStorage.setItem('stp_builder_open', open ? '1' : '0'); }catch(e){} }
+/* Two views: Builder (settings, build button, export bar) and Programme (the finished programme fills the screen) */
+let viewSet = false;
+function setView(v, save){
+  viewSet = true;
+  if(v === 'programme' && !program) v = 'builder';
+  el('builder').style.display = v === 'builder' ? '' : 'none';
+  el('out').style.display = v === 'programme' ? 'block' : 'none';
+  document.querySelectorAll('#vTabs .vtab').forEach(b=>{
+    const on = b.dataset.v === v;
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+  if(save !== false){ try{ localStorage.setItem('stp_view', v); }catch(e){} }
 }
 function syncBuilderSw(){
-  const b = el('builderSw');
-  if(!b) return;
-  b.disabled = !program;
-  b.title = program ? '' : 'Build a programme first';
+  const t = document.querySelector('#vTabs .vtab[data-v="programme"]');
+  if(t) t.disabled = !program;
 }
-(function initBuilder(){
-  let open = true;
-  if(program){
-    let pref = null;
-    try{ pref = localStorage.getItem('stp_builder_open'); }catch(e){}
-    open = pref === '1';
-  }
-  setBuilder(open, false);
+document.querySelectorAll('#vTabs .vtab').forEach(b=>b.addEventListener('click', ()=>{
+  if(b.disabled) return;
+  setView(b.dataset.v);
+  window.scrollTo({top:0});
+}));
+(function initView(){
+  let v = program ? 'programme' : 'builder';
+  try{ const pref = localStorage.getItem('stp_view'); if(program && pref) v = pref; }catch(e){}
+  setView(v, false);
   syncBuilderSw();
 })();
-el('builderSw').addEventListener('click', ()=>{
-  const open = el('builder').style.display === 'none';
-  setBuilder(open);
-  if(open) el('builder').scrollIntoView({behavior:'smooth'});
-});
 el('pdfBtn').addEventListener('click', ()=>exportPdf(false));
 el('pdfRecBtn').addEventListener('click', ()=>exportPdf(true));
 el('libBtn').addEventListener('click', exportLibrary);
@@ -3382,8 +3392,8 @@ el('pdfFillBtn').addEventListener('click', async ()=>{
   b.textContent = t; b.disabled = false;
 });
 el('editBtn').addEventListener('click', ()=>{
-  setBuilder(true);
-  el('builder').scrollIntoView({behavior:'smooth'});
+  setView('builder');
+  window.scrollTo({top:0});
 });
 
 </script>
