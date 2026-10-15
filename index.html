@@ -334,6 +334,13 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
 .viz-go{margin-left:auto; align-self:center; font-size:12px; font-weight:600; letter-spacing:.04em; color:var(--silver); text-decoration:none; border:1px solid var(--line); border-radius:3px; padding:6px 12px; white-space:nowrap;}
 .viz-go:hover{color:var(--white); border-color:var(--silver);}
 @media print{.viz-go{display:none !important;}}
+.bk-line{flex:0 0 100%;font-size:12px;color:var(--silver);text-align:center;margin-top:-4px}
+.bk-line.old{color:#E8B04A}
+.bk-note{position:fixed;left:50%;width:max-content;transform:translateX(-50%);bottom:calc(64px + env(safe-area-inset-bottom,0px));z-index:50;display:flex;align-items:center;gap:8px;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:13px;box-shadow:0 4px 14px rgba(0,0,0,.35);max-width:calc(100vw - 24px)}
+.bk-note[hidden],.bk-line[hidden]{display:none}
+.bk-note button{background:var(--primary);color:#fff;border:0;border-radius:7px;padding:6px 12px;cursor:pointer;font:inherit;font-weight:600}
+.bk-note #bkX{background:none;color:var(--silver);padding:6px}
+@media print{.bk-line,.bk-note{display:none !important}}
 @media(max-width:520px){.sec-head{flex-wrap:wrap; row-gap:8px;} .viz-go{margin-left:0; order:3;} .sec-head span{flex:1 1 100%;}}
 .logo-link{display:inline-flex; line-height:0; border:0;}
 .logo-link:focus-visible{outline:2px solid var(--primary-hi); outline-offset:3px;}
@@ -602,6 +609,7 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
 </div>
 
 <div class="export-bar" id="exportBar">
+  <div class="bk-line" id="bkLine" hidden></div>
   <button id="editBtn">Edit settings</button>
   <button id="saveBtn">Save</button>
   <button id="loadBtn">Load</button>
@@ -610,6 +618,7 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
   <button id="pdfFillBtn">Fillable PDF</button>
   <button id="libBtn">Library</button>
 </div>
+<div class="bk-note" id="bkNote" hidden><span id="bkTxt"></span><button id="bkSave">Save</button><button id="bkX" aria-label="Dismiss">x</button></div>
 <div class="stp-foot"><img id="stpFootLogo" src="" alt=""><span>ST Performance | stperformanceglobal.com</span></div>
 
 <input type="file" id="loadFile" accept=".json" style="display:none">
@@ -2130,7 +2139,7 @@ function wireDone(root){
     b.addEventListener('click', ()=>{
       if(!program.done) program.done = {};
       const k = doneKey(b.dataset.scope, +b.dataset.di);
-      if(program.done[k]) delete program.done[k]; else program.done[k] = 1;
+      if(program.done[k]) delete program.done[k]; else { program.done[k] = 1; bkRemind(); }
       const sc = b.dataset.scope;
       (sc === "lift" ? renderLift : sc === "spd" ? renderSpeed : sc === "run" ? renderRun : renderCond)();
       persist();
@@ -2199,8 +2208,32 @@ function applyState(s){
   renderLift(); renderCond(); renderSpeed(); renderRun(); showOut(false);
 }
 
+/* Backup reminder. Set BK.on to false to remove it, or BK.mode to "weekly" to ask less often. */
+const BK = { on:true, mode:"session", days:7 };
+function bkLast(){ try{ return +localStorage.getItem('stp_backup')||0; }catch(e){ return 0; } }
+function bkAge(){ const t = bkLast(); return t ? (Date.now()-t)/864e5 : Infinity; }
+function bkLine(){
+  const b = el('bkLine'); if(!b) return;
+  if(!BK.on || !program){ b.hidden = true; return; }
+  const a = bkAge();
+  b.textContent = !isFinite(a) ? 'Last backup: never. Press Save to keep a copy of your programme.' : 'Last backup: ' + (a < 1 ? 'today' : Math.floor(a) + ' day' + (Math.floor(a)===1?'':'s') + ' ago');
+  b.classList.toggle('old', a > BK.days);
+  b.hidden = false;
+}
+let bkTimer = 0;
+function bkRemind(){
+  if(!BK.on) return;
+  if(BK.mode === "weekly" && bkAge() <= BK.days) return;
+  const n = el('bkNote'); if(!n) return;
+  el('bkTxt').textContent = 'Session done. Save a backup copy of your programme.';
+  n.style.bottom = (el('exportBar').offsetHeight + 8) + 'px'; n.hidden = false; clearTimeout(bkTimer); bkTimer = setTimeout(()=>{ n.hidden = true; }, 9000);
+}
+function bkSaved(){ try{ localStorage.setItem('stp_backup', String(Date.now())); }catch(e){} bkLine(); const n = el('bkNote'); if(n) n.hidden = true; }
+document.addEventListener('DOMContentLoaded', ()=>{ el('bkSave').addEventListener('click', ()=>el('saveBtn').click()); el('bkX').addEventListener('click', ()=>{ el('bkNote').hidden = true; }); bkLine(); });
+
 function persist(){
   if(!program) return;
+  bkLine();
   try{ localStorage.setItem('stp_program_state', stateJSON()); }catch(e){}
 }
 
@@ -3290,7 +3323,7 @@ el('saveBtn').addEventListener('click', ()=>{
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = SKINS[activeSkin].fileBase + '_Programme.json';
-  a.click(); URL.revokeObjectURL(a.href);
+  a.click(); URL.revokeObjectURL(a.href); bkSaved();
 });
 el('loadFile').addEventListener('change', e=>{
   const file = e.target.files[0]; if(!file) return;
