@@ -3401,7 +3401,7 @@ el('loadBtn').addEventListener('click', ()=>el('loadFile').click());
 
 /* ===== Export for visualiser (ST Performance Rugby Drills) ===== */
 const STP_ALIAS = {};
-const STP_DRILLS = ["Bronco","22 Bronco","Broken Bronco","Lion Heart","Sixty2","200s and 100s","Coathanger","Far 40 and 22 Shuttle","3-2-1","80-60-40","The Gill","Mini Gill","Warrior","Malcolms","Titanium","Franko","Scuttler","Dagger","Accelerators","150s","44s","88s","Repeat 50s","Repeat 100s","Ladder Sprints","Chest-Start 22","45 Degree Cut","Slalom Run 22m","22m Down-Ups","Goodwins Rectangle","MAS 15:15","Touchline Tempo Lap","Broken Pony","Burpee Sprint 22","Squat Jump Sprint 22","Press-Up Sprint 22","Drop-and-Roll Alternating","Double Roll Out and Back","Sprint and Roll 22","Flying 30s","Flying 40s","Sprint Float Sprint","80s","Full Length 100","Repeat 30s","Triple 11s","10m Acceleration","30m Acceleration","Jog-in Acceleration 20","90 Degree Cut","Pro Agility 5-10-5","Down-Up Cut","MAS 10:10","MAS 15:15 Full Length","MAS 30:30","Tempo 200s","Width Tempo 60s","Diagonal Tempo","Bear Crawl 5-10 Pyramid","Backpedal 22 and Sprint","Down-Up Bear Crawl","Press-Up Bear Crawl","Burpee Shuttle 10","Kneeling Wrestle to Sprint","Standing Wrestle to Shuttle","Hit, Run, Down-Up, Hit","Hit Shield to Sprint","Sprint to Hit Shield Finish","Wrestle Start and Finish","Run and Hit Shield 40","Hit Shield to Standing Wrestle","Hit, Down-Up, Sprint","Backpedal to Hit Shield","Kneeling Wrestle to Run 40","Wrestle, Down-Up, Sprint","Single Curve In","Single Curve Across","Banana Run","S-Curve","Double S","Swerve Around 50","Double Swerve","Swerve and Accelerate","Zig-Zag 22s","Zig-Zag Wide Sprint","Sled Push 10m","Sled Push Contrast 10m","Sled Sprint 22m","Sled Sprint 30m","Sled Sprint 40m","Sled Sprint 60m","Sled Sprint Contrast 22m","Sled Sprint Contrast 40m","Pyramid Repeats","100/60/20","Build-Ups","Repeat Sprints: Short","Repeat Sprints: Medium","100/200 Drill","50s Jog-Through","Descending Ladder","1 km Repeat","Bucking Bronco","22m Repeats","Yo-Yo Shuttle","150 Shuttles","300 Shuttle","Weave and Go","Box Pattern","Anaerobic Builder","10-20-30s","150 Down-Ups","10/20/30 Block","Malcolms with Sprint","Hit Shield to Sprint 60","Run and Hit Shield 80","Double Wrestle Run 60"];;
+const STP_DRILLS = ["Bronco","22 Bronco","Broken Bronco","Lion Heart","Sixty2","200s and 100s","Coathanger","Far 40 and 22 Shuttle","3-2-1","80-60-40","The Gill","Mini Gill","Warrior","Malcolms","Titanium","Franko","Scuttler","Dagger","Accelerators","150s","44s","88s","Repeat 50s","Repeat 100s","Ladder Sprints","Chest-Start 22","45 Degree Cut","Slalom Run 22m","22m Down-Ups","Goodwins Rectangle","MAS 15:15","Touchline Tempo Lap","Broken Pony","Burpee Sprint 22","Squat Jump Sprint 22","Press-Up Sprint 22","Drop-and-Roll Alternating","Double Roll Out and Back","Sprint and Roll 22","Flying 30s","Flying 40s","Sprint Float Sprint","80s","Full Length 100","Repeat 30s","Triple 11s","10m Acceleration","30m Acceleration","Jog-in Acceleration 20","90 Degree Cut","Pro Agility 5-10-5","Down-Up Cut","MAS 10:10","MAS 15:15 Full Length","MAS 30:30","Tempo 200s","Width Tempo 60s","Diagonal Tempo","Bear Crawl 5-10 Pyramid","Backpedal 22 and Sprint","Down-Up Bear Crawl","Press-Up Bear Crawl","Burpee Shuttle 10","Kneeling Wrestle to Sprint","Standing Wrestle to Shuttle","Hit, Run, Down-Up, Hit","Hit Shield to Sprint","Sprint to Hit Shield Finish","Wrestle Start and Finish","Run and Hit Shield 40","Hit Shield to Standing Wrestle","Hit, Down-Up, Sprint","Backpedal to Hit Shield","Kneeling Wrestle to Run 40","Wrestle, Down-Up, Sprint","Single Curve In","Single Curve Across","Banana Run","S-Curve","Double S","Swerve Around 50","Double Swerve","Swerve and Accelerate","Zig-Zag 22s","Zig-Zag Wide Sprint","Sled Push 10m","Sled Push Contrast 10m","Sled Sprint 22m","Sled Sprint 30m","Sled Sprint 40m","Sled Sprint 60m","Sled Sprint Contrast 22m","Sled Sprint Contrast 40m","Pyramid Repeats","100/60/20","Build-Ups","Repeat Sprints: Short","Repeat Sprints: Medium","100/200 Drill","50s Jog-Through","Descending Ladder","1 km Repeat","Bucking Bronco","22m Repeats","Yo-Yo Shuttle","150 Shuttles","300 Shuttle","Weave and Go","Box Pattern","Anaerobic Builder","10-20-30s","150 Down-Ups","10/20/30 Block","Malcolms with Sprint","Hit Shield to Sprint 60","Run and Hit Shield 80","Double Wrestle Run 60","Acceleration Ladder","Sled Sprints 10m","Sled Sprints 20m","Sled Sprints 30m","Hill Sprints 10m","Hill Sprints 20m","Hill Sprints 30m","Hill Sprints 40m","Partner Resisted Accel","Step and Straighten Start","Straight 22 Accelerations","1 v 1 Race 20","Acceleration Ladder Short","Push-Up Start Sprints","Flying Sprints 30-30","Bound to Sprint","Partner 40s","Explosive Runs Builder","Build-Ups 40","Explosive Runs Short","Accelerate-Decelerate 10m","Accelerate-Decelerate 15m","Lateral Jump to Sprint","React and Evade","Weave Run","Change of Pace","Hop to Swerve Sprint","Pattern Race"];;
 const STP_SCRIPT = {
 "Bronco": "Run hard {20} and back, {40} and back, then {60} and back without stopping, using cones at {20}, {40} and {60} and returning to the start tryline each time.",
 "22 Bronco": "Run hard to the 22 m line and back, {40} and back, then {60} and back without stopping, using the 22 m line in place of a cone at {20} and returning to the start tryline each time.",
@@ -3525,6 +3525,46 @@ const stpNrm = s => String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim(
 const stpName = n => STP_ALIAS[n] || n;
 const stpReps = lines => { const m = (lines && lines[0] || '').match(/^(\d+)\s*x\s*\{/i); return m ? +m[1] : null; };
 
+/* Speed prescriptions as viewer drills: every speed option and short blend line maps to one or more visualiser drills.
+   Jumps and throws (plyo pairings) stay as text. [drill name, reps] */
+const SPD_MAP = {
+  "Acceleration Ladder":[["Acceleration Ladder",2]],
+  "Sled Sprints":[["Sled Sprints 10m",10],["Sled Sprints 20m",5],["Sled Sprints 30m",5]],
+  "Hill Sprints":[["Hill Sprints 10m",5],["Hill Sprints 20m",5],["Hill Sprints 30m",3],["Hill Sprints 30m",3],["Hill Sprints 40m",3]],
+  "Partner Resisted Accels":[["Partner Resisted Accel",5],["Step and Straighten Start",4],["Straight 22 Accelerations",2],["1 v 1 Race 20",2]],
+  "Flying Sprints":[["Flying Sprints 30-30",5],["Flying Sprints 30-30",5]],
+  "Bound to Sprint":[["Bound to Sprint",5],["Bound to Sprint",5]],
+  "Partner 40s":[["Partner 40s",4],["Partner 40s",4]],
+  "Explosive Runs Builder":[["Explosive Runs Builder",1]],
+  "Accelerate-Decelerate":[["Accelerate-Decelerate 10m",4],["Accelerate-Decelerate 15m",4]],
+  "Lateral Jump to Sprint":[["Lateral Jump to Sprint",6],["Lateral Jump to Sprint",6]],
+  "React and Evade":[["React and Evade",6],["React and Evade",6]],
+  "Weave Run":[["Weave Run",5],["Weave Run",5]],
+  "Change of Pace and Swerve":[["Change of Pace",2],["Hop to Swerve Sprint",6],["Pattern Race",2]]
+};
+const SPD_MINI = [
+  ["Accel Ladder short",[["Acceleration Ladder Short",1]]],
+  ["Push-up start sprints",[["Push-Up Start Sprints",4]]],
+  ["Partner-resisted accels",[["Partner Resisted Accel",4]]],
+  ["Flying sprints short",[["Flying Sprints 30-30",3]]],
+  ["Build-ups",[["Build-Ups 40",1]]],
+  ["Explosive runs",[["Explosive Runs Short",1]]],
+  ["Pro Agility",[["Pro Agility 5-10-5",4]]],
+  ["Accel-Decel",[["Accelerate-Decelerate 10m",4]]],
+  ["Single-leg hop",[["Hop to Swerve Sprint",4]]]
+];
+function stpSpeedBlocks(d){
+  const drills = [];
+  if(SPD_MAP[d.title]) drills.push(...SPD_MAP[d.title]);
+  else d.lines.forEach(l=>{
+    const t = l.replace(/^[A-Za-z ]+:\s*/, "");
+    const m = SPD_MINI.find(x=>t.indexOf(x[0]) === 0);
+    if(m) drills.push(...m[1]);
+  });
+  const blocks = drills.map(x=>({name: x[0], kind: "run", reps: x[1]}));
+  blocks.push({name: stpName(d.title), kind: "speed", tag: d.tag, lines: d.lines});
+  return blocks;
+}
 function stpHandoff(){
   const sessions = [];
   const have = new Set(STP_DRILLS.map(stpNrm));
@@ -3546,7 +3586,7 @@ function stpHandoff(){
     /* Speed: [{title, tag, lines}] (text sessions) */
     (program.speed ? speedFor(w) : []).forEach((d, i)=>sessions.push({
       name: "W" + w + " Speed Day " + (i+1) + " " + d.title + tag, kind: "speed", wk: w,
-      blocks: [{name: stpName(d.title), kind: "speed", tag: d.tag, lines: d.lines}]
+      blocks: stpSpeedBlocks(d)
     }));
   }
   return {format: "stp-handoff", version: 2, title: "Programme", units: "m", weeks: N, sessions};
