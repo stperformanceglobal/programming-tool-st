@@ -393,7 +393,8 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
 .gsel .gmv button:disabled{opacity:.3;}
 @media print{#gridGrp{display:none !important}}
 
-.wkg td.off{background:rgba(255,255,255,.015);}
+.wkg td.off{background:linear-gradient(to top right, transparent calc(50% - 1px), rgba(255,255,255,.3) 50%, transparent calc(50% + 1px)), rgba(255,255,255,.02); opacity:.75;}
+.wkg td.off .gce{cursor:not-allowed;}
 .wkg td.off .gce{cursor:default;}
 .wkg td.un{background:transparent; vertical-align:top;}
 .wkg td.un .gch{height:34px; margin-bottom:3px;}
