@@ -368,6 +368,30 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
 .dowrow .dh.warn{color:#e0a43a;}
 .calIn{font:inherit; font-size:14px; padding:8px 10px; border-radius:4px; border:1.5px solid var(--line); background:transparent; color:var(--white); color-scheme:dark;}
 .calNote{font-size:12px; color:var(--silver); margin:6px 0 0; line-height:1.45;}
+
+.gbtns{display:flex; gap:8px; margin:2px 0 10px;}
+.gbtns button{font:inherit; font-size:12.5px; font-weight:600; padding:8px 14px; border-radius:6px; border:1.5px solid var(--primary); background:var(--primary); color:#fff; cursor:pointer;}
+.gbtns #gridReset{background:transparent; color:var(--silver); border-color:var(--line);}
+.wkgwrap{overflow-x:auto;}
+.wkg{border-collapse:separate; border-spacing:3px; width:100%; table-layout:fixed;}
+.wkg th{font-size:10px; font-weight:600; color:var(--silver); letter-spacing:.04em; text-align:center; padding:2px 0;}
+.wkg th.gl{text-align:left; width:62px; font-family:'Oswald',sans-serif; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--white); vertical-align:middle;}
+.wkg thead th:first-child{width:62px;}
+.wkg td{padding:0; height:46px; background:rgba(255,255,255,.04); border-radius:5px;}
+.wkg td.over{outline:2px solid var(--primary); background:rgba(255,255,255,.12);}
+.wkg .gce{width:100%; height:100%; background:transparent; border:0; cursor:pointer;}
+.wkg .gch{-webkit-user-select:none; user-select:none; width:100%; height:100%; border:0; border-radius:5px; padding:3px 2px; cursor:grab; touch-action:none; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; color:#fff; font-family:inherit; line-height:1.1; overflow:hidden;}
+.wkg .gch b{font-size:10.5px; font-weight:700;}
+.wkg .gch span{font-size:8.5px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; word-break:break-word; text-align:center;}
+.wkg .gch.lift{background:#2f6fb0;} .wkg .gch.cond{background:#8a5cc2;} .wkg .gch.spd{background:#2e8b57;} .wkg .gch.run{background:#c0792b;}
+.wkg .gch.sel{outline:2.5px solid #fff; outline-offset:-2px;}
+.wkg .gch.drag{opacity:.35;}
+.gch.ghost{position:fixed; z-index:9999; pointer-events:none; height:44px; border-radius:5px; opacity:.92; box-shadow:0 4px 14px rgba(0,0,0,.5);}
+.gsel{min-height:34px;}
+.gsel .gmv{display:inline-flex; gap:6px; margin-left:8px; vertical-align:middle;}
+.gsel .gmv button{font:inherit; font-size:12px; padding:5px 11px; border-radius:5px; border:1.5px solid var(--primary); background:transparent; color:var(--white); cursor:pointer;}
+.gsel .gmv button:disabled{opacity:.3;}
+@media print{#gridGrp{display:none !important}}
 </style>
 </head>
 <body>
@@ -420,7 +444,6 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
     <div class="chips" data-key="liftDays">
       <button class="chip" data-v="1">1</button><button class="chip" data-v="2">2</button><button class="chip on" data-v="3">3</button><button class="chip" data-v="4">4</button><button class="chip" data-v="5">5</button><button class="chip" data-v="6">6</button>
     </div>
-<div class="dowrow" data-cat="lift" style="display:none"></div>
     </div>
   </div>
 
@@ -511,7 +534,6 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
           <div class="chips" data-key="spdDays">
             <button class="chip" data-v="1">1</button><button class="chip on" data-v="2">2</button><button class="chip" data-v="3">3</button>
           </div>
-<div class="dowrow" data-cat="spd" style="display:none"></div>
         </div>
         <div>
           <div class="mini">Approach</div>
@@ -543,7 +565,6 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
           <div class="chips" data-key="runDays">
             <button class="chip" data-v="1">1</button><button class="chip on" data-v="2">2</button><button class="chip" data-v="3">3</button><button class="chip" data-v="4">4</button><button class="chip" data-v="5">5</button><button class="chip" data-v="6">6</button>
           </div>
-<div class="dowrow" data-cat="run" style="display:none"></div>
         </div>
         <div>
           <div class="mini">Approach</div>
@@ -588,7 +609,6 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
       <div class="chips" data-key="condDays">
         <button class="chip" data-v="1">1</button><button class="chip on" data-v="2">2</button><button class="chip" data-v="3">3</button><button class="chip" data-v="4">4</button><button class="chip" data-v="5">5</button><button class="chip" data-v="6">6</button>
       </div>
-<div class="dowrow" data-cat="cond" style="display:none"></div>
       <div class="two-col">
         <div>
           <div class="mini">System</div>
@@ -608,6 +628,13 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
       </div>
       <p class="rule-note">Machine based intervals: pick your poison each session. Bike erg, rower, ski erg, assault bike, treadmill, stair climber or curve runner.</p>
     </div>
+  </div>
+
+  <div class="grp" id="gridGrp">
+    <div class="grp-label">Weekly layout</div>
+    <div class="gbtns"><button type="button" id="gridPop">Populate Week</button><button type="button" id="gridReset">Reset layout</button></div>
+    <div class="wkgwrap" id="gridHost"></div>
+    <div class="calNote gsel" id="gridSel"></div>
   </div>
 
   <button class="build-btn" id="buildBtn">Build programme</button>
@@ -2055,7 +2082,7 @@ function reconcileOptional(key){
   if(key === "runType" && cfg.runType !== "all" && cfg.runApp === "split") cfg.runApp = "hyb";
   if(key === "runDays" && cfg.runDays < 3 && cfg.runApp === "split") cfg.runApp = "hyb";
   syncChips();
-  syncDow(); if(key === "dayFmt" || /Days$/.test(key)) relabel();
+  if(key === "dayFmt") syncGrid(true); else syncGrid(); if(key === "dayFmt" || /Days$/.test(key)) relabel();
   if((key === "runDays" || key === "runApp") && typeof syncRunVol === "function"){ const B = runBounds(); if(cfg.runWkMin != null && cfg.runWkMin <= B.lo) cfg.runWkMin = null; if(cfg.runWkMax != null && cfg.runWkMax >= B.hi) cfg.runWkMax = null; syncRunVol(); }
 }
 
@@ -2078,7 +2105,7 @@ const cfg = {curWeek:1, liftOn:true, liftDays:3, careOn:false, condOn:true, cond
   units:"m",
   spdOn:false, spdQual:"all", spdDays:2, spdApp:"hyb",
   runOn:false, runType:"straight", runDays:2, runApp:"hyb", runVol:3000, runMin:2000, runMax:3000, runWkMin:null, runWkMax:null, runProg:"build", runCap:5000, recAll:false,
-  dayFmt:"num", calOn:false, calStart:"", calAnchor:0, dowLift:[], dowCond:[], dowSpd:[], dowRun:[]};
+  dayFmt:"num", calOn:false, calStart:"", calAnchor:0, dowLift:[], dowCond:[], dowSpd:[], dowRun:[], grid:{lift:[],cond:[],spd:[],run:[]}, gridT:null};
 let program = null;
 
 document.querySelectorAll('.chips').forEach(g=>{
@@ -2165,18 +2192,23 @@ function calReady(){ return !!cfg.calOn && !!pDate(cfg.calStart); }
 function weekStart(w){ const s = pDate(cfg.calStart), off = (cfg.calAnchor - dWd(s) + 7) % 7; return new Date(s.getTime() + (off + 7*(w-1)) * 864e5); }
 function weekRange(w){ if(!calReady()) return ""; const a = weekStart(w), b = new Date(a.getTime() + 6*864e5); return dFmt(a) + " to " + dFmt(b); }
 function wkDates(w){ const r = weekRange(w || cfg.curWeek); return r ? " | " + r : ""; }
-function dowOrder(scope){
-  const k = DOWCAT[scope], A = calReady() ? cfg.calAnchor : 0;
-  return (cfg[k[0]] || []).slice().sort((x,y)=>((x-A+7)%7)-((y-A+7)%7)).slice(0, cfg[k[1]]);
-}
+const GCAT = {lift:{k:"liftDays", name:"Lifting", code:"L", on:()=>cfg.liftOn}, cond:{k:"condDays", name:"Conditioning", code:"C", on:()=>cfg.condOn}, spd:{k:"spdDays", name:"Speed", code:"S", on:()=>cfg.spdOn}, run:{k:"runDays", name:"Running", code:"R", on:()=>cfg.runOn}};
+function colOf(sc, di){ const r = cfg.grid && cfg.grid[sc]; return r && r[di] != null && r[di] >= 0 ? r[di] : -1; }
 function dayLabel(scope, di, w){
   w = w || cfg.curWeek;
-  if(cfg.dayFmt !== "dow") return "Day " + (di+1);
-  const o = dowOrder(scope);
-  if(di >= o.length) return "Day " + (di+1);
-  if(calReady()) return dFmt(new Date(weekStart(w).getTime() + ((o[di] - cfg.calAnchor + 7) % 7) * 864e5));
-  return DOW3[o[di]];
+  const c = colOf(scope, di);
+  if(cfg.dayFmt !== "dow") return "Day " + ((c < 0 ? di : c) + 1);
+  if(c < 0) return "Day " + (di+1);
+  if(calReady()) return dFmt(new Date(weekStart(w).getTime() + ((c - cfg.calAnchor + 7) % 7) * 864e5));
+  return DOW3[c];
 }
+/* Sessions of a category in the order they fall in the week, as [session, original index] pairs */
+function ordPairs(sc, arr){
+  const A = (cfg.dayFmt === "dow" && calReady()) ? cfg.calAnchor : 0;
+  const key = i => { const c = colOf(sc, i); return c < 0 ? 99 + i : (cfg.dayFmt === "dow" ? (c - A + 7) % 7 : c); };
+  return arr.map((d, i)=>[d, i]).sort((x, y)=>key(x[1]) - key(y[1]));
+}
+function ord(sc, n){ return ordPairs(sc, Array.from({length:n})).map(x=>x[1]); }
 function stpSessName(scope, w, i, d){
   return "W" + w + (scope === "run" ? " Run " : " Speed ") + dayLabel(scope, i, w) + " " + d.title + (isDeload(w) ? " (deload)" : "");
 }
@@ -2184,32 +2216,130 @@ function relabel(){
   if(!program) return;
   renderTabs(); renderLift(); renderCond(); renderSpeed(); renderRun(); persist();
 }
-function syncDow(){
-  const dow = cfg.dayFmt === "dow";
-  Object.keys(DOWCAT).forEach(sc=>{
-    const k = DOWCAT[sc], cap = cfg[k[1]];
-    cfg[k[0]] = dowOrder(sc);
-    const host = document.querySelector('.dowrow[data-cat="' + sc + '"]'); if(!host) return;
-    host.style.display = dow ? "" : "none";
-    if(!dow) return;
-    const sel = cfg[k[0]];
-    host.innerHTML = DOW3.map((n,i)=>`<button type="button" class="dq${sel.includes(i)?" on":""}" data-i="${i}">${n}</button>`).join("") +
-      `<span class="dh${sel.length<cap?" warn":""}">${sel.length} of ${cap} day${cap>1?"s":""} picked</span>`;
+/* ---- Weekly layout grid ---- */
+let gridSel = null;
+function gSig(){ return JSON.stringify([cfg.focus,cfg.equip,cfg.struct,cfg.emph,cfg.liftOn,cfg.liftDays,cfg.careOn,cfg.condOn,cfg.condDays,cfg.condSys,cfg.weeks,cfg.spdOn,cfg.spdQual,cfg.spdDays,cfg.spdApp,cfg.runOn,cfg.runType,cfg.runDays,cfg.runApp]); }
+function gSpread(n, off){
+  const base = {1:[0],2:[0,3],3:[0,2,4],4:[0,1,3,4],5:[0,1,2,3,4],6:[0,1,2,3,4,5],7:[0,1,2,3,4,5,6]}[Math.max(1, Math.min(7, n))];
+  return base.map(c=>(c + off) % 7);
+}
+function gSeed(sc, keep){
+  const N = cfg[GCAT[sc].k], dow = cfg.dayFmt === "dow", cols = [];
+  (keep || []).forEach(c=>{ if(cols.length < N && c >= 0 && c < 7 && !cols.includes(c)) cols.push(c); });
+  const old = (!keep || !keep.length) && dow ? (cfg[{lift:"dowLift",cond:"dowCond",spd:"dowSpd",run:"dowRun"}[sc]] || []).slice().sort((a,b)=>a-b) : [];
+  old.forEach(c=>{ if(cols.length < N && !cols.includes(c)) cols.push(c); });
+  const base = dow ? gSpread(N, {lift:0,cond:1,spd:0,run:1}[sc]) : Array.from({length:N}, (_, i)=>i);
+  base.forEach(c=>{ if(cols.length < N && !cols.includes(c)) cols.push(c); });
+  for(let c=0; cols.length < N && c < 7; c++) if(!cols.includes(c)) cols.push(c);
+  return cols;
+}
+function syncGrid(reseed){
+  if(!cfg.grid || typeof cfg.grid !== "object") cfg.grid = {};
+  Object.keys(GCAT).forEach(sc=>{
+    const N = cfg[GCAT[sc].k], row = Array.isArray(cfg.grid[sc]) ? cfg.grid[sc] : [];
+    cfg.grid[sc] = (reseed || row.length !== N || (cfg.dayFmt !== "dow" && row.some(c=>c < 0 || c > 6))) ? gSeed(sc, reseed ? [] : row.slice(0, N)) : row;
   });
+  gridSel = null; renderGrid();
+}
+function syncDow(){ syncGrid(); }
+function gCols(){
+  if(cfg.dayFmt === "dow") return 7;
+  let maxN = 1, used = 0;
+  Object.keys(GCAT).forEach(sc=>{ if(GCAT[sc].on()){ maxN = Math.max(maxN, cfg[GCAT[sc].k]); (cfg.grid[sc]||[]).forEach(c=>{ used = Math.max(used, c + 1); }); } });
+  return Math.min(7, Math.max(maxN, used) + (Math.max(maxN, used) < 7 ? 1 : 0));
+}
+function gTitle(sc, i){
+  const t = cfg.gridT; if(t && t.sig === gSig() && t[sc] && t[sc][i]) return t[sc][i];
+  return "Session " + (i+1);
+}
+function renderGrid(){
+  const host = el("gridHost"); if(!host) return;
+  const cats = Object.keys(GCAT).filter(sc=>GCAT[sc].on());
+  const grp = el("gridGrp"); if(grp) grp.style.display = cats.length ? "" : "none";
+  if(!cats.length){ host.innerHTML = ""; return; }
+  const nc = gCols(), dow = cfg.dayFmt === "dow";
+  let h = '<table class="wkg"><thead><tr><th></th>' + Array.from({length:nc}, (_, c)=>`<th>${dow ? DOW3[c] : "Day " + (c+1)}</th>`).join("") + "</tr></thead><tbody>";
+  cats.forEach(sc=>{
+    const row = cfg.grid[sc] || [];
+    h += `<tr><th class="gl">${GCAT[sc].name}</th>`;
+    for(let c=0; c<nc; c++){
+      const i = row.indexOf(c);
+      const on = gridSel && gridSel.sc === sc && gridSel.i === i && i >= 0;
+      h += `<td data-sc="${sc}" data-c="${c}">` + (i >= 0 ? `<button type="button" class="gch ${sc}${on ? " sel" : ""}" data-sc="${sc}" data-i="${i}"><b>${GCAT[sc].code}${i+1}</b><span>${gTitle(sc, i).replace(/&/g, "&amp;").replace(/</g, "&lt;")}</span></button>` : `<button type="button" class="gce" data-sc="${sc}" data-c="${c}" aria-label="Empty"></button>`) + "</td>";
+    }
+    h += "</tr>";
+  });
+  host.innerHTML = h + "</tbody></table>";
+  const t = cfg.gridT, stale = t && t.sig !== gSig();
+  const sel = el("gridSel");
+  if(gridSel){
+    const c = colOf(gridSel.sc, gridSel.i);
+    sel.innerHTML = `<b>${GCAT[gridSel.sc].name} ${gridSel.i+1}</b> | ${gTitle(gridSel.sc, gridSel.i)} | ${dow ? DOW3[c] : "Day " + (c+1)} <span class="gmv"><button type="button" id="gL" ${c <= 0 ? "disabled" : ""}>&#9664;</button><button type="button" id="gR" ${c >= nc - 1 ? "disabled" : ""}>&#9654;</button><button type="button" id="gD">Done</button></span>`;
+    el("gL").onclick = ()=>gMove(gridSel.sc, gridSel.i, c - 1);
+    el("gR").onclick = ()=>gMove(gridSel.sc, gridSel.i, c + 1);
+    el("gD").onclick = ()=>{ gridSel = null; renderGrid(); };
+  } else sel.textContent = !t ? "Press Populate Week to see the actual sessions, then tap one and use the arrows, or drag it, to place it. Moving onto another session swaps them." : stale ? "Settings have changed since you pressed Populate Week. Press it again to refresh the session names." : "Tap a session, then use the arrows or tap a day. You can also drag it. Moving onto another session swaps them.";
+}
+function gMove(sc, i, c){
+  if(c < 0 || c > 6) return;
+  const row = cfg.grid[sc], j = row.indexOf(c), from = row[i];
+  if(from === c) return;
+  if(j >= 0) row[j] = from;
+  row[i] = c;
+  gridSel = {sc, i}; renderGrid(); relabel();
+}
+function gPop(){
+  const keep = program; let t = null;
+  try{
+    buildProgram();
+    const sd = program.speed ? speedFor(1) : [], rd = program.run ? runFor(1) : [];
+    t = {sig: gSig(), lift: cfg.liftOn ? program.days.map(d=>d.title) : [], cond: cfg.condOn ? Array.from({length:cfg.condDays}, ()=>COND[cfg.condSys].name) : [], spd: sd.map(d=>d.title), run: rd.map(d=>d.title)};
+  }catch(e){}
+  program = keep;
+  if(t){ cfg.gridT = t; }
+  gridSel = null; renderGrid(); persist();
 }
 document.addEventListener("click", e=>{
-  const b = e.target.closest(".dowrow .dq"); if(!b) return;
-  const host = b.parentNode, sc = host.dataset.cat;
-  if(sc){
-    const k = DOWCAT[sc], i = +b.dataset.i, a = (cfg[k[0]] || []).slice(), at = a.indexOf(i);
-    if(at >= 0) a.splice(at, 1);
-    else if(a.length < cfg[k[1]]) a.push(i);
-    else { const h = host.querySelector(".dh"); if(h){ h.textContent = "Already " + cfg[k[1]] + " picked. Untick one first."; h.classList.add("warn"); } return; }
-    cfg[k[0]] = a; syncDow(); relabel();
-  } else if(host.id === "calAnchorRow"){
-    cfg.calAnchor = +b.dataset.i; syncCal(); relabel();
-  }
+  const b = e.target.closest(".dowrow .dq");
+  if(b && b.parentNode.id === "calAnchorRow"){ cfg.calAnchor = +b.dataset.i; syncCal(); relabel(); return; }
+  const ch = e.target.closest(".gch");
+  if(ch && !gDrag){ const sc = ch.dataset.sc, i = +ch.dataset.i; gridSel = (gridSel && gridSel.sc === sc && gridSel.i === i) ? null : {sc, i}; renderGrid(); return; }
+  const ce = e.target.closest(".gce");
+  if(ce && gridSel && gridSel.sc === ce.dataset.sc) gMove(gridSel.sc, gridSel.i, +ce.dataset.c);
 });
+/* drag a session to another day in its own row (works with mouse and touch) */
+let gDrag = null;
+document.addEventListener("pointerdown", e=>{
+  const ch = e.target.closest(".gch"); if(!ch) return;
+  gDrag = {sc: ch.dataset.sc, i: +ch.dataset.i, x: e.clientX, y: e.clientY, on: false, el: ch, ghost: null};
+});
+document.addEventListener("pointermove", e=>{
+  if(!gDrag) return;
+  if(!gDrag.on){
+    if(Math.hypot(e.clientX - gDrag.x, e.clientY - gDrag.y) < 8) return;
+    gDrag.on = true; gDrag.el.classList.add("drag");
+    const g = gDrag.el.cloneNode(true); g.classList.add("ghost"); g.style.width = gDrag.el.offsetWidth + "px"; document.body.appendChild(g); gDrag.ghost = g;
+  }
+  gDrag.ghost.style.left = (e.clientX - gDrag.ghost.offsetWidth/2) + "px"; gDrag.ghost.style.top = (e.clientY - 22) + "px";
+  document.querySelectorAll(".wkg td.over").forEach(x=>x.classList.remove("over"));
+  const t = document.elementFromPoint(e.clientX, e.clientY), td = t && t.closest && t.closest(".wkg td");
+  if(td && td.dataset.sc === gDrag.sc) td.classList.add("over");
+});
+function gDragEnd(e){
+  if(!gDrag) return;
+  const d = gDrag; gDrag = null;
+  document.querySelectorAll(".wkg td.over").forEach(x=>x.classList.remove("over"));
+  if(d.ghost) d.ghost.remove();
+  if(d.on){
+    const t = document.elementFromPoint(e.clientX, e.clientY), td = t && t.closest && t.closest(".wkg td");
+    d.el.classList.remove("drag");
+    if(td && td.dataset.sc === d.sc) gMove(d.sc, d.i, +td.dataset.c); else renderGrid();
+    window.__gdrag = true; setTimeout(()=>{ window.__gdrag = false; }, 0);
+  }
+}
+document.addEventListener("pointerup", gDragEnd);
+document.addEventListener("pointercancel", gDragEnd);
+document.addEventListener("click", e=>{ if(window.__gdrag){ e.stopPropagation(); e.preventDefault(); } }, true);
 function syncCal(){
   el("calSw").textContent = cfg.calOn ? "On" : "Off";
   el("calSw").classList.toggle("on", !!cfg.calOn);
@@ -2230,7 +2360,9 @@ document.addEventListener("DOMContentLoaded", ()=>{
     const d = pDate(cfg.calStart); if(d) cfg.calAnchor = dWd(d);
     syncCal(); syncDow(); relabel();
   });
-  syncCal(); syncDow();
+  el("gridPop").addEventListener("click", gPop);
+  el("gridReset").addEventListener("click", ()=>{ syncGrid(true); relabel(); });
+  syncCal(); syncGrid();
 });
 
 function weekTag(){ return "Week " + cfg.curWeek + (isDeload(cfg.curWeek) ? " (deload)" : ""); }
@@ -2307,7 +2439,9 @@ function applyState(s){
   if(s.cfg && s.cfg.recAll === undefined) cfg.recAll = (s.days||[]).some(x=>x && x.recOn);
   if(s.cfg && s.cfg.runMin === undefined && s.cfg.runVol){ cfg.runMin = cfg.runMax = s.cfg.runVol; cfg.runWkMin = cfg.runWkMax = null; }
   if(cfg.condDays > 6) cfg.condDays = 6;
-  Object.keys(DOWCAT).forEach(sc=>{ const k = DOWCAT[sc][0]; cfg[k] = Array.isArray(cfg[k]) ? cfg[k].filter(n=>n>=0 && n<7) : []; });
+  ['dowLift','dowCond','dowSpd','dowRun'].forEach(k=>{ cfg[k] = Array.isArray(cfg[k]) ? cfg[k].filter(n=>n>=0 && n<7) : []; });
+  if(!cfg.grid || typeof cfg.grid !== "object") cfg.grid = {};
+  Object.keys(GCAT).forEach(sc=>{ cfg.grid[sc] = Array.isArray(cfg.grid[sc]) ? cfg.grid[sc].filter(n=>Number.isInteger(n) && n>=0 && n<7) : []; });
   if(cfg.dayFmt !== "dow") cfg.dayFmt = "num";
   if(!(cfg.calAnchor >= 0 && cfg.calAnchor < 7)) cfg.calAnchor = 0;
   if(typeof syncCal === "function" && document.getElementById("calSw")){ syncCal(); }
@@ -2327,7 +2461,7 @@ function applyState(s){
   program.condRpe = s.condRpe || {};
   program.spdRpe = s.spdRpe || {};
   program.runRpe = s.runRpe || {};
-  syncOptional(); syncRunVol(); syncDow();
+  syncOptional(); syncRunVol(); syncGrid();
   clampWeek();
   renderLift(); renderCond(); renderSpeed(); renderRun(); showOut(false);
 }
@@ -2386,7 +2520,7 @@ function renderLift(){
   el('wkNote').innerHTML = `<b>Week ${W}</b> ${weekNote(W)}`;
   el('wkGuide').innerHTML = weekGuide();
 
-  el('liftDaysWrap').innerHTML = program.days.map((d, di)=>{
+  el('liftDaysWrap').innerHTML = ordPairs('lift', program.days).map(([d, di])=>{
     const rows = d.ex.map((x, xi)=>{
       const p = weekRx(x, f, W);
       const label = x.label || ((cfg.focus==="sp" && d.ex[0].cat==="pow" && xi<2) ? ["A1","A2"][xi] : (xi+1));
@@ -2493,7 +2627,7 @@ function renderCond(){
      <div style="flex-basis:100%; color:#C9C9C9;">${c.note}</div>`;
 
   let html = "";
-  for(let d=0; d<cfg.condDays; d++){
+  for(const [, d] of ordPairs('cond', Array.from({length:cfg.condDays}))){
     const {label, ratio, rounds, used} = condPlan(d);
     html += `<div class="cond-card">
       <h3>${dayLabel("cond", d)} | ${c.name} Intervals</h3>
@@ -2525,7 +2659,7 @@ function blocksHTML(blocks){
     </div>`).join("");
 }
 function fieldCards(days, scope){
-  return days.map((d, di)=>`
+  return ordPairs(scope, days).map(([d, di])=>`
     <div class="cond-card">
       <h3>${dayLabel(scope, di)} | ${d.title}<span class="ctag">${U(d.tag)}</span></h3>
       ${d.blocks ? blocksHTML(d.blocks) : linesHTML(d.lines)}
@@ -2718,7 +2852,7 @@ function printDoc(withRec){
 
   const lineRows = lines => lines.map(l=>`<div class="dl${/^\d+\. .*\|/.test(l) ? " bh" : ""}">${U(l)}</div>`).join("");
   const stripTags = h => h.replace(/<[^>]+>/g, "");
-  const weekLiftCards = w => program.days.map((d, di)=>{
+  const weekLiftCards = w => ordPairs('lift', program.days).map(([d, di])=>{
     const rows = d.ex.map((x, xi)=>{
       const p = weekRx(x, f, w);
       const label = x.label || ((cfg.focus==="sp" && d.ex[0].cat==="pow" && xi<2) ? ["A1","A2"][xi] : (xi+1));
@@ -2737,7 +2871,7 @@ function printDoc(withRec){
   }).join("");
 
   const optSection = (title, sub, days, note, warm, scope, w) => {
-    const cards = days.map((d, di)=>`<div class="card"><div class="ch">${dayLabel(scope, di, w)} | ${d.title} &nbsp;<i>${U(d.tag)}</i></div><div class="cb">${lineRows(d.lines)}</div></div>`).join("");
+    const cards = ordPairs(scope, days).map(([d, di])=>`<div class="card"><div class="ch">${dayLabel(scope, di, w)} | ${d.title} &nbsp;<i>${U(d.tag)}</i></div><div class="cb">${lineRows(d.lines)}</div></div>`).join("");
     const cols = Math.min(days.length, 3);
     return `<div class="sect"><b>${title}</b><span>${sub}</span></div>
       ${warm ? `<div class="foot" style="margin:6px 0 9px;"><b>Warm-up first.</b> <span class="note">${U(FIELD_WARMUP)}</span></div>` : ""}
@@ -2764,7 +2898,7 @@ function printDoc(withRec){
   const condCols = Math.min(Math.max(cfg.condDays,1), withRec ? 2 : 3);
   const condHtml = (w) => {
     let condCards = "";
-    for(let d=0; d<cfg.condDays; d++){
+    for(const [, d] of ordPairs('cond', Array.from({length:cfg.condDays}))){
       const {label, ratio, rounds, used} = condPlan(d);
       const rec = withRec
         ? `<div class="rbxwrap"><b>Record pace, watts or level per round</b><div class="rbx">${Array.from({length:rounds},(_,i)=>`<span class="bx"><i>R${i+1}</i></span>`).join("")}</div></div>`
@@ -3314,12 +3448,13 @@ async function buildFillablePdf(){
     if(cfg.liftOn){
       const cols = cfg.liftDays <= 3 ? cfg.liftDays : (cfg.liftDays === 4 ? 2 : 3), gapC = 10;
       const colW = (W - 2*M - (cols-1)*gapC) / cols;
+      const lOrd = ord('lift', program.days.length);
       for(let r0=0; r0<program.days.length; r0+=cols){
-        const chunk = program.days.slice(r0, r0+cols);
+        const chunk = lOrd.slice(r0, r0+cols).map(i=>program.days[i]);
         const hMax = Math.max(...chunk.map(d=>34 + d.ex.length*24 + 6));
         ens(hMax + 4);
         chunk.forEach((d, ci)=>{
-          const di = r0 + ci, x0 = M + ci*(colW + gapC);
+          const di = lOrd[r0 + ci], x0 = M + ci*(colW + gapC);
           const nMax = Math.max(...d.ex.map(x=>setsOf(weekRx(x, f, wk))));
           const fg = 2, fw = Math.min(40, Math.floor((colW*0.52)/nMax) - fg), bw = nMax*(fw+fg) - fg;
           const xF = x0 + colW - bw - 2, nameW = xF - x0 - 20;
@@ -3353,7 +3488,8 @@ async function buildFillablePdf(){
     if(cfg.condOn){
       const cols = Math.min(Math.max(cfg.condDays, 1), 3), gapC = 10, colW = (W - 2*M - (cols-1)*gapC) / cols;
       const perRow = Math.max(2, Math.floor((colW - 8) / 62));
-      const plans = Array.from({length:cfg.condDays}, (_, dd)=>condPlan(dd));
+      const cOrd = ord('cond', cfg.condDays);
+      const plans = cOrd.map(dd=>condPlan(dd));
       for(let r0=0; r0<plans.length; r0+=cols){
         const chunk = plans.slice(r0, r0+cols);
         const hMax = Math.max(...chunk.map(pl=>52 + Math.ceil(pl.rounds/perRow)*19 + 4));
@@ -3364,7 +3500,7 @@ async function buildFillablePdf(){
           y -= 20;
         }
         chunk.forEach((pl, ci)=>{
-          const dd = r0 + ci, x0 = M + ci*(colW + gapC);
+          const dd = cOrd[r0 + ci], x0 = M + ci*(colW + gapC);
           let yy = y;
           page.drawRectangle({x:x0, y:yy-15, width:colW, height:15, color:HEAD});
           page.drawRectangle({x:x0, y:yy-17, width:colW, height:2, color:ACC});
@@ -3386,8 +3522,9 @@ async function buildFillablePdf(){
     /* Speed and running */
     const optBlock = (secTitle, days, rpeMap, prefix)=>{
       const cols = Math.min(days.length, 3), gapC = 10, colW = (W - 2*M - (cols-1)*gapC) / cols, LS = 6.8, LH = 8.6;
+      const dOrd = ord(prefix, days.length);
       for(let r0=0; r0<days.length; r0+=cols){
-        const chunk = days.slice(r0, r0+cols).map(d=>{
+        const chunk = dOrd.slice(r0, r0+cols).map(i=>days[i]).map(d=>{
           const wl = [];
           d.lines.forEach(l=>wrap(U(l), helv, LS, colW-10).forEach(x=>wl.push(x)));
           return {d, wl};
@@ -3395,7 +3532,7 @@ async function buildFillablePdf(){
         const hMax = Math.max(...chunk.map(c=>34 + c.wl.length*LH + 26));
         ens(hMax + 4);
         chunk.forEach((c, ci)=>{
-          const di = r0 + ci, x0 = M + ci*(colW + gapC);
+          const di = dOrd[r0 + ci], x0 = M + ci*(colW + gapC);
           let yy = y;
           page.drawRectangle({x:x0, y:yy-15, width:colW, height:15, color:HEAD});
           page.drawRectangle({x:x0, y:yy-17, width:colW, height:2, color:ACC});
