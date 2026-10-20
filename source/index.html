@@ -349,12 +349,25 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
 
 /* collapsible programme sections */
 .sec-head.cz{cursor:pointer; -webkit-user-select:none; user-select:none; align-items:center;}
-.sec-head .czb{order:-1; flex:none; width:26px; height:26px; border-radius:6px; border:1px solid var(--primary); background:transparent; color:var(--white); font-size:13px; line-height:1; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; transition:transform .15s;}
-.sec-head.cz.shut .czb{transform:rotate(-90deg);}
+.sec-head .czb{order:-1; flex:none; width:38px; height:38px; border-radius:8px; border:0; background:var(--primary); color:#fff; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; padding:0; box-shadow:0 1px 4px rgba(0,0,0,.35);}
+.sec-head .czb svg{width:22px; height:22px; transition:transform .18s;}
+.sec-head.cz.shut .czb svg{transform:rotate(-90deg);}
+.sec-head .czt{margin-left:auto; order:1; flex:none !important; font-family:'Oswald',sans-serif; font-size:12px; letter-spacing:.14em; text-transform:uppercase; font-weight:500; color:var(--white); border:1.5px solid var(--primary); border-radius:6px; padding:5px 10px;}
+.sec-head.cz.shut .czt{background:var(--primary);}
+.sec-head.cz span:not(.czt){order:2;}
 .pg-shut > :not(.sec-head):not(.p-head){display:none !important;}
 .cz-bar{display:flex; gap:8px; justify-content:flex-end; margin:14px 0 -22px; position:relative; z-index:1;}
 .cz-bar button{font:inherit; font-size:12px; padding:5px 11px; border-radius:6px; border:1px solid var(--primary); background:transparent; color:var(--silver); cursor:pointer;}
-@media print{.cz-bar,.czb{display:none !important} .pg-shut > :not(.sec-head):not(.p-head){display:revert !important}}
+@media print{.cz-bar,.czb,.czt{display:none !important} .pg-shut > :not(.sec-head):not(.p-head){display:revert !important}}
+
+/* day format and calendar */
+.dowrow{display:flex; flex-wrap:wrap; gap:4px; align-items:center; margin:8px 0 2px;}
+.dowrow .dq{width:36px; height:34px; border-radius:4px; border:1.5px solid var(--line); background:transparent; color:var(--silver); font-size:11px; font-weight:600; cursor:pointer; padding:0;}
+.dowrow .dq.on{background:var(--primary); border-color:var(--primary); color:#fff;}
+.dowrow .dh{font-size:11.5px; color:var(--silver); margin-left:6px;}
+.dowrow .dh.warn{color:#e0a43a;}
+.calIn{font:inherit; font-size:14px; padding:8px 10px; border-radius:4px; border:1.5px solid var(--line); background:transparent; color:var(--white); color-scheme:dark;}
+.calNote{font-size:12px; color:var(--silver); margin:6px 0 0; line-height:1.45;}
 </style>
 </head>
 <body>
@@ -382,6 +395,24 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
     </div>
   </div>
 
+  <div class="grp">
+    <div class="grp-label">Day labels</div>
+    <div class="chips" data-key="dayFmt">
+      <button class="chip on" data-v="num">Day 1, 2, 3<span class="sm">Numbered days</span></button><button class="chip" data-v="dow">Mon, Tue, Wed<span class="sm">Pick weekdays</span></button>
+    </div>
+  </div>
+
+  <div class="grp opt-grp">
+    <div class="grp-label">Map to calendar <button class="incSw" id="calSw" type="button">Off</button></div>
+    <div class="opt-body" id="calBody" style="display:none">
+      <div class="mini">Start date</div>
+      <input type="date" id="calStart" class="calIn">
+      <div class="mini" style="margin-top:12px">Start all weeks on</div>
+      <div class="dowrow" id="calAnchorRow"></div>
+      <div class="calNote" id="calNote"></div>
+    </div>
+  </div>
+
   <div class="grp opt-grp">
     <div class="grp-label">Lifting <button class="incSw" id="liftSw" type="button">On</button></div>
     <div class="opt-body" id="liftBody">
@@ -389,6 +420,7 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
     <div class="chips" data-key="liftDays">
       <button class="chip" data-v="1">1</button><button class="chip" data-v="2">2</button><button class="chip on" data-v="3">3</button><button class="chip" data-v="4">4</button><button class="chip" data-v="5">5</button><button class="chip" data-v="6">6</button>
     </div>
+<div class="dowrow" data-cat="lift" style="display:none"></div>
     </div>
   </div>
 
@@ -479,6 +511,7 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
           <div class="chips" data-key="spdDays">
             <button class="chip" data-v="1">1</button><button class="chip on" data-v="2">2</button><button class="chip" data-v="3">3</button>
           </div>
+<div class="dowrow" data-cat="spd" style="display:none"></div>
         </div>
         <div>
           <div class="mini">Approach</div>
@@ -510,6 +543,7 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
           <div class="chips" data-key="runDays">
             <button class="chip" data-v="1">1</button><button class="chip on" data-v="2">2</button><button class="chip" data-v="3">3</button><button class="chip" data-v="4">4</button><button class="chip" data-v="5">5</button><button class="chip" data-v="6">6</button>
           </div>
+<div class="dowrow" data-cat="run" style="display:none"></div>
         </div>
         <div>
           <div class="mini">Approach</div>
@@ -554,6 +588,7 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
       <div class="chips" data-key="condDays">
         <button class="chip" data-v="1">1</button><button class="chip on" data-v="2">2</button><button class="chip" data-v="3">3</button><button class="chip" data-v="4">4</button><button class="chip" data-v="5">5</button><button class="chip" data-v="6">6</button>
       </div>
+<div class="dowrow" data-cat="cond" style="display:none"></div>
       <div class="two-col">
         <div>
           <div class="mini">System</div>
@@ -2020,6 +2055,7 @@ function reconcileOptional(key){
   if(key === "runType" && cfg.runType !== "all" && cfg.runApp === "split") cfg.runApp = "hyb";
   if(key === "runDays" && cfg.runDays < 3 && cfg.runApp === "split") cfg.runApp = "hyb";
   syncChips();
+  syncDow(); if(key === "dayFmt" || /Days$/.test(key)) relabel();
   if((key === "runDays" || key === "runApp") && typeof syncRunVol === "function"){ const B = runBounds(); if(cfg.runWkMin != null && cfg.runWkMin <= B.lo) cfg.runWkMin = null; if(cfg.runWkMax != null && cfg.runWkMax >= B.hi) cfg.runWkMax = null; syncRunVol(); }
 }
 
@@ -2041,7 +2077,8 @@ function syncOptional(){
 const cfg = {curWeek:1, liftOn:true, liftDays:3, careOn:false, condOn:true, condDays:2, weeks:6, emph:"equal", equip:"machine", focus:"hyp", struct:"hyb", condSys:"aer", condMins:15,
   units:"m",
   spdOn:false, spdQual:"all", spdDays:2, spdApp:"hyb",
-  runOn:false, runType:"straight", runDays:2, runApp:"hyb", runVol:3000, runMin:2000, runMax:3000, runWkMin:null, runWkMax:null, runProg:"build", runCap:5000, recAll:false};
+  runOn:false, runType:"straight", runDays:2, runApp:"hyb", runVol:3000, runMin:2000, runMax:3000, runWkMin:null, runWkMax:null, runProg:"build", runCap:5000, recAll:false,
+  dayFmt:"num", calOn:false, calStart:"", calAnchor:0, dowLift:[], dowCond:[], dowSpd:[], dowRun:[]};
 let program = null;
 
 document.querySelectorAll('.chips').forEach(g=>{
@@ -2117,6 +2154,85 @@ function weekGuide(){
 
 /* ---------------- Week tabs and session complete ---------------- */
 function clampWeek(){ cfg.curWeek = Math.max(1, Math.min(cfg.weeks, Math.round(+cfg.curWeek) || 1)); }
+
+/* ---------------- Day labels and calendar ---------------- */
+const DOW3 = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"], MON3 = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const DOWCAT = {lift:["dowLift","liftDays"], cond:["dowCond","condDays"], spd:["dowSpd","spdDays"], run:["dowRun","runDays"]};
+function pDate(s){ const m = /^(\d{4})-(\d\d)-(\d\d)$/.exec(s || ""); return m ? new Date(Date.UTC(+m[1], +m[2]-1, +m[3])) : null; }
+function dWd(d){ return (d.getUTCDay() + 6) % 7; }
+function dFmt(d){ return DOW3[dWd(d)] + " " + d.getUTCDate() + " " + MON3[d.getUTCMonth()]; }
+function calReady(){ return !!cfg.calOn && !!pDate(cfg.calStart); }
+function weekStart(w){ const s = pDate(cfg.calStart), off = (cfg.calAnchor - dWd(s) + 7) % 7; return new Date(s.getTime() + (off + 7*(w-1)) * 864e5); }
+function weekRange(w){ if(!calReady()) return ""; const a = weekStart(w), b = new Date(a.getTime() + 6*864e5); return dFmt(a) + " to " + dFmt(b); }
+function wkDates(w){ const r = weekRange(w || cfg.curWeek); return r ? " | " + r : ""; }
+function dowOrder(scope){
+  const k = DOWCAT[scope], A = calReady() ? cfg.calAnchor : 0;
+  return (cfg[k[0]] || []).slice().sort((x,y)=>((x-A+7)%7)-((y-A+7)%7)).slice(0, cfg[k[1]]);
+}
+function dayLabel(scope, di, w){
+  w = w || cfg.curWeek;
+  if(cfg.dayFmt !== "dow") return "Day " + (di+1);
+  const o = dowOrder(scope);
+  if(di >= o.length) return "Day " + (di+1);
+  if(calReady()) return dFmt(new Date(weekStart(w).getTime() + ((o[di] - cfg.calAnchor + 7) % 7) * 864e5));
+  return DOW3[o[di]];
+}
+function stpSessName(scope, w, i, d){
+  return "W" + w + (scope === "run" ? " Run " : " Speed ") + dayLabel(scope, i, w) + " " + d.title + (isDeload(w) ? " (deload)" : "");
+}
+function relabel(){
+  if(!program) return;
+  renderTabs(); renderLift(); renderCond(); renderSpeed(); renderRun(); persist();
+}
+function syncDow(){
+  const dow = cfg.dayFmt === "dow";
+  Object.keys(DOWCAT).forEach(sc=>{
+    const k = DOWCAT[sc], cap = cfg[k[1]];
+    cfg[k[0]] = dowOrder(sc);
+    const host = document.querySelector('.dowrow[data-cat="' + sc + '"]'); if(!host) return;
+    host.style.display = dow ? "" : "none";
+    if(!dow) return;
+    const sel = cfg[k[0]];
+    host.innerHTML = DOW3.map((n,i)=>`<button type="button" class="dq${sel.includes(i)?" on":""}" data-i="${i}">${n}</button>`).join("") +
+      `<span class="dh${sel.length<cap?" warn":""}">${sel.length} of ${cap} day${cap>1?"s":""} picked</span>`;
+  });
+}
+document.addEventListener("click", e=>{
+  const b = e.target.closest(".dowrow .dq"); if(!b) return;
+  const host = b.parentNode, sc = host.dataset.cat;
+  if(sc){
+    const k = DOWCAT[sc], i = +b.dataset.i, a = (cfg[k[0]] || []).slice(), at = a.indexOf(i);
+    if(at >= 0) a.splice(at, 1);
+    else if(a.length < cfg[k[1]]) a.push(i);
+    else { const h = host.querySelector(".dh"); if(h){ h.textContent = "Already " + cfg[k[1]] + " picked. Untick one first."; h.classList.add("warn"); } return; }
+    cfg[k[0]] = a; syncDow(); relabel();
+  } else if(host.id === "calAnchorRow"){
+    cfg.calAnchor = +b.dataset.i; syncCal(); relabel();
+  }
+});
+function syncCal(){
+  el("calSw").textContent = cfg.calOn ? "On" : "Off";
+  el("calSw").classList.toggle("on", !!cfg.calOn);
+  el("calBody").style.display = cfg.calOn ? "" : "none";
+  el("calStart").value = cfg.calStart || "";
+  el("calAnchorRow").innerHTML = DOW3.map((n,i)=>`<button type="button" class="dq${cfg.calAnchor===i?" on":""}" data-i="${i}">${n}</button>`).join("");
+  const d = pDate(cfg.calStart), note = el("calNote");
+  if(!d){ note.textContent = "Pick a start date. Every week then runs seven days from your chosen start day."; return; }
+  const w1 = weekStart(1);
+  let t = "Week 1 begins " + dFmt(w1) + ". Each week runs " + DOW3[cfg.calAnchor] + " to " + DOW3[(cfg.calAnchor + 6) % 7] + ".";
+  if(dWd(d) !== cfg.calAnchor) t = "Your start date is a " + DOW3[dWd(d)] + ". " + t;
+  note.textContent = t;
+}
+document.addEventListener("DOMContentLoaded", ()=>{
+  el("calSw").addEventListener("click", ()=>{ cfg.calOn = !cfg.calOn; syncCal(); syncDow(); relabel(); });
+  el("calStart").addEventListener("change", ()=>{
+    cfg.calStart = el("calStart").value;
+    const d = pDate(cfg.calStart); if(d) cfg.calAnchor = dWd(d);
+    syncCal(); syncDow(); relabel();
+  });
+  syncCal(); syncDow();
+});
+
 function weekTag(){ return "Week " + cfg.curWeek + (isDeload(cfg.curWeek) ? " (deload)" : ""); }
 function renderTabs(){
   clampWeek();
@@ -2191,6 +2307,10 @@ function applyState(s){
   if(s.cfg && s.cfg.recAll === undefined) cfg.recAll = (s.days||[]).some(x=>x && x.recOn);
   if(s.cfg && s.cfg.runMin === undefined && s.cfg.runVol){ cfg.runMin = cfg.runMax = s.cfg.runVol; cfg.runWkMin = cfg.runWkMax = null; }
   if(cfg.condDays > 6) cfg.condDays = 6;
+  Object.keys(DOWCAT).forEach(sc=>{ const k = DOWCAT[sc][0]; cfg[k] = Array.isArray(cfg[k]) ? cfg[k].filter(n=>n>=0 && n<7) : []; });
+  if(cfg.dayFmt !== "dow") cfg.dayFmt = "num";
+  if(!(cfg.calAnchor >= 0 && cfg.calAnchor < 7)) cfg.calAnchor = 0;
+  if(typeof syncCal === "function" && document.getElementById("calSw")){ syncCal(); }
   if(cfg.runType === "shpat") cfg.runType = "curve";
   if(cfg.runType === "shdu") cfg.runType = "downup";
   if(!EQUIP_NAME[cfg.equip]) cfg.equip = "machine";
@@ -2207,7 +2327,7 @@ function applyState(s){
   program.condRpe = s.condRpe || {};
   program.spdRpe = s.spdRpe || {};
   program.runRpe = s.runRpe || {};
-  syncOptional(); syncRunVol();
+  syncOptional(); syncRunVol(); syncDow();
   clampWeek();
   renderLift(); renderCond(); renderSpeed(); renderRun(); showOut(false);
 }
@@ -2253,7 +2373,7 @@ function renderLift(){
   el('liftPage').style.display = cfg.liftOn ? "" : "none";
   if(!cfg.liftOn) return;
   const f = FOCUS[cfg.focus];
-  el('liftSub').textContent = `${f.name} | ${cfg.liftDays} day${cfg.liftDays>1?"s":""} per week | ${weekTag()} of ${cfg.weeks}`;
+  el('liftSub').textContent = `${f.name} | ${cfg.liftDays} day${cfg.liftDays>1?"s":""} per week | ${weekTag()} of ${cfg.weeks}${wkDates()}`;
   el('liftMeta').innerHTML =
     `<div><b>Focus</b>${f.name}</div>
      <div><b>Equipment</b>${EQUIP_NAME[cfg.equip]}</div>
@@ -2293,7 +2413,7 @@ function renderLift(){
       </tr>${rec}`;
     }).join("");
     return `<div class="day-card">
-      <div class="day-head"><h3>Day ${di+1} | ${d.title}</h3>
+      <div class="day-head"><h3>${dayLabel("lift", di)} | ${d.title}</h3>
         <div class="dh-right">
           <span class="screen-only">Tap a lift to swap</span>
         </div>
@@ -2365,7 +2485,7 @@ function renderCond(){
   el('condPage').style.display = cfg.condOn ? "" : "none";
   if(!cfg.condOn) return;
   const c = COND[cfg.condSys];
-  el('condSub').textContent = `${c.name} | ${cfg.condDays} day${cfg.condDays>1?"s":""} per week | ${cfg.condMins} min per session | ${weekTag()}`;
+  el('condSub').textContent = `${c.name} | ${cfg.condDays} day${cfg.condDays>1?"s":""} per week | ${cfg.condMins} min per session | ${weekTag()}${wkDates()}`;
   el('condMeta').innerHTML =
     `<div><b>System</b>${c.name}</div>
      <div><b>Target effort</b>${c.rpe}</div>
@@ -2376,7 +2496,7 @@ function renderCond(){
   for(let d=0; d<cfg.condDays; d++){
     const {label, ratio, rounds, used} = condPlan(d);
     html += `<div class="cond-card">
-      <h3>Day ${d+1} | ${c.name} Intervals</h3>
+      <h3>${dayLabel("cond", d)} | ${c.name} Intervals</h3>
       <div class="wr-line">
         <div class="wr-box"><b>${label}</b> &nbsp;(W:R ${ratio})</div>
         <div class="wr-box"><b>${rounds} rounds</b> &nbsp;${used} min total</div>
@@ -2407,7 +2527,7 @@ function blocksHTML(blocks){
 function fieldCards(days, scope){
   return days.map((d, di)=>`
     <div class="cond-card">
-      <h3>Day ${di+1} | ${d.title}<span class="ctag">${U(d.tag)}</span></h3>
+      <h3>${dayLabel(scope, di)} | ${d.title}<span class="ctag">${U(d.tag)}</span></h3>
       ${d.blocks ? blocksHTML(d.blocks) : linesHTML(d.lines)}
       ${doneRow(scope, di)}
     </div>`).join("");
@@ -2419,7 +2539,7 @@ function renderSpeed(){
   const appName = cfg.spdApp === "split" ? "Split, one quality per day" : "Hybrid, blended sessions";
   const qualName = cfg.spdQual === "all" ? "All qualities" : SPEED[cfg.spdQual].name;
   const SD = speedFor(cfg.curWeek);
-  el('spdSub').textContent = `${qualName} | ${SD.length} day${SD.length>1?"s":""} per week | ${weekTag()}`;
+  el('spdSub').textContent = `${qualName} | ${SD.length} day${SD.length>1?"s":""} per week | ${weekTag()}${wkDates()}`;
   el('spdMeta').innerHTML =
     `<div><b>Quality</b>${qualName}</div>
      <div><b>Approach</b>${appName}</div>
@@ -2436,7 +2556,7 @@ function renderRun(){
   if(!show) return;
   const appName = cfg.runApp === "split" ? "Split, one type per day" : "Hybrid, rotating sessions";
   const RD = runFor(cfg.curWeek), vf = volFactor(cfg.curWeek);
-  el('runSub').textContent = `${RUN_TYPE_NAME[cfg.runType]} | ${RD.length} day${RD.length>1?"s":""} per week | ${weekTag()}`;
+  el('runSub').textContent = `${RUN_TYPE_NAME[cfg.runType]} | ${RD.length} day${RD.length>1?"s":""} per week | ${weekTag()}${wkDates()}`;
   el('runMeta').innerHTML =
     `<div><b>Type</b>${RUN_TYPE_NAME[cfg.runType]}</div>
      <div><b>Session volume</b>${distTxt(Math.min(...RD.map(d=>d.blocks.reduce((x, b)=>x + b.dist, 0))))} to ${distTxt(Math.max(...RD.map(d=>d.blocks.reduce((x, b)=>x + b.dist, 0))))}</div>
@@ -2610,14 +2730,14 @@ function printDoc(withRec){
       return `<tr><td class="o">${label}</td><td class="e">${nameOf(x, w)}${dynNote}</td><td>${p.sets}</td><td>${p.reps}</td><td>${p.tempo}</td><td>${p.rest}</td></tr>`;
     }).join("");
     const recTh = withRec ? `<th>Load per set</th>` : "";
-    return `<div class="card"><div class="ch">Day ${di+1} | ${d.title}</div>
+    return `<div class="card"><div class="ch">${dayLabel("lift", di, w)} | ${d.title}</div>
       ${prepLine(d.prep)}
       <table><thead>${withRec ? `<tr><th></th><th>Exercise and prescription</th>${recTh}</tr>` : `<tr><th></th><th>Exercise</th><th>Sets</th><th>Reps</th><th>Tempo</th><th>Rest</th></tr>`}</thead>
       <tbody>${rows}</tbody></table></div>`;
   }).join("");
 
-  const optSection = (title, sub, days, note, warm) => {
-    const cards = days.map((d, di)=>`<div class="card"><div class="ch">Day ${di+1} | ${d.title} &nbsp;<i>${U(d.tag)}</i></div><div class="cb">${lineRows(d.lines)}</div></div>`).join("");
+  const optSection = (title, sub, days, note, warm, scope, w) => {
+    const cards = days.map((d, di)=>`<div class="card"><div class="ch">${dayLabel(scope, di, w)} | ${d.title} &nbsp;<i>${U(d.tag)}</i></div><div class="cb">${lineRows(d.lines)}</div></div>`).join("");
     const cols = Math.min(days.length, 3);
     return `<div class="sect"><b>${title}</b><span>${sub}</span></div>
       ${warm ? `<div class="foot" style="margin:6px 0 9px;"><b>Warm-up first.</b> <span class="note">${U(FIELD_WARMUP)}</span></div>` : ""}
@@ -2630,26 +2750,26 @@ function printDoc(withRec){
       const SD = speedFor(w);
       const qualName = cfg.spdQual === "all" ? "All qualities" : SPEED[cfg.spdQual].name;
       out += optSection("Speed", `${qualName} | ${cfg.spdApp==="split" ? "Split" : "Hybrid"} | ${SD.length} day${SD.length>1?"s":""} per week`,
-        SD, "Maximal intent, full recovery between reps. Cut the session the moment quality drops.", warm);
+        SD, "Maximal intent, full recovery between reps. Cut the session the moment quality drops.", warm, "spd", w);
       warm = false;
     }
     if(program.run){
       const RD = runFor(w);
       out += optSection("Running Conditioning", `${RUN_TYPE_NAME[cfg.runType]} | ${cfg.runApp==="split" ? "Split" : "Hybrid"} | ${RD.length} day${RD.length>1?"s":""} per week | ${Math.round(volFactor(w) * 100)}% of week 1`,
-        RD, "Hold the same times across every rep. The last rep at the same speed as the first is the goal.", warm);
+        RD, "Hold the same times across every rep. The last rep at the same speed as the first is the goal.", warm, "run", w);
     }
     return out;
   };
 
   const condCols = Math.min(Math.max(cfg.condDays,1), withRec ? 2 : 3);
-  const condHtml = () => {
+  const condHtml = (w) => {
     let condCards = "";
     for(let d=0; d<cfg.condDays; d++){
       const {label, ratio, rounds, used} = condPlan(d);
       const rec = withRec
         ? `<div class="rbxwrap"><b>Record pace, watts or level per round</b><div class="rbx">${Array.from({length:rounds},(_,i)=>`<span class="bx"><i>R${i+1}</i></span>`).join("")}</div></div>`
         : "";
-      condCards += `<div class="card"><div class="ch">Day ${d+1} | ${c.name} Intervals</div>
+      condCards += `<div class="card"><div class="ch">${dayLabel("cond", d, w)} | ${c.name} Intervals</div>
         <div class="cb"><div class="pill"><b>${label}</b> (W:R ${ratio})</div>
         <div class="pill"><b>${rounds} rounds</b>, ${used} min total</div>
         <div class="pill">Effort <b>${c.rpe}</b></div>
@@ -2671,13 +2791,13 @@ function printDoc(withRec){
     const fnote = fieldWeekNote(w);
     return `<div class="page wkpage">
   <div class="hd">${logoTag(false)}
-    <div><div class="t1">Week ${w} of ${cfg.weeks}${dl ? " | Deload" : ""}</div><div class="t2">${SK.brand}${withRec ? " | Recording sheet" : ""}</div></div>
+    <div><div class="t1">Week ${w} of ${cfg.weeks}${dl ? " | Deload" : ""}${wkDates(w)}</div><div class="t2">${SK.brand}${withRec ? " | Recording sheet" : ""}</div></div>
     <div class="meta">${metaBits.join("<br>")}</div>
   </div>
   ${cfg.liftOn ? `<div class="wnote"><b>Week ${w}</b> ${stripTags(weekNote(w))}</div>` : ""}
   ${fnote ? `<div class="wnote"><b>Field work</b> ${fnote}</div>` : ""}
   ${cfg.liftOn ? `<div class="sect"><b>Strength</b><span>${f.name} | ${cfg.liftDays} day${cfg.liftDays>1?"s":""} per week</span></div><div class="grid">${weekLiftCards(w)}</div>` : ""}
-  ${cfg.condOn ? condHtml() : ""}
+  ${cfg.condOn ? condHtml(w) : ""}
   ${fieldSections(w)}
 </div>`;
   }).join("");
@@ -3179,7 +3299,7 @@ async function buildFillablePdf(){
 
   const co2 = co;
   for(let wk=1; wk<=cfg.weeks; wk++){
-    const wTitle = `Week ${wk} of ${cfg.weeks}${isDeload(wk) ? ' | Deload' : ''}`;
+    const wTitle = `Week ${wk} of ${cfg.weeks}${isDeload(wk) ? ' | Deload' : ''}${wkDates(wk)}`;
     const wMeta = [cfg.liftOn ? f.name : null, cfg.condOn ? co.name : null, program.speed ? 'Speed' : null, program.run ? 'Running' : null].filter(Boolean).join('  |  ');
     newPage(wTitle, wMeta);
     const ens = need => ensure(need, wTitle + ' (continued)', wMeta);
@@ -3206,7 +3326,7 @@ async function buildFillablePdf(){
           let yy = y;
           page.drawRectangle({x:x0, y:yy-15, width:colW, height:15, color:HEAD});
           page.drawRectangle({x:x0, y:yy-17, width:colW, height:2, color:ACC});
-          txt(trunc(`DAY ${di+1}  |  ${d.title.toUpperCase()}`, bold, 8, colW-10), x0+5, yy-10.5, 8, bold, rgb(1,1,1));
+          txt(trunc(`${dayLabel('lift', di, wk).toUpperCase()}  |  ${d.title.toUpperCase()}`, bold, 8, colW-10), x0+5, yy-10.5, 8, bold, rgb(1,1,1));
           yy -= 28;
           for(let s=1; s<=nMax; s++) txt('S'+s, xF + (s-1)*(fw+fg) + fw/2 - 3, yy+4, 6, bold, GREY);
           d.ex.forEach((x, xi)=>{
@@ -3248,7 +3368,7 @@ async function buildFillablePdf(){
           let yy = y;
           page.drawRectangle({x:x0, y:yy-15, width:colW, height:15, color:HEAD});
           page.drawRectangle({x:x0, y:yy-17, width:colW, height:2, color:ACC});
-          txt(trunc(`DAY ${dd+1}  |  ${co.name.toUpperCase()} INTERVALS`, bold, 8, colW-10), x0+5, yy-10.5, 8, bold, rgb(1,1,1));
+          txt(trunc(`${dayLabel('cond', dd, wk).toUpperCase()}  |  ${co.name.toUpperCase()} INTERVALS`, bold, 8, colW-10), x0+5, yy-10.5, 8, bold, rgb(1,1,1));
           yy -= 28;
           txt(trunc(`${pl.label} (W:R ${pl.ratio})  |  ${pl.rounds} rounds, ${pl.used} min  |  Effort ${co.rpe}`, helv, 6.8, colW-6), x0+3, yy, 6.8, helv);
           yy -= 12;
@@ -3279,7 +3399,7 @@ async function buildFillablePdf(){
           let yy = y;
           page.drawRectangle({x:x0, y:yy-15, width:colW, height:15, color:HEAD});
           page.drawRectangle({x:x0, y:yy-17, width:colW, height:2, color:ACC});
-          txt(trunc(`DAY ${di+1}  |  ${c.d.title.toUpperCase()}  (${U(c.d.tag).toUpperCase()})`, bold, 7.5, colW-10), x0+5, yy-10.5, 7.5, bold, rgb(1,1,1));
+          txt(trunc(`${dayLabel(prefix, di, wk).toUpperCase()}  |  ${c.d.title.toUpperCase()}  (${U(c.d.tag).toUpperCase()})`, bold, 7.5, colW-10), x0+5, yy-10.5, 7.5, bold, rgb(1,1,1));
           yy -= 28;
           c.wl.forEach(l=>{ txt(l, x0+4, yy, LS, helv); yy -= LH; });
           yy -= 6;
@@ -3582,7 +3702,7 @@ function stpHandoff(){
     const tag = (isDeload(w) ? " (deload)" : "");
     /* Running Conditioning: [{title, blocks:[{n:"1. Name", cat, dist, reps, lines}]}] for this week */
     (program.run ? runFor(w) : []).forEach((d, i)=>sessions.push({
-      name: "W" + w + " Run Day " + (i+1) + " " + d.title + tag, kind: "run", wk: w,
+      name: stpSessName("run", w, i, d), kind: "run", wk: w,
       blocks: d.blocks.map(b=>{
         const nm = b.viz || stpName(b.n.replace(/^\d+\.\s*/, ""));
         const o = {name: nm, kind: "run", cat: b.cat, dist: b.dist};
@@ -3594,7 +3714,7 @@ function stpHandoff(){
     }));
     /* Speed: [{title, tag, lines}] (text sessions) */
     (program.speed ? speedFor(w) : []).forEach((d, i)=>sessions.push({
-      name: "W" + w + " Speed Day " + (i+1) + " " + d.title + tag, kind: "speed", wk: w,
+      name: stpSessName("spd", w, i, d), kind: "speed", wk: w,
       blocks: stpSpeedBlocks(d)
     }));
   }
@@ -3686,18 +3806,20 @@ el('editBtn').addEventListener('click', ()=>{
 /* collapsible programme sections */
 (function(){
   function pages(){return ['liftPage','condPage','spdPage','runPage'].map(i=>document.getElementById(i)).filter(Boolean);}
-  function set(pg,shut){pg.classList.toggle('pg-shut',shut); var h=pg.querySelector('.sec-head'); if(h){h.classList.toggle('shut',shut); var b=h.querySelector('.czb'); if(b) b.setAttribute('aria-expanded',String(!shut));}}
+  function set(pg,shut){pg.classList.toggle('pg-shut',shut); var h=pg.querySelector('.sec-head'); if(h){h.classList.toggle('shut',shut); var b=h.querySelector('.czb'); if(b) b.setAttribute('aria-expanded',String(!shut)); var t=h.querySelector('.czt'); if(t) t.textContent=shut?'Open':'Close';}}
   function init(){
     var ps=pages(); if(!ps.length||document.getElementById('czBar')) return;
     ps.forEach(function(pg){
       var h=pg.querySelector('.sec-head'); if(!h) return;
       h.classList.add('cz');
-      var b=document.createElement('button'); b.type='button'; b.className='czb'; b.setAttribute('aria-label','Show or hide section'); b.setAttribute('aria-expanded','true'); b.textContent='\u25BE';
+      var b=document.createElement('button'); b.type='button'; b.className='czb'; b.setAttribute('aria-label','Show or hide section'); b.setAttribute('aria-expanded','true'); b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9l7 7 7-7"/></svg>';
       h.insertBefore(b,h.firstChild);
+      var t=document.createElement('span'); t.className='czt'; t.textContent='Close'; h.appendChild(t);
+      set(pg,true);
       h.addEventListener('click',function(e){ if(e.target.closest('a')) return; set(pg,!pg.classList.contains('pg-shut')); });
     });
     var bar=document.createElement('div'); bar.className='cz-bar'; bar.id='czBar';
-    bar.innerHTML='<button type="button" id="czAll">Collapse all</button>';
+    bar.innerHTML='<button type="button" id="czAll">Expand all</button>';
     ps[0].parentNode.insertBefore(bar,ps[0]);
     var all=bar.firstChild;
     all.addEventListener('click',function(){
