@@ -369,7 +369,8 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
 .calIn{font:inherit; font-size:14px; padding:8px 10px; border-radius:4px; border:1.5px solid var(--line); background:transparent; color:var(--white); color-scheme:dark;}
 .calNote{font-size:12px; color:var(--silver); margin:6px 0 0; line-height:1.45;}
 
-.gbtns{display:flex; gap:8px; margin:2px 0 10px;}
+.gbtns{display:flex; gap:8px; margin:2px 0 10px; align-items:center; flex-wrap:wrap;}
+.gbtns .ghint{font-size:11.5px; font-style:italic; color:var(--silver);}
 .gbtns button{font:inherit; font-size:12.5px; font-weight:600; padding:8px 14px; border-radius:6px; border:1.5px solid var(--primary); background:var(--primary); color:#fff; cursor:pointer;}
 .gbtns #gridReset{background:transparent; color:var(--silver); border-color:var(--line);}
 .wkgwrap{overflow-x:auto;}
@@ -646,7 +647,7 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
 
   <div class="grp" id="gridGrp">
     <div class="grp-label">Weekly layout</div>
-    <div class="gbtns"><button type="button" id="gridPop">Populate Week</button><button type="button" id="gridReset">Reset layout</button></div>
+    <div class="gbtns"><button type="button" id="gridPop">Populate Week</button><button type="button" id="gridReset">Reset layout</button><em class="ghint">Use Arrows or Drag to move</em></div>
     <div class="wkgwrap" id="gridHost"></div>
     <div class="calNote gsel" id="gridSel"></div>
   </div>
