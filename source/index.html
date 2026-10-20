@@ -373,11 +373,12 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
 .gbtns button{font:inherit; font-size:12.5px; font-weight:600; padding:8px 14px; border-radius:6px; border:1.5px solid var(--primary); background:var(--primary); color:#fff; cursor:pointer;}
 .gbtns #gridReset{background:transparent; color:var(--silver); border-color:var(--line);}
 .wkgwrap{overflow-x:auto;}
-.wkg{border-collapse:separate; border-spacing:3px; width:100%; table-layout:fixed;}
+.wkg{border-collapse:collapse; border-spacing:0; width:100%; table-layout:fixed;}
+.wkg th, .wkg td{border:1px solid rgba(255,255,255,.28);}
 .wkg th{font-size:10px; font-weight:600; color:var(--silver); letter-spacing:.04em; text-align:center; padding:2px 0;}
 .wkg th.gl{text-align:left; width:62px; font-family:'Oswald',sans-serif; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--white); vertical-align:middle;}
 .wkg thead th:first-child{width:62px;}
-.wkg td{padding:0; height:46px; background:rgba(255,255,255,.04); border-radius:5px;}
+.wkg td{padding:2px; height:50px; background:transparent;}
 .wkg td.over{outline:2px solid var(--primary); background:rgba(255,255,255,.12);}
 .wkg .gce{width:100%; height:100%; background:transparent; border:0; cursor:pointer;}
 .wkg .gch{-webkit-user-select:none; user-select:none; width:100%; height:100%; border:0; border-radius:5px; padding:3px 2px; cursor:grab; touch-action:none; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; color:#fff; font-family:inherit; line-height:1.1; overflow:hidden;}
@@ -393,11 +394,14 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
 .gsel .gmv button:disabled{opacity:.3;}
 @media print{#gridGrp{display:none !important}}
 
-.wkg td.off{background:linear-gradient(to top right, transparent calc(50% - 1px), rgba(255,255,255,.3) 50%, transparent calc(50% + 1px)), rgba(255,255,255,.02); opacity:.75;}
+.wkg td.off{background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'><line x1='0' y1='100' x2='100' y2='0' stroke='%23ffffff' stroke-opacity='.5' stroke-width='1.5' stroke-dasharray='5 4' vector-effect='non-scaling-stroke'/></svg>") center/100% 100% no-repeat; opacity:.8;}
 .wkg td.off .gce{cursor:not-allowed;}
 .wkg td.off .gce{cursor:default;}
 .wkg td.un{background:transparent; vertical-align:top;}
 .wkg td.un .gch{height:34px; margin-bottom:3px;}
+.dowrow .dm{margin-left:auto; font:inherit; font-size:11.5px; font-weight:600; padding:6px 10px; border-radius:5px; border:1.5px solid var(--primary); background:transparent; color:var(--white); cursor:pointer;}
+.dowrow .dm.on{background:var(--primary);}
+.wkg td.un{vertical-align:top;}
 </style>
 </head>
 <body>
@@ -2115,7 +2119,7 @@ const cfg = {curWeek:1, liftOn:true, liftDays:3, careOn:false, condOn:true, cond
   units:"m",
   spdOn:false, spdQual:"all", spdDays:2, spdApp:"hyb",
   runOn:false, runType:"straight", runDays:2, runApp:"hyb", runVol:3000, runMin:2000, runMax:3000, runWkMin:null, runWkMax:null, runProg:"build", runCap:5000, recAll:false,
-  dayFmt:"num", calOn:false, calStart:"", calAnchor:0, dowLift:[], dowCond:[], dowSpd:[], dowRun:[], grid:{lift:[],cond:[],spd:[],run:[]}, gridT:null};
+  dayFmt:"num", calOn:false, calStart:"", calAnchor:0, dowLift:[], dowCond:[], dowSpd:[], dowRun:[], grid:{lift:[],cond:[],spd:[],run:[]}, gridT:null, condMatch:true};
 let program = null;
 
 document.querySelectorAll('.chips').forEach(g=>{
@@ -2249,7 +2253,28 @@ function syncGrid(reseed){
     const N = cfg[GCAT[sc].k], row = Array.isArray(cfg.grid[sc]) ? cfg.grid[sc] : [];
     cfg.grid[sc] = (reseed || row.length !== N || (cfg.dayFmt !== "dow" && row.some(c=>c < 0 || c > 6))) ? gSeed(sc, reseed ? [] : row.slice(0, N)) : row;
   });
+  gMatch(!!reseed && cfg.condMatch !== false);
   gridSel = null; renderGrid();
+}
+function gMatchSet(){
+  if(cfg.dayFmt !== "dow" || !cfg.liftOn || !cfg.condOn) return null;
+  const lift = (cfg.grid.lift || []).filter(c=>c >= 0).sort((a,b)=>a-b);
+  if(!lift.length) return null;
+  const N = cfg.condDays, cols = lift.slice(0, N);
+  for(let c=0; cols.length < N && c < 7; c++) if(!cols.includes(c) && !lift.includes(c)) cols.push(c);
+  for(let c=0; cols.length < N && c < 7; c++) if(!cols.includes(c)) cols.push(c);
+  return cols.sort((a,b)=>a-b);
+}
+function gMatchIsSet(){
+  const m = gMatchSet(); if(!m) return false;
+  const cur = (cfg.grid.cond || []).filter(c=>c >= 0).sort((a,b)=>a-b);
+  return cur.length === m.length && cur.every((c, i)=>c === m[i]);
+}
+function gMatch(force){
+  if(!force && cfg.condMatch === false) return;
+  const m = gMatchSet(); if(!m) return;
+  if(!force && gMatchIsSet()) return;
+  cfg.grid.cond = m.slice();
 }
 function syncDow(){ syncGrid(); }
 function gCols(){
@@ -2299,7 +2324,8 @@ function renderPickers(){
     if(!dow) return;
     const row = cfg.grid[sc] || [], N = cfg[GCAT[sc].k], placed = row.filter(c=>c >= 0).length;
     host.innerHTML = DOW3.map((n,c)=>`<button type="button" class="dq${row.includes(c) ? " on" : ""}" data-i="${c}">${n}</button>`).join("") +
-      `<span class="dh${placed < N ? " warn" : ""}">${placed} of ${N} day${N>1?"s":""} picked</span>`;
+      `<span class="dh${placed < N ? " warn" : ""}">${placed} of ${N} day${N>1?"s":""} picked</span>` +
+      (sc === "cond" && cfg.liftOn && gMatchSet() ? `<button type="button" class="dm${cfg.condMatch !== false && gMatchIsSet() ? " on" : ""}" id="condMatchBtn">Match Lifting</button>` : "");
   });
 }
 function renderGrid(){
@@ -2313,7 +2339,7 @@ function renderGrid(){
   let h = '<table class="wkg"><thead><tr><th></th>' + Array.from({length:nc}, (_, c)=>`<th>${dow ? DOW3[c] : "Day " + (c+1)}</th>`).join("") + (unset ? "<th>Unset</th>" : "") + "</tr></thead><tbody>";
   cats.forEach(sc=>{
     const row = cfg.grid[sc] || [];
-    h += `<tr><th class="gl">${GCAT[sc].name}</th>`;
+    h += `<tr><th class="gl">${{lift:"Lifting",cond:"Cond",spd:"Speed",run:"Running"}[sc]}</th>`;
     for(let c=0; c<nc; c++){
       const i = row.indexOf(c);
       const on = gridSel && gridSel.sc === sc && gridSel.i === i && i >= 0;
@@ -2364,8 +2390,11 @@ document.addEventListener("click", e=>{
       if(j < 0){ const h = b.parentNode.querySelector(".dh"); if(h){ h.textContent = "Already " + row.length + " picked. Untick one first."; h.classList.add("warn"); } return; }
       row[j] = c;
     }
+    if(sc === "cond") cfg.condMatch = false;
+    if(sc === "lift") gMatch();
     gridSel = null; renderGrid(); relabel(); return;
   }
+  if(e.target.closest("#condMatchBtn")){ cfg.condMatch = true; gMatch(true); gridSel = null; renderGrid(); relabel(); return; }
   const ch = e.target.closest(".gch");
   if(ch && !gDrag){ const sc = ch.dataset.sc, i = +ch.dataset.i; gridSel = (gridSel && gridSel.sc === sc && gridSel.i === i) ? null : {sc, i}; renderGrid(); return; }
   const ce = e.target.closest(".gce");
@@ -2425,7 +2454,7 @@ document.addEventListener("DOMContentLoaded", ()=>{
     syncCal(); syncDow(); relabel();
   });
   el("gridPop").addEventListener("click", gPop);
-  el("gridReset").addEventListener("click", ()=>{ syncGrid(true); relabel(); });
+  el("gridReset").addEventListener("click", ()=>{ cfg.condMatch = true; syncGrid(true); relabel(); });
   syncCal(); syncGrid();
 });
 
