@@ -392,6 +392,11 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
 .gsel .gmv button{font:inherit; font-size:12px; padding:5px 11px; border-radius:5px; border:1.5px solid var(--primary); background:transparent; color:var(--white); cursor:pointer;}
 .gsel .gmv button:disabled{opacity:.3;}
 @media print{#gridGrp{display:none !important}}
+
+.wkg td.off{background:rgba(255,255,255,.015);}
+.wkg td.off .gce{cursor:default;}
+.wkg td.un{background:transparent; vertical-align:top;}
+.wkg td.un .gch{height:34px; margin-bottom:3px;}
 </style>
 </head>
 <body>
@@ -444,6 +449,7 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
     <div class="chips" data-key="liftDays">
       <button class="chip" data-v="1">1</button><button class="chip" data-v="2">2</button><button class="chip on" data-v="3">3</button><button class="chip" data-v="4">4</button><button class="chip" data-v="5">5</button><button class="chip" data-v="6">6</button>
     </div>
+<div class="dowrow" data-cat="lift" style="display:none"></div>
     </div>
   </div>
 
@@ -534,6 +540,7 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
           <div class="chips" data-key="spdDays">
             <button class="chip" data-v="1">1</button><button class="chip on" data-v="2">2</button><button class="chip" data-v="3">3</button>
           </div>
+<div class="dowrow" data-cat="spd" style="display:none"></div>
         </div>
         <div>
           <div class="mini">Approach</div>
@@ -565,6 +572,7 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
           <div class="chips" data-key="runDays">
             <button class="chip" data-v="1">1</button><button class="chip on" data-v="2">2</button><button class="chip" data-v="3">3</button><button class="chip" data-v="4">4</button><button class="chip" data-v="5">5</button><button class="chip" data-v="6">6</button>
           </div>
+<div class="dowrow" data-cat="run" style="display:none"></div>
         </div>
         <div>
           <div class="mini">Approach</div>
@@ -609,6 +617,7 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
       <div class="chips" data-key="condDays">
         <button class="chip" data-v="1">1</button><button class="chip on" data-v="2">2</button><button class="chip" data-v="3">3</button><button class="chip" data-v="4">4</button><button class="chip" data-v="5">5</button><button class="chip" data-v="6">6</button>
       </div>
+<div class="dowrow" data-cat="cond" style="display:none"></div>
       <div class="two-col">
         <div>
           <div class="mini">System</div>
@@ -2252,20 +2261,65 @@ function gTitle(sc, i){
   const t = cfg.gridT; if(t && t.sig === gSig() && t[sc] && t[sc][i]) return t[sc][i];
   return "Session " + (i+1);
 }
+const G_ABBR = {
+  cond:{"Aerobic power":"Aer Pwr","Aerobic recovery":"Aer Rec","Anaerobic":"Anaer","Mixed":"Mixed"},
+  spd:{"Acceleration Ladder":"Acc","Sled Sprints":"Acc","Hill Sprints":"Acc","Partner Resisted Accels":"Acc","Flying Sprints":"Max Spd","Bound to Sprint":"Max Spd","Partner 40s":"Max Spd","Explosive Runs Builder":"Max Spd","Accelerate-Decelerate":"COD","Lateral Jump to Sprint":"COD","React and Evade":"COD","Weave Run":"COD","Change of Pace and Swerve":"COD","All Qualities Blend":"Blend"},
+  run:{"Straight Line":"Str Line","Straight Line Mix":"Str Line","Curve, Swerve and Zig-Zag":"Curve","Curve, Swerve and Zig-Zag Mix":"Curve","Down-Up and Crawl":"Down-Up","Down-Up and Crawl Mix":"Down-Up","Hit and Run":"Hit+Run","Wrestle and Run":"Wrestle","Hybrid Mix":"Hybrid","All Types Mix":"All Mix"}
+};
+function gAbbr(sc, i){
+  const t = gTitle(sc, i);
+  if(sc === "lift"){
+    return t.replace(/^Full Body/, "FB").replace(/^Lower/, "LB").replace(/^Upper/, "UB").replace(/^Neural Session/, "Neural").replace(/^Density Session/, "Density").replace(/Strength/g, "Str").replace(/Power/g, "Pwr");
+  }
+  return (G_ABBR[sc] && G_ABBR[sc][t]) || t;
+}
+function gEsc(x){ return String(x).replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
+function gChip(sc, i, on){
+  return `<button type="button" class="gch ${sc}${on ? " sel" : ""}" data-sc="${sc}" data-i="${i}"><b>${GCAT[sc].code}${i+1}</b><span>${gEsc(gAbbr(sc, i))}</span></button>`;
+}
+function gValid(sc, i, c){
+  const row = cfg.grid[sc], from = row[i];
+  if(c < 0 || c > 6 || from === c) return false;
+  if(cfg.dayFmt !== "dow") return true;
+  const j = row.indexOf(c);
+  return from < 0 ? j < 0 : j >= 0;
+}
+function gStep(sc, i, dir){
+  const row = cfg.grid[sc], from = row[i], nc = gCols();
+  if(from < 0) return null;
+  for(let c = from + dir; c >= 0 && c < nc; c += dir) if(gValid(sc, i, c)) return c;
+  return null;
+}
+function renderPickers(){
+  const dow = cfg.dayFmt === "dow";
+  Object.keys(GCAT).forEach(sc=>{
+    const host = document.querySelector('.dowrow[data-cat="' + sc + '"]'); if(!host) return;
+    host.style.display = dow ? "" : "none";
+    if(!dow) return;
+    const row = cfg.grid[sc] || [], N = cfg[GCAT[sc].k], placed = row.filter(c=>c >= 0).length;
+    host.innerHTML = DOW3.map((n,c)=>`<button type="button" class="dq${row.includes(c) ? " on" : ""}" data-i="${c}">${n}</button>`).join("") +
+      `<span class="dh${placed < N ? " warn" : ""}">${placed} of ${N} day${N>1?"s":""} picked</span>`;
+  });
+}
 function renderGrid(){
+  renderPickers();
   const host = el("gridHost"); if(!host) return;
   const cats = Object.keys(GCAT).filter(sc=>GCAT[sc].on());
   const grp = el("gridGrp"); if(grp) grp.style.display = cats.length ? "" : "none";
   if(!cats.length){ host.innerHTML = ""; return; }
   const nc = gCols(), dow = cfg.dayFmt === "dow";
-  let h = '<table class="wkg"><thead><tr><th></th>' + Array.from({length:nc}, (_, c)=>`<th>${dow ? DOW3[c] : "Day " + (c+1)}</th>`).join("") + "</tr></thead><tbody>";
+  const unset = dow && cats.some(sc=>(cfg.grid[sc]||[]).some(c=>c < 0));
+  let h = '<table class="wkg"><thead><tr><th></th>' + Array.from({length:nc}, (_, c)=>`<th>${dow ? DOW3[c] : "Day " + (c+1)}</th>`).join("") + (unset ? "<th>Unset</th>" : "") + "</tr></thead><tbody>";
   cats.forEach(sc=>{
     const row = cfg.grid[sc] || [];
     h += `<tr><th class="gl">${GCAT[sc].name}</th>`;
     for(let c=0; c<nc; c++){
       const i = row.indexOf(c);
       const on = gridSel && gridSel.sc === sc && gridSel.i === i && i >= 0;
-      h += `<td data-sc="${sc}" data-c="${c}">` + (i >= 0 ? `<button type="button" class="gch ${sc}${on ? " sel" : ""}" data-sc="${sc}" data-i="${i}"><b>${GCAT[sc].code}${i+1}</b><span>${gTitle(sc, i).replace(/&/g, "&amp;").replace(/</g, "&lt;")}</span></button>` : `<button type="button" class="gce" data-sc="${sc}" data-c="${c}" aria-label="Empty"></button>`) + "</td>";
+      h += `<td data-sc="${sc}" data-c="${c}"${i < 0 && dow ? ' class="off"' : ""}>` + (i >= 0 ? gChip(sc, i, on) : `<button type="button" class="gce" data-sc="${sc}" data-c="${c}" aria-label="Empty"></button>`) + "</td>";
+    }
+    if(unset){
+      h += `<td class="un" data-sc="${sc}" data-c="-1">` + row.map((c, i)=>c < 0 ? gChip(sc, i, gridSel && gridSel.sc === sc && gridSel.i === i) : "").join("") + "</td>";
     }
     h += "</tr>";
   });
@@ -2273,17 +2327,16 @@ function renderGrid(){
   const t = cfg.gridT, stale = t && t.sig !== gSig();
   const sel = el("gridSel");
   if(gridSel){
-    const c = colOf(gridSel.sc, gridSel.i);
-    sel.innerHTML = `<b>${GCAT[gridSel.sc].name} ${gridSel.i+1}</b> | ${gTitle(gridSel.sc, gridSel.i)} | ${dow ? DOW3[c] : "Day " + (c+1)} <span class="gmv"><button type="button" id="gL" ${c <= 0 ? "disabled" : ""}>&#9664;</button><button type="button" id="gR" ${c >= nc - 1 ? "disabled" : ""}>&#9654;</button><button type="button" id="gD">Done</button></span>`;
-    el("gL").onclick = ()=>gMove(gridSel.sc, gridSel.i, c - 1);
-    el("gR").onclick = ()=>gMove(gridSel.sc, gridSel.i, c + 1);
+    const c = colOf(gridSel.sc, gridSel.i), L = gStep(gridSel.sc, gridSel.i, -1), R = gStep(gridSel.sc, gridSel.i, 1);
+    sel.innerHTML = `<b>${GCAT[gridSel.sc].name} ${gridSel.i+1}</b> | ${gEsc(gTitle(gridSel.sc, gridSel.i))} | ${c < 0 ? "Unset. Tap an empty day to place it" : dow ? DOW3[c] : "Day " + (c+1)} <span class="gmv"><button type="button" id="gL" ${L == null ? "disabled" : ""}>&#9664;</button><button type="button" id="gR" ${R == null ? "disabled" : ""}>&#9654;</button><button type="button" id="gD">Done</button></span>`;
+    el("gL").onclick = ()=>gMove(gridSel.sc, gridSel.i, L);
+    el("gR").onclick = ()=>gMove(gridSel.sc, gridSel.i, R);
     el("gD").onclick = ()=>{ gridSel = null; renderGrid(); };
-  } else sel.textContent = !t ? "Press Populate Week to see the actual sessions, then tap one and use the arrows, or drag it, to place it. Moving onto another session swaps them." : stale ? "Settings have changed since you pressed Populate Week. Press it again to refresh the session names." : "Tap a session, then use the arrows or tap a day. You can also drag it. Moving onto another session swaps them.";
+  } else sel.textContent = !t ? "Press Populate Week to see the actual sessions. Pick your training days above, then tap a session and use the arrows, or drag it, to put the right session on each day." : stale ? "Settings have changed since you pressed Populate Week. Press it again to refresh the session names." : "Tap a session, then use the arrows or drag it to swap days.";
 }
 function gMove(sc, i, c){
-  if(c < 0 || c > 6) return;
+  if(c == null || !gValid(sc, i, c)) return;
   const row = cfg.grid[sc], j = row.indexOf(c), from = row[i];
-  if(from === c) return;
   if(j >= 0) row[j] = from;
   row[i] = c;
   gridSel = {sc, i}; renderGrid(); relabel();
@@ -2302,6 +2355,16 @@ function gPop(){
 document.addEventListener("click", e=>{
   const b = e.target.closest(".dowrow .dq");
   if(b && b.parentNode.id === "calAnchorRow"){ cfg.calAnchor = +b.dataset.i; syncCal(); relabel(); return; }
+  if(b && b.parentNode.dataset.cat){
+    const sc = b.parentNode.dataset.cat, c = +b.dataset.i, row = cfg.grid[sc], at = row.indexOf(c);
+    if(at >= 0){ row[at] = -1; }
+    else {
+      const j = row.indexOf(-1);
+      if(j < 0){ const h = b.parentNode.querySelector(".dh"); if(h){ h.textContent = "Already " + row.length + " picked. Untick one first."; h.classList.add("warn"); } return; }
+      row[j] = c;
+    }
+    gridSel = null; renderGrid(); relabel(); return;
+  }
   const ch = e.target.closest(".gch");
   if(ch && !gDrag){ const sc = ch.dataset.sc, i = +ch.dataset.i; gridSel = (gridSel && gridSel.sc === sc && gridSel.i === i) ? null : {sc, i}; renderGrid(); return; }
   const ce = e.target.closest(".gce");
@@ -2323,7 +2386,7 @@ document.addEventListener("pointermove", e=>{
   gDrag.ghost.style.left = (e.clientX - gDrag.ghost.offsetWidth/2) + "px"; gDrag.ghost.style.top = (e.clientY - 22) + "px";
   document.querySelectorAll(".wkg td.over").forEach(x=>x.classList.remove("over"));
   const t = document.elementFromPoint(e.clientX, e.clientY), td = t && t.closest && t.closest(".wkg td");
-  if(td && td.dataset.sc === gDrag.sc) td.classList.add("over");
+  if(td && td.dataset.sc === gDrag.sc && gValid(gDrag.sc, gDrag.i, +td.dataset.c)) td.classList.add("over");
 });
 function gDragEnd(e){
   if(!gDrag) return;
@@ -2333,7 +2396,7 @@ function gDragEnd(e){
   if(d.on){
     const t = document.elementFromPoint(e.clientX, e.clientY), td = t && t.closest && t.closest(".wkg td");
     d.el.classList.remove("drag");
-    if(td && td.dataset.sc === d.sc) gMove(d.sc, d.i, +td.dataset.c); else renderGrid();
+    if(td && td.dataset.sc === d.sc && gValid(d.sc, d.i, +td.dataset.c)) gMove(d.sc, d.i, +td.dataset.c); else renderGrid();
     window.__gdrag = true; setTimeout(()=>{ window.__gdrag = false; }, 0);
   }
 }
