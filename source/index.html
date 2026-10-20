@@ -346,6 +346,15 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
 @media(max-width:520px){.sec-head{flex-wrap:wrap; row-gap:8px;} .viz-go{margin-left:0; order:3;} .sec-head span{flex:1 1 100%;}}
 .logo-link{display:inline-flex; line-height:0; border:0;}
 .logo-link:focus-visible{outline:2px solid var(--primary-hi); outline-offset:3px;}
+
+/* collapsible programme sections */
+.sec-head.cz{cursor:pointer; -webkit-user-select:none; user-select:none; align-items:center;}
+.sec-head .czb{order:-1; flex:none; width:26px; height:26px; border-radius:6px; border:1px solid var(--primary); background:transparent; color:var(--white); font-size:13px; line-height:1; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; transition:transform .15s;}
+.sec-head.cz.shut .czb{transform:rotate(-90deg);}
+.pg-shut > :not(.sec-head):not(.p-head){display:none !important;}
+.cz-bar{display:flex; gap:8px; justify-content:flex-end; margin:14px 0 -22px; position:relative; z-index:1;}
+.cz-bar button{font:inherit; font-size:12px; padding:5px 11px; border-radius:6px; border:1px solid var(--primary); background:transparent; color:var(--silver); cursor:pointer;}
+@media print{.cz-bar,.czb{display:none !important} .pg-shut > :not(.sec-head):not(.p-head){display:revert !important}}
 </style>
 </head>
 <body>
@@ -3673,6 +3682,32 @@ el('editBtn').addEventListener('click', ()=>{
   window.scrollTo({top:0});
 });
 
+
+/* collapsible programme sections */
+(function(){
+  function pages(){return ['liftPage','condPage','spdPage','runPage'].map(i=>document.getElementById(i)).filter(Boolean);}
+  function set(pg,shut){pg.classList.toggle('pg-shut',shut); var h=pg.querySelector('.sec-head'); if(h){h.classList.toggle('shut',shut); var b=h.querySelector('.czb'); if(b) b.setAttribute('aria-expanded',String(!shut));}}
+  function init(){
+    var ps=pages(); if(!ps.length||document.getElementById('czBar')) return;
+    ps.forEach(function(pg){
+      var h=pg.querySelector('.sec-head'); if(!h) return;
+      h.classList.add('cz');
+      var b=document.createElement('button'); b.type='button'; b.className='czb'; b.setAttribute('aria-label','Show or hide section'); b.setAttribute('aria-expanded','true'); b.textContent='\u25BE';
+      h.insertBefore(b,h.firstChild);
+      h.addEventListener('click',function(e){ if(e.target.closest('a')) return; set(pg,!pg.classList.contains('pg-shut')); });
+    });
+    var bar=document.createElement('div'); bar.className='cz-bar'; bar.id='czBar';
+    bar.innerHTML='<button type="button" id="czAll">Collapse all</button>';
+    ps[0].parentNode.insertBefore(bar,ps[0]);
+    var all=bar.firstChild;
+    all.addEventListener('click',function(){
+      var shut=all.textContent==='Collapse all';
+      pages().forEach(function(pg){ if(pg.style.display!=='none') set(pg,shut); });
+      all.textContent=shut?'Expand all':'Collapse all';
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
+})();
 </script>
 </body>
 </html>
